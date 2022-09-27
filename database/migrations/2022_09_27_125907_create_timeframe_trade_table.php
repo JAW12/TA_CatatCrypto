@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('id_timeframe')->references('id')->on('timeframes');
-            $table->foreign('id_trade')->references('id')->on('trades');
+            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
 
         });
     }

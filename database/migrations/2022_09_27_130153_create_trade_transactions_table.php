@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('time')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_trade')->references('id')->on('trades');
+            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
         });
     }
 

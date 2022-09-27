@@ -33,6 +33,7 @@ return new class extends Migration
             $table->decimal('spent', 19, 2, true);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

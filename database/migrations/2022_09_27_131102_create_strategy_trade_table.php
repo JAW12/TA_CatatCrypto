@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreignId('id_trade');
             $table->timestamps();
 
-            $table->foreign('id_strategy')->references('id')->on('strategies');
-            $table->foreign('id_trade')->references('id')->on('trades');
+            $table->foreign('id_strategy')->references('id')->on('strategies')->onDelete('cascade');
+            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
         });
     }
 

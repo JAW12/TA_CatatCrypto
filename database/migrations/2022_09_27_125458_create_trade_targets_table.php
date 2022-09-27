@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('roe', 19, 8, true);
             $table->timestamps();
 
-            $table->foreign('id_trade')->references('id')->on('trades');
+            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
 
         });
     }

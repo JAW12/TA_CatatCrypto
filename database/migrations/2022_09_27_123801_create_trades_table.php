@@ -54,7 +54,9 @@ return new class extends Migration
 
             $table->timestamps();
             $table->foreign('id_asset')->references('id')->on('assets');
-            $table->foreign('id_journal')->references('id')->on('journals');
+            $table->foreign('id_journal')->references('id')->on('journals')->onDelete('cascade');
+            $table->softDeletes();
+
         });
     }
 

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->dateTime('time')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_asset_wallet')->references('id')->on('asset_wallet');
+            $table->foreign('id_asset_wallet')->references('id')->on('asset_wallet')->onDelete('cascade');
         });
     }
 
