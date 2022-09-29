@@ -9,6 +9,30 @@
         "laravel-vite-plugin": "^0.6.0",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
+        "vanillajs-datepicker": "^1.2.0",
         "vite": "^3.0.0"
+    },
+    "dependencies": {
+        "@popperjs/core": "^2.11.6",
+        "apexcharts": "^3.35.5",
+        "bootstrap": "^5.2.1",
+        "counterup2": "^2.0.2",
+        "datatables.net-bs4": "^1.12.1",
+        "datatables.net-bs5": "^1.12.1",
+        "datatables.net-buttons-bs5": "^2.2.3",
+        "datatables.net-datetime": "^1.1.2",
+        "datatables.net-fixedcolumns-bs5": "^4.1.0",
+        "datatables.net-fixedheader-bs5": "^3.2.4",
+        "datatables.net-responsive-bs5": "^2.3.0",
+        "datatables.net-rowgroup-bs5": "^1.2.0",
+        "datatables.net-scroller-bs5": "^2.0.7",
+        "datatables.net-searchbuilder-bs5": "^1.3.4",
+        "datatables.net-searchpanes-bs5": "^2.0.2",
+        "jquery": "^3.6.1",
+        "nouislider": "^15.6.1",
+        "smooth-scrollbar": "^8.8.1",
+        "sweetalert2": "^11.4.35",
+        "swiper": "^8.4.2",
+        "waypoints": "^4.0.1"
     }
 }
