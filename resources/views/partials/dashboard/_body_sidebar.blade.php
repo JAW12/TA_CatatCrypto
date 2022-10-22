@@ -20,7 +20,7 @@
     </div>
     <div class="sidebar-body pt-0 data-scrollbar">
         <div class="sidebar-list" id="sidebar">
-        @include('partials.dashboard.vertical-nav') 
+        @include('partials.dashboard.vertical-nav')
         </div>
     </div>
     <div class="sidebar-footer"></div>
