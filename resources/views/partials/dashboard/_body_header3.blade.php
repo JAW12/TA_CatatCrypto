@@ -5,7 +5,7 @@
       <path fill="currentColor" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"></path>
     </svg>
     </button>
-    <a href="{{route('dashboard')}}" class="navbar-brand col-md-2 col-lg-3">
+    <a href="{{route('user.dashboard')}}" class="navbar-brand col-md-2 col-lg-3">
       <svg width="30" class="text-primary" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2" transform="rotate(-45 -0.757324 19.2427)" fill="currentColor"/>
         <rect x="7.72803" y="27.728" width="28" height="4" rx="2" transform="rotate(-45 7.72803 27.728)" fill="currentColor"/>
@@ -212,7 +212,7 @@
             </div>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{{route('users.show', auth()->id() || 1)}}">Profile</a></li>
+            <li><a class="dropdown-item" href="{{route('user.profile', auth()->id() || 1)}}">Profile</a></li>
             <li><a class="dropdown-item" href="{{route('auth.userprivacysetting')}}">Privacy Setting</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{{route('auth.signin')}}">Logout</a></li>

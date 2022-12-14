@@ -6,7 +6,7 @@
         </a>
     </li> --}}
     <li class="nav-item">
-        <a class="nav-link {{ activeRoute(route('dashboard')) }}" aria-current="page" href="{{ route('dashboard') }}">
+        <a class="nav-link {{ activeRoute(route('user.dashboard')) }}" aria-current="page" href="{{ route('user.dashboard') }}">
             <i class="icon">
                 {{-- <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.4"
@@ -46,8 +46,8 @@
         </a>
         <ul class="sub-nav collapse" id="sidebar-dompet" data-bs-parent="#sidebar-dompet">
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.wallet')) }}"
+                    href="{{ route('user.wallet') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-list" viewBox="0 0 16 16">
@@ -66,8 +66,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.wallet.demography')) }}"
+                    href="{{ route('user.wallet.demography') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
@@ -86,8 +86,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.wallet.detail', ['id' => Auth::id()])) }}"
+                    href="{{ route('user.wallet.detail', ['id' => Auth::id()]) }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-wallet2" viewBox="0 0 16 16">
@@ -129,8 +129,8 @@
         </a>
         <ul class="sub-nav collapse" id="sidebar-jurnal" data-bs-parent="#sidebar-jurnal">
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.journal')) }}"
+                    href="{{ route('user.journal') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-list" viewBox="0 0 16 16">
@@ -149,8 +149,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.journal.metrics')) }}"
+                    href="{{ route('user.journal.metrics') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-speedometer2" viewBox="0 0 16 16">
@@ -173,8 +173,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.journal.detail', ['id' => Auth::id()])) }}"
+                    href="{{ route('user.journal.detail', ['id' => Auth::id()]) }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-journal-richtext" viewBox="0 0 16 16">
@@ -222,8 +222,8 @@
         </a>
         <ul class="sub-nav collapse" id="sidebar-pustaka" data-bs-parent="#sidebar-pustaka">
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.library')) }}"
+                    href="{{ route('user.library') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-list" viewBox="0 0 16 16">
@@ -242,8 +242,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.library.add')) }}"
+                    href="{{ route('user.library.add') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -264,8 +264,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.library.favorite')) }}"
+                    href="{{ route('user.library.favorite') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-heart-fill" viewBox="0 0 16 16">
@@ -284,8 +284,8 @@
                 </a>
             </li>
             <li class=" nav-item">
-                <a class="nav-link {{ activeRoute(route('special-pages.billing')) }}"
-                    href="{{ route('special-pages.billing') }}">
+                <a class="nav-link {{ activeRoute(route('user.library.reports')) }}"
+                    href="{{ route('user.library.reports') }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-file-text" viewBox="0 0 16 16">
@@ -709,7 +709,7 @@
         </a>
         <ul class="sub-nav collapse" id="sidebar-user" data-bs-parent="#sidebar">
             <li class="nav-item">
-                <a class="nav-link {{ activeRoute(route('users.show', 1)) }}" href="{{ route('users.show', 1) }}">
+                <a class="nav-link {{ activeRoute(route('user.profile', 1)) }}" href="{{ route('user.profile', 1) }}">
                     <i class="icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="10" viewBox="0 0 24 24"
                             fill="currentColor">

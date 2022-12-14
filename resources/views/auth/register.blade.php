@@ -1,15 +1,15 @@
 <x-guest-layout>
    <section class="login-content">
-      <div class="row m-0 align-items-center bg-white vh-100">            
+      <div class="row m-0 align-items-center bg-white vh-100">
          <div class="col-md-6 d-md-block d-none bg-primary p-0 mt-n1 vh-100 overflow-hidden">
             <img src="{{asset('images/auth/05.png')}}" class="img-fluid gradient-main animated-scaleX" alt="images">
          </div>
-         <div class="col-md-6">           
+         <div class="col-md-6">
             <div class="row justify-content-center">
                <div class="col-md-10">
                   <div class="card card-transparent auth-card shadow-none d-flex justify-content-center mb-0">
                      <div class="card-body">
-                        <a href="{{route('dashboard')}}" class="navbar-brand d-flex align-items-center mb-3">
+                        <a href="{{route('user.dashboard')}}" class="navbar-brand d-flex align-items-center mb-3">
                            <svg width="30" class="text-primary" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2" transform="rotate(-45 -0.757324 19.2427)" fill="currentColor"/>
                               <rect x="7.72803" y="27.728" width="28" height="4" rx="2" transform="rotate(-45 7.72803 27.728)" fill="currentColor"/>
@@ -95,9 +95,9 @@
                            </p>
                         </form>
                      </div>
-                  </div> 
+                  </div>
                </div>
-            </div>    
+            </div>
             <div class="sign-bg sign-bg-right">
                <svg width="280" height="230" viewBox="0 0 431 398" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g opacity="0.05">
@@ -108,7 +108,7 @@
                   </g>
                </svg>
             </div>
-         </div>   
+         </div>
       </div>
    </section>
 </x-guest-layout>
