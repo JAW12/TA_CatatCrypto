@@ -24,6 +24,13 @@ Route::get('/login', [AuthenticatedSessionController::class, 'create'])
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])
                 ->middleware('guest');
 
+Route::get('/admin/login', [AuthenticatedSessionController::class, 'create_admin'])
+                ->middleware('guest')
+                ->name('admin.login');
+
+Route::post('/admin/login', [AuthenticatedSessionController::class, 'store_admin'])
+                ->middleware('guest');
+
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->middleware('guest')
                 ->name('password.request');

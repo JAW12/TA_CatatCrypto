@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,10 +27,11 @@ Route::get('/storage', function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
-Route::get('/dashbor', [HomeController::class, 'user_dashboard'])->name('user.dashboard');
+Route::get('/dashbor', [HomeController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
-Route::group(['prefix' => 'auth'], function() {
+Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');
+    Route::get('admin/masuk', [AuthController::class, 'admin_signin'])->name('auth.admin.signin');
     Route::get('daftar', [AuthController::class, 'signup'])->name('auth.signup');
     Route::get('konfirmasi_email', [AuthController::class, 'confirmmail'])->name('auth.confirmmail');
     Route::get('kunci', [AuthController::class, 'lockscreen'])->name('auth.lockscreen');
@@ -64,6 +66,23 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
     Route::get('/profil', [UserController::class, 'profile'])->name('user.profile');
 });
 
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
+    Route::group(['prefix' => 'pengguna'], function(){
+        Route::get('/', [UserController::class, 'index'])->name('admin.users');
+        Route::get('/demografi', [UserController::class, 'demography'])->name('admin.users.demography');
+    });
+
+    Route::group(['prefix' => 'membership'], function(){
+        Route::get('/transaksi', [MembershipController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/laporan', [MembershipController::class, 'reports'])->name('admin.transactions.report');
+    });
+
+    Route::group(['prefix' => 'pustaka'], function(){
+        Route::get('/', [LibraryController::class, 'index'])->name('admin.library');
+        Route::get('/tambah', [LibraryController::class, 'addPage'])->name('admin.library.add');
+        Route::get('/laporan', [LibraryController::class, 'reports'])->name('admin.library.reports');
+    });
+});
 //UI Pages Routs
 // Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 

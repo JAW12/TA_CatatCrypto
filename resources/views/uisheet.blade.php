@@ -15,7 +15,7 @@
                 <h4 class="text-white mb-5">Production ready FREE Open Source <b>Dashboard UI Kit</b> and <b>Design System</b>.</h4>
                 <div class="d-flex justify-content-center align-items-center">
                     <div>
-                        <a class="bg-white btn btn-light d-flex" target="_blank" href="{{route('user.dashboard')}}">
+                        <a class="bg-white btn btn-light d-flex" target="_blank" href="{{route('dashboard')}}">
                         <svg width="22" height="22" class="me-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>

@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark iq-navbar" aria-label="Main navigation">
   <div class="container-fluid">
-    <a href="{{route('user.dashboard')}}" class="navbar-brand d-flex align-items-center">
+    <a href="{{route('dashboard')}}" class="navbar-brand d-flex align-items-center">
       <svg width="30" class="text-primary" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2" transform="rotate(-45 -0.757324 19.2427)" fill="currentColor"/>
         <rect x="7.72803" y="27.728" width="28" height="4" rx="2" transform="rotate(-45 7.72803 27.728)" fill="currentColor"/>

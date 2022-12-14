@@ -1,6 +1,6 @@
 <nav class="nav navbar navbar-expand-lg navbar-light iq-navbar">
     <div class="container-fluid navbar-inner">
-        <a href="{{ route('user.dashboard') }}" class="navbar-brand">
+        <a href="{{ route('dashboard')}}" class="navbar-brand">
             <svg width="30" class="text-primary" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2"
                     transform="rotate(-45 -0.757324 19.2427)" fill="currentColor" />
@@ -258,16 +258,18 @@
                         <img src="{{ asset('images/avatars/avtar_3.png') }}" alt="User-Profile"
                             class="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded">
                         <div class="caption ms-3 d-none d-md-block ">
-                            <h6 class="mb-0 caption-title">{{ auth()->user()->full_name ?? 'Austin Robertson' }}</h6>
+                            <h6 class="mb-0 caption-title">{{ auth()->user()->full_name ?? 'CatatCrypto User' }}</h6>
                             <p class="mb-0 caption-sub-title text-capitalize"></p>
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        @if(Auth::user()->user_type == "user")
                         <li><a class="dropdown-item" href="{{ route('user.profile', auth()->id() || 1) }}">Profile</a>
                         </li>
-                        <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy
+                        @endif
+                        {{-- <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy
                                 Setting</a></li>
-                        <li>
+                        <li> --}}
                             <hr class="dropdown-divider">
                         </li>
                         <li>

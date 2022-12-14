@@ -21,20 +21,20 @@
                                     <h4 class="logo-title ms-3">{{ env('APP_NAME') }}</h4>
                                 </a>
                                 <h2 class="mb-2 text-center">Masuk</h2>
-                                <p class="text-center">Masuk untuk menggunakan CatatCrypto.</p>
+                                <p class="text-center">Masuk sebagai admin.</p>
                                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
                                 <!-- Validation Errors -->
                                 <x-auth-validation-errors class="mb-4" :errors="$errors" />
-                                <form method="POST" action="{{ route('login') }}" data-toggle="validator">
+                                <form method="POST" action="{{ route('admin.login') }}" data-toggle="validator">
                                     {{ csrf_field() }}
                                     <div class="row">
                                         <div class="col-lg-12">
                                             <div class="form-group">
-                                                <label for="email" class="form-label">Alamat Email</label>
+                                                <label for="email" class="form-label">Alamat email</label>
                                                 <input id="email" type="email" name="email"
                                                     value="{{ env('IS_DEMO') ? 'admin@example.com' : old('email') }}"
-                                                    class="form-control" placeholder="user@example.com" required
+                                                    class="form-control" placeholder="admin@example.com" required
                                                     autofocus>
                                             </div>
                                         </div>
@@ -46,45 +46,10 @@
                                                     required autocomplete="current-password">
                                             </div>
                                         </div>
-                                        <div class="col-lg-6">
-                                            <div class="form-check mb-3">
-                                                <input type="checkbox" class="form-check-input" id="customCheck1">
-                                                <!-- <input type="checkbox" class="custom-control-input" id="customCheck1"> -->
-                                                <label class="form-check-label" for="customCheck1">Ingat Saya</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <a href="{{ route('auth.recoverpw') }}" class="float-end">Lupa Password?</a>
-                                        </div>
                                     </div>
                                     <div class="d-flex justify-content-center">
                                         <button type="submit" class="btn btn-primary">{{ __('Masuk') }}</button>
                                     </div>
-                                    {{-- <p class="text-center my-3">or sign in with other accounts?</p>
-                                    <div class="d-flex justify-content-center">
-                                        <ul class="list-group list-group-horizontal list-group-flush">
-                                            <li class="list-group-item border-0 pb-0">
-                                                <a href="#"><img src="{{ asset('images/brands/fb.svg') }}"
-                                                        alt="fb"></a>
-                                            </li>
-                                            <li class="list-group-item border-0 pb-0">
-                                                <a href="#"><img src="{{ asset('images/brands/gm.svg') }}"
-                                                        alt="gm"></a>
-                                            </li>
-                                            <li class="list-group-item border-0 pb-0">
-                                                <a href="#"><img src="{{ asset('images/brands/im.svg') }}"
-                                                        alt="im"></a>
-                                            </li>
-                                            <li class="list-group-item border-0 pb-0">
-                                                <a href="#"><img src="{{ asset('images/brands/li.svg') }}"
-                                                        alt="li"></a>
-                                            </li>
-                                        </ul>
-                                    </div> --}}
-                                    <p class="mt-3 text-center">
-                                        Belum punya akun? <a href="{{ route('auth.signup') }}"
-                                            class="text-underline">Klik disini untuk mendaftar.</a>
-                                    </p>
                                 </form>
                             </div>
                         </div>

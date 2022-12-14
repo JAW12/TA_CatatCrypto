@@ -10,19 +10,14 @@ class HomeController extends Controller
 
     public function index(Request $request){
         if(Auth::check()){
-            if(Auth::user()->user_type == "admin" || Auth::user()->user_type == "demo-admin"){
-                return redirect()->route('admin.dashboard');
-            }
-            else if(Auth::user()->user_type == "user"){
-                return redirect()->route('user.dashboard');
-            }
+            return redirect()->route('dashboard');
         }
         else{
-            return redirect()->route('login');
+            return redirect()->route('auth.signin');
         }
     }
 
-    public function user_dashboard(Request $request)
+    public function dashboard(Request $request)
     {
         $assets = ['chart', 'animation'];
         return view('dashboards.dashboard', compact('assets'));
