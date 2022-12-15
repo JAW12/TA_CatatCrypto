@@ -15,10 +15,6 @@ class AuthController extends Controller
     {
         return view('auth.admin_login');
     }
-    public function signup(Request $request)
-    {
-        return view('auth.register');
-    }
     public function confirmmail(Request $request)
     {
         return view('auth.confirm-mail');

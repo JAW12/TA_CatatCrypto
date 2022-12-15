@@ -54,11 +54,11 @@
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
-                                            <a href="{{ route('auth.recoverpw') }}" class="float-end">Lupa Password?</a>
+                                            <a href="{{ route('password.request') }}" class="float-end">Lupa Password?</a>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-center">
-                                        <button type="submit" class="btn btn-primary">{{ __('Masuk') }}</button>
+                                        <button type="submit" class="btn btn-primary">Masuk</button>
                                     </div>
                                     {{-- <p class="text-center my-3">or sign in with other accounts?</p>
                                     <div class="d-flex justify-content-center">
@@ -82,7 +82,7 @@
                                         </ul>
                                     </div> --}}
                                     <p class="mt-3 text-center">
-                                        Belum punya akun? <a href="{{ route('auth.signup') }}"
+                                        Belum punya akun? <a href="{{ route('register') }}"
                                             class="text-underline">Klik disini untuk mendaftar.</a>
                                     </p>
                                 </form>

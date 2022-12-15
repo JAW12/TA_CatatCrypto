@@ -13,7 +13,7 @@ class HomeController extends Controller
             return redirect()->route('dashboard');
         }
         else{
-            return redirect()->route('auth.signin');
+            return redirect()->route('login');
         }
     }
 

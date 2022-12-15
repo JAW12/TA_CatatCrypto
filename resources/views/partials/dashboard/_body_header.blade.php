@@ -264,7 +264,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         @if(Auth::user()->user_type == "user")
-                        <li><a class="dropdown-item" href="{{ route('user.profile', auth()->id() || 1) }}">Profile</a>
+                        <li><a class="dropdown-item" href="{{ route('user.profile', auth()->id() || 1) }}">Profil</a>
                         </li>
                         @endif
                         {{-- <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy
@@ -278,7 +278,7 @@
                                 <a href="javascript:void(0)" class="dropdown-item"
                                     onclick="event.preventDefault();
               this.closest('form').submit();">
-                                    {{ __('Log out') }}
+                                    Keluar
                                 </a>
                             </form>
                         </li>

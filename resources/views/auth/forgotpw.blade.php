@@ -23,28 +23,16 @@
                             <h4 class="logo-title ms-3">{{ env('APP_NAME') }}</h4>
                         </a>
                         <h2 class="mb-2">Atur Ulang Kata Sandi</h2>
-                        <p>Masukkan password baru dan konfirmasi password baru untuk akun anda.</p>
+                        <p>Masukkan alamat email anda dan kami akan mengirimkan email berisi instruksi untuk mengatur ulang password anda.</p>
                         <x-auth-validation-errors class="mb-4" :errors="$errors" />
-                        <form method="POST" action="{{route('password.update')}}">
+                        <form method="POST">
                             @csrf
                             <div class="row">
-                                <input type="hidden" name="token" value="{{$request->token}}">
-                                <input type="hidden" name="email" value="{{$request->email}}">
                                 <div class="col-lg-12">
                                     <div class="floating-label form-group">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input class="form-control" type="password" placeholder=" "
-                                            id="password" name="password" required
-                                            autocomplete="new-password">
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="floating-label form-group">
-                                        <label for="confirm-password" class="form-label">Konfirmasi
-                                            Password</label>
-                                        <input id="password_confirmation" class="form-control"
-                                            type="password" placeholder=" " name="password_confirmation"
-                                            required>
+                                        <label for="email" class="form-label">Alamat Email</label>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            aria-describedby="email" placeholder=" ">
                                     </div>
                                 </div>
                             </div>

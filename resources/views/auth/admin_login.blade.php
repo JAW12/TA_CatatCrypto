@@ -48,7 +48,7 @@
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-center">
-                                        <button type="submit" class="btn btn-primary">{{ __('Masuk') }}</button>
+                                        <button type="submit" class="btn btn-primary">Masuk</button>
                                     </div>
                                 </form>
                             </div>

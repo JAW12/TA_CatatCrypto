@@ -35,7 +35,6 @@ class UserFactory extends Factory
                 break;
         }
         return [
-            'username' => $fullname,
             'first_name' => $fname,
             'last_name' => $lname,
             'phone_number' => $this->faker->phoneNumber,

@@ -29,15 +29,15 @@ Route::get('/', [HomeController::class, 'index'])->name('index');
 
 Route::get('/dashbor', [HomeController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
-Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
-    Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');
-    Route::get('admin/masuk', [AuthController::class, 'admin_signin'])->name('auth.admin.signin');
-    Route::get('daftar', [AuthController::class, 'signup'])->name('auth.signup');
-    Route::get('konfirmasi_email', [AuthController::class, 'confirmmail'])->name('auth.confirmmail');
-    Route::get('kunci', [AuthController::class, 'lockscreen'])->name('auth.lockscreen');
-    Route::get('ubahpasword', [AuthController::class, 'recoverpw'])->name('auth.recoverpw');
-    Route::get('pengaturan_akun', [AuthController::class, 'userprivacysetting'])->name('auth.userprivacysetting');
-});
+// Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
+//     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');
+//     Route::get('admin/masuk', [AuthController::class, 'admin_signin'])->name('auth.admin.signin');
+//     Route::get('daftar', [AuthController::class, 'signup'])->name('auth.signup');
+//     Route::get('konfirmasi_email', [AuthController::class, 'confirmmail'])->name('auth.confirmmail');
+//     Route::get('kunci', [AuthController::class, 'lockscreen'])->name('auth.lockscreen');
+//     Route::get('ubahpasword', [AuthController::class, 'recoverpw'])->name('auth.recoverpw');
+//     Route::get('pengaturan_akun', [AuthController::class, 'userprivacysetting'])->name('auth.userprivacysetting');
+// });
 
 Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
     Route::group(['prefix' => 'dompet'], function(){
