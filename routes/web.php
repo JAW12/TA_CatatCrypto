@@ -27,7 +27,6 @@ Route::get('/storage', function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
-Route::get('/dashbor', [HomeController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
 //     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');

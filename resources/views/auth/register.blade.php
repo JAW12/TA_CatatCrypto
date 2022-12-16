@@ -10,7 +10,7 @@
                     <div class="col-md-10">
                         <div class="card card-transparent auth-card shadow-none d-flex justify-content-center mb-0">
                             <div class="card-body">
-                                <a href="{{ route('dashboard') }}" class="navbar-brand d-flex align-items-center mb-3">
+                                <a href="{{ route('index') }}" class="navbar-brand d-flex align-items-center mb-3">
                                     <svg width="30" class="text-primary" viewBox="0 0 30 30" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <rect x="-0.757324" y="19.2427" width="28" height="4" rx="2"

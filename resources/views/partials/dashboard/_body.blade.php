@@ -4,12 +4,20 @@
 @include('partials.dashboard._body_sidebar')
 <main class="main-content">
     <div class="position-relative">
-    @include('partials.dashboard._body_header')
-    {{-- @include('partials.dashboard.sub-header') --}}
+        @include('partials.dashboard._body_header')
+        {{-- @include('partials.dashboard.sub-header') --}}
     </div>
-
-    <div class="container-fluid content-inner mt-5 py-0">
-    {{ $slot }}
+    <div class="container-fluid content-inner mt-3 py-0">
+        @if (Auth::user()->email_verified_at == null)
+            <div class="alert alert-danger fade show" role="alert">
+                Email belum verifikasi, harap lakukan verifikasi <a href="{{ route('verification.send') }}"
+                    class="alert-link">disini</a>.
+            </div>
+        @else
+            <div class="mt-5">
+            {{ $slot }}
+            </div>
+        @endif
     </div>
 
     @include('partials.dashboard._body_footer')
@@ -24,15 +32,15 @@
 @include('partials.dashboard._scripts')
 @include('partials.dashboard._app_toast')
 <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-<div class="modal-dialog">
-    <div class="modal-content">
-    <div class="modal-header">
-        <h5 class="modal-title" id="formTitle">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formTitle">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="main_form"></div>
+            </div>
+        </div>
     </div>
-    <div class="modal-body">
-        <div class="main_form"></div>
-    </div>
-    </div>
-</div>
 </div>

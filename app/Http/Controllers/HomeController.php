@@ -4,25 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
 
     public function index(Request $request){
         if(Auth::check()){
-            return redirect()->route('dashboard');
+            return view('dashboards.dashboard');
         }
         else{
             return redirect()->route('login');
         }
     }
-
-    public function dashboard(Request $request)
-    {
-        $assets = ['chart', 'animation'];
-        return view('dashboards.dashboard', compact('assets'));
-    }
-
 
     // /*
     //  * Dashboard Pages Routs
