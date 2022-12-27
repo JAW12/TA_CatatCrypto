@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('journals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user');
+            $table->foreignId('user_id');
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('pnl', 19, 2, true)->default();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->decimal('target', 19, 8, true)->nullable();
             $table->timestamps();
 
-            $table->foreign('id_user')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
             $table->softDeletes();
 
         });

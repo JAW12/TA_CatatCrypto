@@ -20,20 +20,38 @@ class RoleTableSeeder extends Seeder
                 'name' => 'admin',
                 'title' => 'Admin',
                 'status' => 1,
-                'permissions' => ['role','role-add', 'role-list', 'permission', 'permission-add', 'permission-list']
-            ],
-            [
-                'name' => 'demo_admin',
-                'title' => 'Demo Admin',
-                'status' => 1,
                 'permissions' => []
             ],
             [
-                'name' => 'user',
-                'title' => 'User',
+                'name' => 'trial',
+                'title' => 'Trial',
                 'status' => 1,
-                'permissions' => []
-            ]
+                'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
+            ],
+            [
+                'name' => 'basic',
+                'title' => 'Basic',
+                'status' => 1,
+                'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
+            ],
+            [
+                'name' => 'home',
+                'title' => 'Home',
+                'status' => 1,
+                'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'portfolio-tambah-binance', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
+            ],
+            [
+                'name' => 'professional',
+                'title' => 'Professional',
+                'status' => 1,
+                'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'portfolio-tambah-binance', 'assets-transactions-notifikasi', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
+            ],
+            [
+                'name' => 'business',
+                'title' => 'Business',
+                'status' => 1,
+                'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'portfolio-tambah-binance', 'assets-transactions-notifikasi', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
+            ],
         ];
 
         foreach ($roles as $key => $value) {

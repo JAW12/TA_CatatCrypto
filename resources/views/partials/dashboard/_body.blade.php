@@ -7,17 +7,10 @@
         @include('partials.dashboard._body_header')
         {{-- @include('partials.dashboard.sub-header') --}}
     </div>
-    <div class="container-fluid content-inner mt-3 py-0">
-        @if (Auth::user()->email_verified_at == null)
-            <div class="alert alert-danger fade show" role="alert">
-                Email belum verifikasi, harap lakukan verifikasi <a href="{{ route('verification.send') }}"
-                    class="alert-link">disini</a>.
-            </div>
-        @else
-            <div class="mt-5">
+    <div class="container-fluid content-inner py-0">
+        <div class="mt-5">
             {{ $slot }}
-            </div>
-        @endif
+        </div>
     </div>
 
     @include('partials.dashboard._body_footer')

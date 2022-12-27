@@ -169,10 +169,10 @@ class HomeController extends Controller
     // /*
     //  * uisheet Page Routs
     //  */
-    // public function uisheet(Request $request)
-    // {
-    //     return view('uisheet');
-    // }
+    public function uisheet(Request $request)
+    {
+        return view('uisheet');
+    }
 
     // /*
     //  * Form Page Routs

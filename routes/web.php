@@ -62,7 +62,10 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         Route::get('/', [MembershipController::class, 'index'])->name('user.membership');
     });
 
-    Route::get('/profil', [UserController::class, 'profile'])->name('user.profile');
+    Route::group(['prefix' => 'profil'], function(){
+        Route::get('/{id}', [UserController::class, 'show'])->name('user.profile');
+        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('user.profile.edit');
+    });
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
@@ -83,7 +86,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
     });
 });
 //UI Pages Routs
-// Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
+Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 
 // // Dashboard Routes
 // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

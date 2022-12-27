@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user');
+            $table->foreignId('user_id');
             $table->text('description')->nullable();
             $table->integer('status', false, true)->default(1)->comment('0 - inactive, 1 - active');
             $table->decimal('pnl', 19, 2, true)->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('binance_secret_key', 64)->nullable();
             $table->timestamps();
 
-            $table->foreign('id_user')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
             $table->softDeletes();
 
         });

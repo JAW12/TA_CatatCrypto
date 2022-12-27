@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Library;
-use App\Http\Requests\StoreLibraryRequest;
-use App\Http\Requests\UpdateLibraryRequest;
+use App\Models\Asset;
+use App\Http\Requests\StoreAssetRequest;
+use App\Http\Requests\UpdateAssetRequest;
 
-class LibraryController extends Controller
+class AssetController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -31,10 +31,10 @@ class LibraryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreLibraryRequest  $request
+     * @param  \App\Http\Requests\StoreAssetRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreLibraryRequest $request)
+    public function store(StoreAssetRequest $request)
     {
         //
     }
@@ -42,10 +42,10 @@ class LibraryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Library  $library
+     * @param  \App\Models\Asset  $asset
      * @return \Illuminate\Http\Response
      */
-    public function show(Library $library)
+    public function show(Asset $asset)
     {
         //
     }
@@ -53,10 +53,10 @@ class LibraryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Library  $library
+     * @param  \App\Models\Asset  $asset
      * @return \Illuminate\Http\Response
      */
-    public function edit(Library $library)
+    public function edit(Asset $asset)
     {
         //
     }
@@ -64,11 +64,11 @@ class LibraryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateLibraryRequest  $request
-     * @param  \App\Models\Library  $library
+     * @param  \App\Http\Requests\UpdateAssetRequest  $request
+     * @param  \App\Models\Asset  $asset
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateLibraryRequest $request, Library $library)
+    public function update(UpdateAssetRequest $request, Asset $asset)
     {
         //
     }
@@ -76,10 +76,10 @@ class LibraryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Library  $library
+     * @param  \App\Models\Asset  $asset
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Library $library)
+    public function destroy(Asset $asset)
     {
         //
     }

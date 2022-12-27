@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('timeframe_trade', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_timeframe');
-            $table->foreignId('id_trade');
+            $table->foreignId('timeframe_id');
+            $table->foreignId('trade_id');
             $table->text('url_picture');
             $table->timestamps();
 
-            $table->foreign('id_timeframe')->references('id')->on('timeframes');
-            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
+            $table->foreign('timeframe_id')->references('id')->on('timeframes')->onDelete('CASCADE');
+            $table->foreign('trade_id')->references('id')->on('trades')->onDelete('CASCADE');
 
         });
     }

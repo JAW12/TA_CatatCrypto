@@ -5,7 +5,7 @@
             <span class="mini-icon">-</span>
         </a>
     </li> --}}
-    @if (Auth::user()->user_type == 'user')
+    @if (Auth::user()->user_type != 'admin')
         <li class="nav-item">
             <a class="nav-link {{ activeRoute(route('index')) }}" aria-current="page" href="{{ route('index') }}">
                 <i class="icon">
@@ -331,8 +331,15 @@
             <hr class="hr-horizontal">
         </li>
         <li class="nav-item static-item">
-            <a class="nav-link static-item disabled" href="#" tabindex="-1" style="text-align: center">
-                <span class="default-icon text-sm-center">Sisa Catatan Trading</span>
+            <a class="nav-link static-item disabled" href="#" tabindex="-1" style="text-align: center; padding: 0">
+                <div class="default-icon text-sm-center">Sisa Catatan Trading</div>
+                <div class="text-center">
+                    @if(Auth::user()->remaining_trades > 0)
+                        {{Auth::user()->remaining_trades}}
+                    @else
+                    ∞
+                    @endif
+                </div>
             </a>
         </li>
     @else

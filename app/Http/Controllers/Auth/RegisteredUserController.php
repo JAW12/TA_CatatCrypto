@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
+use App\Providers\RouteServiceProvider;
 
 class RegisteredUserController extends Controller
 {
@@ -45,10 +46,17 @@ class RegisteredUserController extends Controller
             'phone_number' => $request->phone_number,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_type' => 'user'
+            'user_type' => 'trial',
+            'status' => 'active',
+            'max_wallets' => 1,
+            'max_journals' => 1,
+            'trades_quantity_per_month' => 0,
+            'remaining_trades' => 100,
+            'membership_since' => now(),
+            'membership_till' => Carbon::now()->addMonth(),
         ]));
 
-        $user->assignRole('user');
+        $user->assignRole($user->type);
 
         event(new Registered($user));
 

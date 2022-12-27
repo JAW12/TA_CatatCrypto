@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('trades', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_asset');
-            $table->foreignId('id_journal');
+            $table->foreignId('asset_id');
+            $table->foreignId('journal_id');
             $table->integer('status', false, true)->default(0)->comment('0 - pending, 1 - aktif, 2 - selesai');
             $table->integer('type')->comment('0 - short, 1 - long');
             $table->integer('leverage');
@@ -53,8 +53,8 @@ return new class extends Migration
             $table->string('screenshot_url_4', 255)->nullable();
 
             $table->timestamps();
-            $table->foreign('id_asset')->references('id')->on('assets');
-            $table->foreign('id_journal')->references('id')->on('journals')->onDelete('cascade');
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('CASCADE');
+            $table->foreign('journal_id')->references('id')->on('journals')->onDelete('CASCADE');
             $table->softDeletes();
 
         });

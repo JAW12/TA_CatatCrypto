@@ -263,8 +263,8 @@
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        @if(Auth::user()->user_type == "user")
-                        <li><a class="dropdown-item" href="{{ route('user.profile', auth()->id() || 1) }}">Profil</a>
+                        @if(Auth::user()->user_type != "admin")
+                        <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Profil</a>
                         </li>
                         @endif
                         {{-- <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy

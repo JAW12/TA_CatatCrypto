@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 
 class User extends Authenticatable
@@ -22,10 +21,19 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'phone_number',
-        'status',
-        'banned',
         'email',
         'password',
+        'user_type',
+        'status',
+        'gender',
+        'birthdate',
+        'max_wallets',
+        'max_journals',
+        'trades_quantity_per_month',
+        'remaining_trades',
+        'membership_since',
+        'membership_till',
+        'spent'
     ];
 
     /**
@@ -54,5 +62,13 @@ class User extends Authenticatable
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function wallets(){
+        return $this->hasMany(Wallet::class);
+    }
+
+    public function journals(){
+        return $this->hasMany(Journal::class);
     }
 }

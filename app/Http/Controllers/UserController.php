@@ -2,64 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\DataTables\UsersDataTable;
 use App\Models\User;
 use App\Helpers\AuthHelper;
-use Spatie\Permission\Models\Role;
+use Illuminate\Http\Request;
+use App\DataTables\UsersDataTable;
 use App\Http\Requests\UserRequest;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(UsersDataTable $dataTable)
-    {
-        $pageTitle = trans('global-message.list_form_title',['form' => trans('users.title')] );
-        $auth_user = AuthHelper::authSession();
-        $assets = ['data-table'];
-        $headerAction = '<a href="'.route('users.create').'" class="btn btn-sm btn-primary" role="button">Add User</a>';
-        return $dataTable->render('global.datatable', compact('pageTitle','auth_user','assets', 'headerAction'));
-    }
+    // /**
+    //  * Display a listing of the resource.
+    //  *
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function index(UsersDataTable $dataTable)
+    // {
+    //     $pageTitle = trans('global-message.list_form_title',['form' => trans('users.title')] );
+    //     $auth_user = AuthHelper::authSession();
+    //     $assets = ['data-table'];
+    //     $headerAction = '<a href="'.route('users.create').'" class="btn btn-sm btn-primary" role="button">Add User</a>';
+    //     return $dataTable->render('global.datatable', compact('pageTitle','auth_user','assets', 'headerAction'));
+    // }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        $roles = Role::where('status',1)->get()->pluck('title', 'id');
+    // /**
+    //  * Show the form for creating a new resource.
+    //  *
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function create()
+    // {
+    //     $roles = Role::where('status',1)->get()->pluck('title', 'id');
 
-        return view('users.form', compact('roles'));
-    }
+    //     return view('users.form', compact('roles'));
+    // }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(UserRequest $request)
-    {
-        $request['password'] = bcrypt($request->password);
+    // /**
+    //  * Store a newly created resource in storage.
+    //  *
+    //  * @param  \Illuminate\Http\Request  $request
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function store(UserRequest $request)
+    // {
+    //     $request['password'] = bcrypt($request->password);
 
-        $request['username'] = $request->username ?? stristr($request->email, "@", true) . rand(100,1000);
+    //     $request['username'] = $request->username ?? stristr($request->email, "@", true) . rand(100,1000);
 
-        $user = User::create($request->all());
+    //     $user = User::create($request->all());
 
-        storeMediaFile($user,$request->profile_image, 'profile_image');
+    //     storeMediaFile($user,$request->profile_image, 'profile_image');
 
-        $user->assignRole('user');
+    //     $user->assignRole('user');
 
-        // Save user Profile data...
-        $user->userProfile()->create($request->userProfile);
+    //     // Save user Profile data...
+    //     $user->userProfile()->create($request->userProfile);
 
-        return redirect()->route('users.index')->withSuccess(__('message.msg_added',['name' => __('users.store')]));
-    }
+    //     return redirect()->route('users.index')->withSuccess(__('message.msg_added',['name' => __('users.store')]));
+    // }
 
     /**
      * Display the specified resource.
@@ -69,31 +71,34 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $data = User::with('userProfile','roles')->findOrFail($id);
+        if($id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            return redirect()->route('index');
+        }
 
-        $profileImage = getSingleMedia($data, 'profile_image');
+        $data = User::findOrFail($id);
 
-        return view('users.profile', compact('data', 'profileImage'));
+        return view('users.profile', compact('data'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $data = User::with('userProfile','roles')->findOrFail($id);
+    // /**
+    //  * Show the form for editing the specified resource.
+    //  *
+    //  * @param  int  $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function edit($id)
+    // {
+    //     $data = User::with('userProfile','roles')->findOrFail($id);
 
-        $data['user_type'] = $data->roles->pluck('id')[0] ?? null;
+    //     $data['user_type'] = $data->roles->pluck('id')[0] ?? null;
 
-        $roles = Role::where('status',1)->get()->pluck('title', 'id');
+    //     $roles = Role::where('status',1)->get()->pluck('title', 'id');
 
-        $profileImage = getSingleMedia($data, 'profile_image');
+    //     $profileImage = getSingleMedia($data, 'profile_image');
 
-        return view('users.form', compact('data','id', 'roles', 'profileImage'));
-    }
+    //     return view('users.form', compact('data','id', 'roles', 'profileImage'));
+    // }
 
     /**
      * Update the specified resource in storage.
@@ -136,29 +141,29 @@ class UserController extends Controller
 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $user = User::findOrFail($id);
-        $status = 'errors';
-        $message= __('global-message.delete_form', ['form' => __('users.title')]);
+    // /**
+    //  * Remove the specified resource from storage.
+    //  *
+    //  * @param  int  $id
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function destroy($id)
+    // {
+    //     $user = User::findOrFail($id);
+    //     $status = 'errors';
+    //     $message= __('global-message.delete_form', ['form' => __('users.title')]);
 
-        if($user!='') {
-            $user->delete();
-            $status = 'success';
-            $message= __('global-message.delete_form', ['form' => __('users.title')]);
-        }
+    //     if($user!='') {
+    //         $user->delete();
+    //         $status = 'success';
+    //         $message= __('global-message.delete_form', ['form' => __('users.title')]);
+    //     }
 
-        if(request()->ajax()) {
-            return response()->json(['status' => true, 'message' => $message, 'datatable_reload' => 'dataTable_wrapper']);
-        }
+    //     if(request()->ajax()) {
+    //         return response()->json(['status' => true, 'message' => $message, 'datatable_reload' => 'dataTable_wrapper']);
+    //     }
 
-        return redirect()->back()->with($status,$message);
+    //     return redirect()->back()->with($status,$message);
 
-    }
+    // }
 }

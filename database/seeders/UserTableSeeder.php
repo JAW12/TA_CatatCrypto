@@ -33,7 +33,7 @@ class UserTableSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
-                'user_type' => 'demo_admin',
+                'user_type' => 'admin',
             ],
             [
                 'first_name' => 'John',
@@ -42,7 +42,7 @@ class UserTableSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
-                'user_type' => 'user',
+                'user_type' => 'trial',
                 'status' => 'inactive'
             ]
         ];

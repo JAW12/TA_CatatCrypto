@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('membership_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_membership');
-            $table->foreignId('id_user');
+            $table->foreignId('membership_id');
+            $table->foreignId('user_id');
             $table->dateTime('membership_expiration');
             $table->timestamps();
 
-            $table->foreign('id_membership')->references('id')->on('memberships');
-            $table->foreign('id_user')->references('id')->on('users');
+            $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('CASCADE');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
         });
     }
 

@@ -42,7 +42,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => bcrypt('password'),
             'phone_number' => $this->faker->phoneNumber,
-            'user_type' => 'user',
+            'user_type' => $this->faker->randomElement(['trial', 'basic', 'home', 'professional', 'business']),
             'status' => $status,
             'gender' => 'm',
             'birthdate' => $this->faker->date(),

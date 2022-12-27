@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('asset_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_asset_wallet');
+            $table->foreignId('asset_wallet_id');
             $table->string('trade_id', 255)->nullable();
             $table->string('order_id', 255)->nullable();
             $table->integer('type')->comment('0 - buy, 1 - sell, 2 - transfer out, 3 - transfer in');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->dateTime('time')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_asset_wallet')->references('id')->on('asset_wallet')->onDelete('cascade');
+            $table->foreign('asset_wallet_id')->references('id')->on('asset_wallet')->onDelete('CASCADE');
         });
     }
 

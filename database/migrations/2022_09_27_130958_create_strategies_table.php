@@ -15,15 +15,15 @@ return new class extends Migration
     {
         Schema::create('strategies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->nullable();
-            $table->foreignId('id_category')->nullable();
+            $table->foreignId('user_id')->nullable();
+            $table->foreignId('category_id')->nullable();
             $table->string('name');
             $table->text('description');
             $table->text('url_picture');
             $table->timestamps();
 
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->foreign('id_category')->references('id')->on('categories');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('CASCADE');
             $table->softDeletes();
 
         });

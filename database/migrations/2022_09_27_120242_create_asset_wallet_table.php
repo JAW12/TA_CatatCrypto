@@ -15,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('asset_wallet', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_asset');
-            $table->foreignId('id_wallet');
+            $table->foreignId('asset_id');
+            $table->foreignId('wallet_id');
             $table->decimal('amount', 19, 8)->unsigned()->default(0);
             $table->decimal('average_price', 19, 8, true)->default(0);
             $table->decimal('pnl', 19, 2, false)->default(0);
             $table->timestamps();
-            $table->foreign('id_asset')->references('id')->on('assets');
-            $table->foreign('id_wallet')->references('id')->on('wallets');
+            $table->foreign('asset_id')->references('id')->on('assets')->onDelete('CASCADE');
+            $table->foreign('wallet_id')->references('id')->on('wallets')->onDelete('CASCADE');
         });
     }
 

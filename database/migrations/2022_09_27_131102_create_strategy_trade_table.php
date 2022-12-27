@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('strategy_trade', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_strategy');
-            $table->foreignId('id_trade');
+            $table->foreignId('strategy_id');
+            $table->foreignId('trade_id');
             $table->timestamps();
 
-            $table->foreign('id_strategy')->references('id')->on('strategies')->onDelete('cascade');
-            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
+            $table->foreign('strategy_id')->references('id')->on('strategies')->onDelete('CASCADE');
+            $table->foreign('trade_id')->references('id')->on('trades')->onDelete('CASCADE');
         });
     }
 

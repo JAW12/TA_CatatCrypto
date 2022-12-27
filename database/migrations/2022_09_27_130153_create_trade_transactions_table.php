@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('trade_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_trade');
+            $table->foreignId('trade_id');
 
             $table->integer('type')->comment('0 - entry, 1 - close');
             $table->decimal('price', 19, 8, true);
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->dateTime('time')->nullable();
             $table->timestamps();
 
-            $table->foreign('id_trade')->references('id')->on('trades')->onDelete('cascade');
+            $table->foreign('trade_id')->references('id')->on('trades')->onDelete('CASCADE');
         });
     }
 
