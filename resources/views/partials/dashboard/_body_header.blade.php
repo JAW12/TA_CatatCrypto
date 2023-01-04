@@ -266,6 +266,12 @@
                         @if(Auth::user()->user_type != "admin")
                         <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Profil</a>
                         </li>
+                        <li><a class="dropdown-item" href="{{ route('user.password', Auth::id()) }}">Ubah Password</a>
+                        </li>
+                        <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Riwayat Membership</a>
+                        </li>
+                        <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Riwayat Transaksi</a>
+                        </li>
                         @endif
                         {{-- <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy
                                 Setting</a></li>

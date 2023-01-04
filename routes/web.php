@@ -64,7 +64,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
 
     Route::group(['prefix' => 'profil'], function(){
         Route::get('/{id}', [UserController::class, 'show'])->name('user.profile');
-        Route::get('/{id}/edit', [UserController::class, 'edit'])->name('user.profile.edit');
+        Route::patch('/{id}', [UserController::class, 'update'])->name('user.profile.edit');
+        Route::get('/{id}/password', [UserController::class, 'password'])->name('user.password');
+        Route::patch('/{id}/password', [UserController::class, 'password_update'])->name('user.password.edit');
     });
 });
 

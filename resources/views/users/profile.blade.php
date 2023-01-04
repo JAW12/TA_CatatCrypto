@@ -1,47 +1,63 @@
 <x-app-layout :assets="$assets ?? []">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between">
-                        <div class="d-flex flex-wrap align-items-center">
-                            <div class="profile-img position-relative me-3 mb-3 mb-lg-0">
-                                <img src="{{ $profileImage ?? asset('images/avatars/01.png') }}" alt="User-Profile"
-                                    class="theme-color-default-img img-fluid rounded-pill avatar-100">
-                                <img src="{{ asset('images/avatars/avtar_1.png') }}" alt="User-Profile"
-                                    class="theme-color-purple-img img-fluid rounded-pill avatar-100">
-                                <img src="{{ asset('images/avatars/avtar_2.png') }}" alt="User-Profile"
-                                    class="theme-color-blue-img img-fluid rounded-pill avatar-100">
-                                <img src="{{ asset('images/avatars/avtar_4.png') }}" alt="User-Profile"
-                                    class="theme-color-green-img img-fluid rounded-pill avatar-100">
-                                <img src="{{ asset('images/avatars/avtar_5.png') }}" alt="User-Profile"
-                                    class="theme-color-yellow-img img-fluid rounded-pill avatar-100">
-                                <img src="{{ asset('images/avatars/avtar_3.png') }}" alt="User-Profile"
-                                    class="theme-color-pink-img img-fluid rounded-pill avatar-100">
-                            </div>
-                            <div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
+    <form method="POST">
+        @csrf
+        @method('PATCH')
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between">
+                            <div class="d-flex flex-wrap align-items-center">
+                                <div class="profile-img position-relative me-3 mb-3 mb-lg-0">
+                                    <img src="{{ $profileImage ?? asset('images/avatars/01.png') }}" alt="User-Profile"
+                                        class="theme-color-default-img img-fluid rounded-pill avatar-100">
+                                    <img src="{{ asset('images/avatars/avtar_1.png') }}" alt="User-Profile"
+                                        class="theme-color-purple-img img-fluid rounded-pill avatar-100">
+                                    <img src="{{ asset('images/avatars/avtar_2.png') }}" alt="User-Profile"
+                                        class="theme-color-blue-img img-fluid rounded-pill avatar-100">
+                                    <img src="{{ asset('images/avatars/avtar_4.png') }}" alt="User-Profile"
+                                        class="theme-color-green-img img-fluid rounded-pill avatar-100">
+                                    <img src="{{ asset('images/avatars/avtar_5.png') }}" alt="User-Profile"
+                                        class="theme-color-yellow-img img-fluid rounded-pill avatar-100">
+                                    <img src="{{ asset('images/avatars/avtar_3.png') }}" alt="User-Profile"
+                                        class="theme-color-pink-img img-fluid rounded-pill avatar-100">
+                                </div>
                                 <div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
-                                    <h4 class="me-2 h4">{{ $data->full_name ?? 'Austin Robertson' }}</h4>
-                                    <span class="text-capitalize mt-1"> -
-                                        {{ str_replace('_', ' ', auth()->user()->user_type) ?? 'Marketing Administrator' }}</span>
+                                    <div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
+                                        <h4 class="me-2 h4">{{ $data->full_name ?? 'Austin Robertson' }}</h4>
+                                        <span class="text-capitalize mt-1"> -
+                                            {{ str_replace('_', ' ', auth()->user()->user_type) ?? 'Marketing Administrator' }}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <a href="{{route('user.profile.edit', Auth::id())}}" class="btn btn-primary rounded-pill ">
-                                <span class="btn-inner">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                        fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                        <path
-                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                        <path fill-rule="evenodd"
-                                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                    </svg>
-                                </span>
-                                Ubah
-                            </a>
-                        </div>
-                        {{-- <ul class="d-flex nav nav-pills mb-0 text-center profile-tab" data-toggle="slider-tab"
+                            <div id="btnArea">
+                                <button class="btn btn-soft-primary rounded-pill" id="btnUbah" type="button">
+                                    <span class="btn-inner">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path
+                                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                            <path fill-rule="evenodd"
+                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                        </svg>
+                                    </span>
+                                    Ubah
+                                </button>
+                                <button class="btn btn-primary rounded-pill" id="btnSimpan" type="submit"
+                                    style="display:none">
+                                    <span class="btn-inner">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path
+                                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                            <path fill-rule="evenodd"
+                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                        </svg>
+                                    </span>
+                                    Simpan
+                                </button>
+                            </div>
+                            {{-- <ul class="d-flex nav nav-pills mb-0 text-center profile-tab" data-toggle="slider-tab"
                             id="profile-pills-tab" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active show" data-bs-toggle="tab" href="#profile-feed" role="tab"
@@ -60,11 +76,11 @@
                                     aria-selected="false">Profile</a>
                             </li>
                         </ul> --}}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {{-- <div class="col-lg-3">
+            {{-- <div class="col-lg-3">
             <div class="card">
                 <div class="card-header">
                     <div class="header-title">
@@ -233,9 +249,9 @@
                 </div>
             </div>
         </div> --}}
-        <div class="col-lg-6">
-            <div class="profile-content">
-                {{-- <div id="profile-feed" class="tab-pane fade active show">
+            <div class="col-lg-6">
+                <div class="profile-content">
+                    {{-- <div id="profile-feed" class="tab-pane fade active show">
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between pb-4">
                             <div class="header-title">
@@ -703,8 +719,8 @@
                         </div>
                     </div>
                 </div> --}}
-                <div id="profile-profile" class="">
-                    {{-- <div class="card">
+                    <div id="profile-profile" class="">
+                        {{-- <div class="card">
                         <div class="card-header">
                             <div class="header-title">
                                 <h4 class="card-title">Profile</h4>
@@ -726,103 +742,143 @@
                             </div>
                         </div>
                     </div> --}}
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="header-title">
-                                <h4 class="card-title">Tentang</h4>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="header-title">
+                                    <h4 class="card-title">Tentang</h4>
+                                </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            {{-- <div class="user-bio">
+                            <div class="card-body">
+                                {{-- <div class="user-bio">
                                 <p>Tart I love sugar plum I love oat cake. Sweet roll caramels I love jujubes. Topping
                                     cake wafer.</p>
                             </div> --}}
-                            <div class="mt-2">
-                                <h6 class="mb-1">Nama:</h6>
-                                <p>{{ $data->first_name . ' ' . $data->last_name }}</p>
-                            </div>
-                            <div class="mt-2">
-                                <h6 class="mb-1">Mulai bergabung:</h6>
-                                <p>{{ $data->created_at->formatLocalized('%d %B %Y') }}</p>
-                            </div>
-                            <div class="mt-2">
-                                <h6 class="mb-1">Jenis Kelamin:</h6>
-                                <p>
-                                    @if ($data->gender == 'm')
-                                        Pria
-                                    @elseif($data->gender == 'f')
-                                        Wanita
-                                    @else
-                                        -
-                                    @endif
-                                </p>
-                            </div>
-                            <div class="mt-2">
-                                <h6 class="mb-1">Alamat Email:</h6>
-                                <p>{{ $data->email }}</p>
-                            </div>
-                            <div class="mt-2">
-                                <h6 class="mb-1">Tanggal Lahir:</h6>
-                                <p>{{ $data->birthdate == null ? '-' : $data->birthdate->formatLocalized('%d %B %Y') }}
-                                </p>
-                            </div>
-                            <div class="mt-2">
-                                <h6 class="mb-1">No. Telp:</h6>
-                                <p>{{ $data->phone_number }}</p>
+                                <div class="mt-2" id="txtNama">
+                                    <h6 class="mb-1">Nama:</h6>
+                                    <p>{{ $data->first_name . ' ' . $data->last_name }}</p>
+                                </div>
+                                <div class="mt-2 row g-2" id="inpNama" style="display:none">
+                                    <div class="col-md-6">
+                                    <label for="first_name" class="form-label h6 mb-1">Nama Depan:</label>
+                                    <input type="text" class="form-control" name="first_name"
+                                        value="{{ $data->first_name }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                    <label for="last_name" class="form-label h6 mb-1">Nama Belakang:</label>
+                                    <input type="text" class="form-control" name="last_name"
+                                        value="{{ $data->last_name }}">
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <h6 class="mb-1">Mulai bergabung:</h6>
+                                    <p>{{ $data->created_at->formatLocalized('%d %B %Y') }}</p>
+                                </div>
+                                <div class="mt-2" id="txtJK">
+                                    <h6 class="mb-1">Jenis Kelamin:</h6>
+                                    <p>
+                                        @if ($data->gender == 'm')
+                                            Pria
+                                        @elseif($data->gender == 'f')
+                                            Wanita
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="mt-2" id="inpJK" style="display:none">
+                                    <label for="gender" class="form-label h6 mb-1">Jenis Kelamin:</label>
+                                    <select name="gender" class="form-select">
+                                        <option value="m" @if ($data->gender == 'm') selected @endif>Pria</option>
+                                        <option value="f" @if ($data->gender == 'f') selected @endif>Wanita</option>
+                                        <option value="null" @if ($data->gender == '') selected @endif>-</option>
+                                    </select>
+                                </div>
+                                <div class="mt-2" id="txtEmail">
+                                    <h6 class="mb-1">Alamat Email:</h6>
+                                    <p>{{ $data->email }}
+                                        @if ($data->email_verified_at != '')
+                                            <span class="badge rounded-pill bg-success">Terverifikasi</span>
+                                        @else
+                                            <a href="{{ route('verification.send') }}"><span
+                                                    class="badge rounded-pill bg-primary">Verifikasi disini</span></a>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="mt-2" id="inpEmail" style="display:none">
+                                    <label for="email" class="form-label h6 mb-1">Alamat Email:</label>
+                                    <input type="email" class="form-control" name="email" value="{{ $data->email }}">
+                                </div>
+                                <div class="mt-2" id="txtTglLahir">
+                                    <h6 class="mb-1">Tanggal Lahir:</h6>
+                                    <p>{{ $data->birthdate == null ? '-' : date('d F Y', strtotime($data->birthdate));
+                                    }}
+                                    </p>
+                                </div>
+                                <div class="mt-2" id="inpTglLahir" style="display:none">
+                                    <label for="birthdate" class="form-label h6 mb-1">Tanggal Lahir:</label>
+                                    <input type="date" class="form-control" name="birthdate" value="{{ $data->birthdate }}">
+                                </div>
+                                <div class="mt-2" id="txtTelp">
+                                    <h6 class="mb-1">No. Telp:</h6>
+                                    <p>{{ $data->phone_number }}</p>
+                                </div>
+                                <div class="mt-2" id="inpTelp" style="display:none">
+                                    <label for="phone_number" class="form-label h6 mb-1">No. Telp:</label>
+                                    <input type="tel" class="form-control" name="phone_number" value="{{ $data->phone_number }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    <div class="header-title">
-                        <h4 class="card-title">Detil Membership</h4>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <h4 class="card-title">Detil Membership</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="bd-example table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Aktif dari</th>
+                                        <td>{{ $data->membership_since == null ? '-' : Carbon\Carbon::parse($data->membership_since)->formatLocalized('%d %B %Y') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Aktif sampai</th>
+                                        <td>{{ $data->membership_till == null ? '-' : Carbon\Carbon::parse($data->membership_till)->formatLocalized('%d %B %Y') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Dompet tersedia</th>
+                                        <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
+                                            {{ $data->max_wallets - $data->wallets->count() }} Dompet</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Jurnal tersedia</th>
+                                        <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa
+                                            {{ $data->max_journals - $data->journals->count() }} Jurnal</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Catatan per bulan</th>
+                                        <td>{{ $data->trades_quantity_per_month }} Catatan</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Catatan tersedia</th>
+                                        <td>
+                                            {{ $data->remaining_trades }} Catatan
+                                            <button type="button" class="btn btn-primary btn-sm ms-2">Tambah</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="bd-example table-responsive">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr>
-                                    <th>Aktif dari</th>
-                                    <td>{{ $data->membership_since == null ? '-' : Carbon\Carbon::parse($data->membership_since)->formatLocalized('%d %B %Y') }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Aktif sampai</th>
-                                    <td>{{ $data->membership_till == null ? '-' : Carbon\Carbon::parse($data->membership_till)->formatLocalized('%d %B %Y') }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Dompet tersedia</th>
-                                    <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
-                                        {{ $data->max_wallets - $data->wallets->count() }} Dompet</td>
-                                </tr>
-                                <tr>
-                                    <th>Jurnal tersedia</th>
-                                    <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa
-                                        {{ $data->max_journals - $data->journals->count() }} Jurnal</td>
-                                </tr>
-                                <tr>
-                                    <th>Catatan per bulan</th>
-                                    <td>{{ $data->trades_quantity_per_month }} Catatan</td>
-                                </tr>
-                                <tr>
-                                    <th>Catatan tersedia</th>
-                                    <td>
-                                        {{ $data->remaining_trades }} Catatan
-                                        <button type="button" class="btn btn-primary btn-sm ms-2">Tambah</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {{-- <div class="card">
+                {{-- <div class="card">
                 <div class="card-header">
                     <div class="header-title">
                         <h4 class="card-title">Stories</h4>
@@ -1102,8 +1158,29 @@
                     </ul>
                 </div>
             </div> --}}
+            </div>
         </div>
-    </div>
 
-    @include('partials.components.share-offcanvas')
+    </form>
+    {{-- @include('partials.components.share-offcanvas') --}}
+    @push('scripts')
+        <script>
+            $("#btnUbah").click(function() {
+                $(this).hide();
+                $("#txtNama").hide();
+                $("#txtJK").hide();
+                $("#txtEmail").hide();
+                $("#txtTglLahir").hide();
+                $("#txtxTelp").hide();
+
+
+                $("#btnSimpan").show();
+                $("#inpNama").show();
+                $("#inpJK").show();
+                $("#inpEmail").show();
+                $("#inpTglLahir").show();
+                $("#inpxTelp").show();
+            });
+        </script>
+    @endpush
 </x-app-layout>

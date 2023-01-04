@@ -9,6 +9,7 @@ use App\DataTables\UsersDataTable;
 use App\Http\Requests\UserRequest;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -81,6 +82,44 @@ class UserController extends Controller
         return view('users.profile', compact('data'));
     }
 
+
+    public function password($id)
+    {
+        if($id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            return redirect()->route('index');
+        }
+
+        return view('users.password');
+    }
+
+    public function password_update(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required',
+            'password' => 'required|string|confirmed|min:8',
+        ]);
+
+        $user = User::findOrFail(Auth::id());
+
+        if(Hash::check($request->old_password, $user->password)){
+
+            $user->fill([
+                'password' => Hash::make($request->password)
+                ])->save();
+
+            return redirect()->back()->withSuccess('Password berhasil diubah');
+        }
+        else{
+            return redirect()->back()->withErrors('Password tidak sesuai');
+        }
+
+        // $user->fill($request->all())->update();
+
+    }
+
+
+
     // /**
     //  * Show the form for editing the specified resource.
     //  *
@@ -107,38 +146,40 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UserRequest $request, $id)
+    public function update(Request $request, $id)
     {
+        $changeEmail = false;
         // dd($request->all());
-        $user = User::with('userProfile')->findOrFail($id);
+        $user = User::findOrFail($id);
 
-        $role = Role::find($request->user_role);
-        if(env('IS_DEMO')) {
-            if($role->name === 'admin'&& $user->user_type === 'admin') {
-                return redirect()->back()->with('error', 'Permission denied');
-            }
+        if($user->email == $request->email){
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+            ]);
         }
-        $user->assignRole($role->name);
+        else{
+            $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+            ]);
+            $changeEmail = true;
+        }
 
-        $request['password'] = $request->password != '' ? bcrypt($request->password) : $user->password;
-
-        // User user data...
+        // $request['password'] = $request->password != '' ? bcrypt($request->password) : $user->password;
         $user->fill($request->all())->update();
 
-        // Save user image...
-        if (isset($request->profile_image) && $request->profile_image != null) {
-            $user->clearMediaCollection('profile_image');
-            $user->addMediaFromRequest('profile_image')->toMediaCollection('profile_image');
+        if($request->gender == "null"){
+            $user->gender = NULL;
         }
 
-        // user profile data....
-        $user->userProfile->fill($request->userProfile)->update();
-
-        if(auth()->check()){
-            return redirect()->route('users.index')->withSuccess(__('message.msg_updated',['name' => __('message.user')]));
+        if($changeEmail == true){
+            $user->email_verified_at = NULL;
         }
-        return redirect()->back()->withSuccess(__('message.msg_updated',['name' => 'My Profile']));
 
+        $user->save();
+        return redirect()->back()->withSuccess('Profil berhasil diubah');
     }
 
     // /**
