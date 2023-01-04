@@ -6,11 +6,11 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between">
+                    <div class="card-header d-md-flex justify-content-between">
                         <div class="header-title">
                             <h4 class="card-title">Daftar Dompet</h4>
                         </div>
-                        <div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
                             <button type="button" class="btn btn-secondary">Lihat Laporan</button>
                             <button type="button" class="btn btn-primary">+ Tambah Dompet</button>
                         </div>
