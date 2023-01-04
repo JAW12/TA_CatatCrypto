@@ -72,7 +72,7 @@ if(typeof bootstrap !== typeof undefined) {
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   })
-  
+
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-sidebar-toggle="tooltip"]'))
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -113,7 +113,7 @@ const progressBarInit = (elem) => {
   if (typeof Waypoint !== typeof undefined) {
     new Waypoint( {
       element: elem,
-      handler: function() { 
+      handler: function() {
         setTimeout(() => {
           elem.style.width = currentValue + '%'
         }, 100);
@@ -257,6 +257,9 @@ if($.fn.DataTable){
   if($('[data-toggle="data-table"]').length) {
     const table = $('[data-toggle="data-table"]').DataTable({
       "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+      "language": {
+        "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+      }
     });
   }
 }
@@ -276,7 +279,7 @@ if(tableTh !== null) {
       })
       elem.children[0].classList.add('active')
       Array.from(tableTd, (td) => td.classList.remove('active'))
-      
+
       const col = Array.prototype.indexOf.call(document.querySelector('#my-table tr').children, elem);
       const tdIcons = document.querySelectorAll("#my-table tr td:nth-child(" + parseInt(col + 1) + ")");
       Array.from(tdIcons, (td) => td.classList.add('active'))
@@ -437,7 +440,7 @@ function darken_screen(yesno){
     }
   }
 }
-	
+
 function close_offcanvas(){
   darken_screen(false);
   if (document.querySelector('.mobile-offcanvas.show') !== null) {
@@ -464,7 +467,7 @@ document.addEventListener("DOMContentLoaded", function(){
   });
   if(document.querySelectorAll('.btn-close')) {
     document.querySelectorAll('.btn-close').forEach(function(everybutton){
-      everybutton.addEventListener('click', function (e) { 
+      everybutton.addEventListener('click', function (e) {
             close_offcanvas();
         });
     });

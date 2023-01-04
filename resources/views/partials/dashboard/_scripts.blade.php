@@ -43,10 +43,11 @@
 
 <script src="{{asset('vendor/vanillajs-datepicker/dist/js/datepicker-full.js')}}"></script>
 
-@stack('scripts')
 
 <script src="{{asset('js/plugins/prism.mini.js')}}"></script>
 
 <!-- Custom JavaScript -->
 <script src="{{asset('js/hope-ui.js') }}"></script>
 <script src="{{asset('js/modelview.js')}}"></script>
+
+@stack('scripts')
