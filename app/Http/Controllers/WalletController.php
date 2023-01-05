@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreWalletRequest;
 use App\Http\Requests\UpdateWalletRequest;
 
@@ -15,7 +17,8 @@ class WalletController extends Controller
      */
     public function index()
     {
-        return view('users.wallets.list');
+        $data = User::findOrFail(Auth::id());
+        return view('users.wallets.list', compact('data'));
     }
 
     /**
@@ -36,7 +39,27 @@ class WalletController extends Controller
      */
     public function store(StoreWalletRequest $request)
     {
-        //
+        if(Auth::user()->max_wallets == 0 or Auth::user()->wallets->count() < Auth::user()->max_wallets){
+            $wallet = Auth::user()->wallets()->create($request->all());
+            if($wallet){
+                return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
+            }
+            else{
+                return redirect()->back()->withError('Dompet gagal ditambahkan');
+            }
+        }
+        else if(Auth::user()->max_wallets == -1){
+            $wallet = Auth::user()->wallets()->create($request->all());
+            if($wallet){
+                return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
+            }
+            else{
+                return redirect()->back()->withError('Dompet gagal ditambahkan');
+            }
+        }
+        else{
+            return redirect()->back()->withError('Jumlah dompet yang dimiliki pengguna sudah mencapai batasnya');
+        }
     }
 
     /**
@@ -47,7 +70,7 @@ class WalletController extends Controller
      */
     public function show(Wallet $wallet)
     {
-        //
+        return view('users.wallets.show', compact('wallet'));
     }
 
     /**
@@ -70,7 +93,13 @@ class WalletController extends Controller
      */
     public function update(UpdateWalletRequest $request, Wallet $wallet)
     {
-        //
+        $success = $wallet->update($request->all());
+        if($success){
+            return redirect()->back()->withSuccess('Dompet berhasil diubah');
+        }
+        else{
+            return redirect()->back()->withError('Dompet gagal diubah');
+        }
     }
 
     /**
@@ -81,6 +110,23 @@ class WalletController extends Controller
      */
     public function destroy(Wallet $wallet)
     {
-        //
+        $delete = $wallet->delete();
+        if($delete){
+            return redirect()->back()->withSuccess('Dompet berhasil dinonaktifkan');
+        }
+        else{
+            return redirect()->back()->withError('Dompet gagal dinonaktifkan');
+        }
+    }
+
+    public function restore(Wallet $wallet)
+    {
+        $restore = $wallet->restore();
+        if($restore){
+            return redirect()->back()->withSuccess('Dompet berhasil diaktifkan');
+        }
+        else{
+            return redirect()->back()->withError('Dompet gagal diaktifkan');
+        }
     }
 }

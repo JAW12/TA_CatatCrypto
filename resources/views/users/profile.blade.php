@@ -854,24 +854,40 @@
                                     </tr>
                                     <tr>
                                         <th>Dompet tersedia</th>
+                                        @if($data->max_wallets >= 0)
                                         <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
                                             {{ $data->max_wallets - $data->wallets->count() }} Dompet</td>
+                                        @else
+                                        <td>∞ Dompet</td>
+                                        @endif
                                     </tr>
                                     <tr>
                                         <th>Jurnal tersedia</th>
+                                        @if($data->max_journals >= 0)
                                         <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa
                                             {{ $data->max_journals - $data->journals->count() }} Jurnal</td>
+                                        @else
+                                        <td>∞ Jurnal</td>
+                                        @endif
                                     </tr>
                                     <tr>
                                         <th>Catatan per bulan</th>
+                                        @if($data->trades_quantity_per_month >= 0)
                                         <td>{{ $data->trades_quantity_per_month }} Catatan</td>
+                                        @else
+                                        <td>∞ Catatan</td>
+                                        @endif
                                     </tr>
                                     <tr>
                                         <th>Catatan tersedia</th>
+                                        @if($data->remaining_trades >= 0)
                                         <td>
                                             {{ $data->remaining_trades }} Catatan
                                             <button type="button" class="btn btn-primary btn-sm ms-2">Tambah</button>
                                         </td>
+                                        @else
+                                        <td>∞ Catatan</td>
+                                        @endif
                                     </tr>
                                 </tbody>
                             </table>

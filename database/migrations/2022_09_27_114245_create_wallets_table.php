@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
+            $table->text('name');
             $table->text('description')->nullable();
-            $table->integer('status', false, true)->default(1)->comment('0 - inactive, 1 - active');
             $table->decimal('pnl', 19, 2, true)->nullable();
             $table->decimal('assets', 19, 2, true)->nullable();
             $table->string('binance_api_key', 64)->nullable();

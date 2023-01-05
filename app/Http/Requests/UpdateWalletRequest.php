@@ -13,7 +13,7 @@ class UpdateWalletRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,8 +23,21 @@ class UpdateWalletRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
+        // if($this->filled('binance_api_key')){
+        //     $rules = [
+        //         'name' => 'required|string|min:3',
+        //         'binance_api_key' => 'required|string',
+        //         'binance_secret_key' => 'required|string'
+        //     ];
+        // }
+        // else{
+        //     $rules = [
+        //         'name' => 'required|string|min:3',
+        //     ];
+        // }
+        $rules = [
+            'name' => 'required|string|min:3',
         ];
+        return $rules;
     }
 }

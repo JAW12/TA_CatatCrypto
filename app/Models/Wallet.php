@@ -14,8 +14,13 @@ class Wallet extends Model
     protected $primaryKey = 'id';
     protected $guarded = [];
 
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function getRouteKeyName()
+    {
+        return 'id';
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

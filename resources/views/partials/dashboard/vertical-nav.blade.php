@@ -86,8 +86,7 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.wallet.detail', ['id' => Auth::id()])) }}"
-                        href="{{ route('user.wallet.detail', ['id' => Auth::id()]) }}">
+                    <a href="{{ (request()->is('user/dompet/*')) ? 'javascript:window.location.reload(true)' : route('user.wallet') }}" class="nav-link {{ (request()->is('user/dompet/*')) ? 'active' : '' }}" style="cursor:pointer">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-wallet2" viewBox="0 0 16 16">
