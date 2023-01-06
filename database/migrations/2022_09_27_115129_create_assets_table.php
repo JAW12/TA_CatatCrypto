@@ -16,15 +16,16 @@ return new class extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->string('coin_gecko_id', 255)->unique();
+            $table->string('symbol', 255);
             $table->string('binance_symbol', 255)->unique();
             $table->string('name', 255);
             $table->json('platforms');
             $table->json('links');
-            $table->integer('market_cap_rank');
+            $table->integer('market_cap_rank')->nullable();
             $table->bigInteger('market_cap', false, true);
             $table->bigInteger('total_volume', false, true);
             $table->bigInteger('market_cap_24h', false, true);
-            $table->bigInteger('total_supply', false, true);
+            $table->bigInteger('total_supply', false, true)->nullable();
             $table->bigInteger('circulating_supply', false, true);
             $table->decimal('current_price', 19, 8, true);
             $table->string('thumb', 255);

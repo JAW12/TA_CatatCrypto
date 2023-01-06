@@ -23,4 +23,8 @@ class Wallet extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function assets(){
+        return $this->belongsToMany(Asset::class, 'asset_wallet', 'wallet_id', 'asset_id');
+    }
 }

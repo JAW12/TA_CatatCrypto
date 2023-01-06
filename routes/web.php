@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -26,7 +27,7 @@ Route::get('/storage', function () {
 
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
-
+// Route::get('/asset/init', [AssetController::class, 'init']);
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
 //     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');
@@ -43,10 +44,20 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         Route::get('/', [WalletController::class, 'index'])->name('user.wallet');
         Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
         Route::get('/demografi', [WalletController::class, 'demography'])->name('user.wallet.demography');
-        Route::get('/{wallet}', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
-        Route::post('/{wallet}', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
-        Route::delete('/{wallet}/delete', [WalletController::class, 'destroy'])->name('user.wallet.delete');
-        Route::post('/{wallet}/restore', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
+
+        Route::group(['prefix' => '{wallet}'], function(){
+            Route::get('/', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
+            Route::post('/', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
+            Route::delete('/delete', [WalletController::class, 'destroy'])->name('user.wallet.delete');
+            Route::post('/restore', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
+
+            Route::group(['prefix' => 'aset'], function(){
+                Route::get('/', [AssetController::class, 'index'])->name('user.wallet.asset.add');
+                Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.add.autocomplete');
+            });
+        });
+
+
     });
 
     Route::group(['prefix' => 'jurnal'], function(){

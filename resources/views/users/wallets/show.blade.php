@@ -22,6 +22,7 @@
 @endpush
 
 <x-app-layout :assets="$assets ?? []">
+    <x-back-button />
     <div>
         <div class="row">
             <div class="col-sm-12">
@@ -73,7 +74,7 @@
                             </form>
                             @endif
                             <button type="button" class="btn btn-dark">Lihat Laporan</button>
-                            <button type="button" class="btn btn-primary">+ Tambah Aset</button>
+                            <a href="{{route('user.wallet.asset.add', $wallet->id)}}" class="btn btn-primary">+ Tambah Aset</a>
                         </div>
                     </div>
                     <div class="card-body">
