@@ -74,7 +74,7 @@
                             </form>
                             @endif
                             <button type="button" class="btn btn-dark">Lihat Laporan</button>
-                            <a href="{{route('user.wallet.asset.add', $wallet->id)}}" class="btn btn-primary">+ Tambah Aset</a>
+                            <a href="{{route('user.wallet.asset.list', $wallet->id)}}" class="btn btn-primary">+ Tambah Aset</a>
                         </div>
                     </div>
                     <div class="card-body">

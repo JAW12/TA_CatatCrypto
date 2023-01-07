@@ -110,11 +110,11 @@ class AssetController extends Controller
         // // print_r($response);
         // // return view('users.wallets.assets.list');
 
-        $assets = Asset::all();
-        foreach ($assets as $key => $asset) {
-            $asset->symbol = substr($asset->binance_symbol, 0, -4);
-            $asset->save();
-        }
+        // $assets = Asset::all();
+        // foreach ($assets as $key => $asset) {
+        //     $asset->symbol = substr($asset->binance_symbol, 0, -4);
+        //     $asset->save();
+        // }
     }
 
     /**
@@ -140,6 +140,32 @@ class AssetController extends Controller
 
 
         return response()->json($data);
+    }
+
+    public function load(Request $request){
+        $client = new CoinGeckoClient();
+        $data = $client->coins()->getCoin($request->get('query'));
+
+        $asset = Asset::where('coin_gecko_id', $request->get('query'))->first();
+        $update = $asset->update([
+            'name' => $data['name'],
+            'platforms' => json_encode($data['platforms']),
+            'links' => json_encode($data['links']),
+            'market_cap_rank' => $data['market_cap_rank'],
+            'market_cap' => $data['market_data']['market_cap']['usd'],
+            'total_volume' => $data['market_data']['total_volume']['usd'],
+            'market_cap_24h' => $data['market_data']['market_cap_change_24h'],
+            'total_supply' => $data['market_data']['total_supply'],
+            'total_supply' => $data['market_data']['total_supply'],
+            'circulating_supply' => $data['market_data']['circulating_supply'],
+            'current_price' => $data['market_data']['current_price']['usd'],
+            'thumb' => $data['image']['small'],
+        ]);
+
+        if($update){
+            return response()->json($asset);
+        }
+        return null;
     }
 
     /**

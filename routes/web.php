@@ -52,8 +52,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
             Route::post('/restore', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
 
             Route::group(['prefix' => 'aset'], function(){
-                Route::get('/', [AssetController::class, 'index'])->name('user.wallet.asset.add');
-                Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.add.autocomplete');
+                Route::get('/', [AssetController::class, 'index'])->name('user.wallet.asset.list');
+                Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.list.autocomplete');
+                Route::get('/load', [AssetController::class, 'load'])->name('user.wallet.asset.load');
             });
         });
 
