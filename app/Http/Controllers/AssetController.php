@@ -122,10 +122,7 @@ class AssetController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Wallet $wallet)
-    {
-        return view('users.wallets.assets.list', compact('wallet'));
-    }
+
 
     public function autocomplete(Request $request){
         // $data = Asset::select("name", "coin_gecko_id")
@@ -136,101 +133,70 @@ class AssetController extends Controller
         ->select(DB::raw("CONCAT(symbol,' - ', name) AS label, coin_gecko_id AS value"))
         ->where('symbol', 'LIKE', '%'. $request->get('query'). '%')
         ->orWhere('name', 'LIKE', '%'. $request->get('query'). '%')
+        ->orderBy('name', 'asc')
         ->get();
-
 
         return response()->json($data);
     }
 
     public function load(Request $request){
+
         $client = new CoinGeckoClient();
-        $data = $client->coins()->getCoin($request->get('query'));
 
         $asset = Asset::where('coin_gecko_id', $request->get('query'))->first();
-        $update = $asset->update([
-            'name' => $data['name'],
-            'platforms' => json_encode($data['platforms']),
-            'links' => json_encode($data['links']),
-            'market_cap_rank' => $data['market_cap_rank'],
-            'market_cap' => $data['market_data']['market_cap']['usd'],
-            'total_volume' => $data['market_data']['total_volume']['usd'],
-            'market_cap_24h' => $data['market_data']['market_cap_change_24h'],
-            'total_supply' => $data['market_data']['total_supply'],
-            'total_supply' => $data['market_data']['total_supply'],
-            'circulating_supply' => $data['market_data']['circulating_supply'],
-            'current_price' => $data['market_data']['current_price']['usd'],
-            'thumb' => $data['image']['small'],
-        ]);
+        if($asset){
+            $data = $client->coins()->getCoin($request->get('query'));
+            $update = $asset->update([
+                'name' => $data['name'],
+                'platforms' => json_encode($data['platforms']),
+                'links' => json_encode($data['links']),
+                'market_cap_rank' => $data['market_cap_rank'],
+                'market_cap' => $data['market_data']['market_cap']['usd'],
+                'total_volume' => $data['market_data']['total_volume']['usd'],
+                'market_cap_24h' => $data['market_data']['market_cap_change_24h'],
+                'total_supply' => $data['market_data']['total_supply'],
+                'total_supply' => $data['market_data']['total_supply'],
+                'circulating_supply' => $data['market_data']['circulating_supply'],
+                'current_price' => $data['market_data']['current_price']['usd'],
+                'thumb' => $data['image']['small'],
+            ]);
 
-        if($update){
-            return response()->json($asset);
+            if($update){
+                return response()->json($asset);
+            }
+        }
+        else{
+            $data = $client->search()->getSearchResult(["query" => $request->get('query')]);
+            if(count($data['coins']) > 0){
+                $coin = $client->coins()->getCoin($data['coins'][0]['id']);
+                $asset = Asset::updateOrCreate([
+                    'coin_gecko_id' => $data['coins'][0]['id'],
+                    'name' => $coin['name'],
+                    'symbol' => strtoupper($coin['symbol']),
+                    'platforms' => json_encode($coin['platforms']),
+                    'links' => json_encode($coin['links']),
+                    'market_cap_rank' => $coin['market_cap_rank'],
+                    'market_cap' => $coin['market_data']['market_cap']['usd'],
+                    'total_volume' => $coin['market_data']['total_volume']['usd'],
+                    'market_cap_24h' => $coin['market_data']['market_cap_change_24h'],
+                    'total_supply' => $coin['market_data']['total_supply'],
+                    'total_supply' => $coin['market_data']['total_supply'],
+                    'circulating_supply' => $coin['market_data']['circulating_supply'],
+                    'current_price' => $coin['market_data']['current_price']['usd'],
+                    'thumb' => $coin['image']['thumb'],
+                ]);
+                print_r($asset);
+                // try {
+
+                //     print_r($asset);
+                //     if($asset){
+                //         return response()->json($asset);
+                //     }
+                // } catch (\Throwable $th) {
+                //     //throw $th;
+                // }
+            }
         }
         return null;
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreAssetRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreAssetRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Asset  $asset
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Asset $asset)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Asset  $asset
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Asset $asset)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateAssetRequest  $request
-     * @param  \App\Models\Asset  $asset
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateAssetRequest $request, Asset $asset)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Asset  $asset
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Asset $asset)
-    {
-        //
     }
 }

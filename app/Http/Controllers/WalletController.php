@@ -7,6 +7,7 @@ use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreWalletRequest;
 use App\Http\Requests\UpdateWalletRequest;
+use Codenixsv\CoinGeckoApi\CoinGeckoClient;
 
 class WalletController extends Controller
 {
@@ -70,6 +71,14 @@ class WalletController extends Controller
      */
     public function show(Wallet $wallet)
     {
+        $client = new CoinGeckoClient();
+        // dd($wallet->assets);
+        foreach($wallet->assets as $asset){
+            $data = $client->coins()->getCoin($asset->coin_gecko_id);
+            $update = $asset->update([
+                'current_price' => $data['market_data']['current_price']['usd'],
+            ]);
+        }
         return view('users.wallets.show', compact('wallet'));
     }
 

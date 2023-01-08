@@ -17,14 +17,14 @@ return new class extends Migration
             $table->id();
             $table->string('coin_gecko_id', 255)->unique();
             $table->string('symbol', 255);
-            $table->string('binance_symbol', 255)->unique();
+            $table->string('binance_symbol', 255)->unique()->nullable();
             $table->string('name', 255);
             $table->json('platforms');
             $table->json('links');
             $table->integer('market_cap_rank')->nullable();
             $table->bigInteger('market_cap', false, true);
             $table->bigInteger('total_volume', false, true);
-            $table->bigInteger('market_cap_24h', false, true);
+            $table->bigInteger('market_cap_24h', false, true)->nullable();
             $table->bigInteger('total_supply', false, true)->nullable();
             $table->bigInteger('circulating_supply', false, true);
             $table->decimal('current_price', 19, 8, true);

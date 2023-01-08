@@ -11,15 +11,15 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label for="old_password" class="form-label">Password Lama</label>
                             <input type="password" class="form-control" name="old_password">
                         </div>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label for="password" class="form-label">Password Baru</label>
                             <input type="password" class="form-control" name="password">
                         </div>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
                             <input type="password" class="form-control" name="password_confirmation">
                         </div>

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('name');
             $table->text('description')->nullable();
             $table->decimal('pnl', 19, 2, true)->nullable();
-            $table->decimal('assets', 19, 2, true)->nullable();
+            $table->decimal('amount_of_assets', 19, 2, true)->nullable();
             $table->string('binance_api_key', 64)->nullable();
             $table->string('binance_secret_key', 64)->nullable();
             $table->timestamps();

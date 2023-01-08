@@ -22,7 +22,7 @@
 @endpush
 
 <x-app-layout :assets="$assets ?? []">
-    <x-back-button />
+    <x-back-button>{{route('user.wallet')}}</x-back-button>
     <div>
         <div class="row">
             <div class="col-sm-12">
@@ -103,23 +103,35 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="table-responsive">
-                                <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
-                                    data-toggle="data-table">
-                                    <thead>
-                                        <tr class="light">
-                                            <th>Nama</th>
-                                            <th>Harga Rata-Rata</th>
-                                            <th>Harga Sekarang</th>
-                                            <th>Jumlah Koin</th>
-                                            <th>Keuntungan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
+                                data-toggle="data-table">
+                                <thead>
+                                    <tr class="light">
+                                        <th>Nama</th>
+                                        <th>Harga Rata-Rata</th>
+                                        <th>Harga Sekarang</th>
+                                        <th>Jumlah Koin</th>
+                                        <th>Keuntungan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($wallet->assets as $key => $asset)
+                                    <tr onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
+                                        style="cursor: pointer;">
+                                        <td>
+                                            <img src="{{$asset->thumb}}" alt="logo_crypto" class="img-thumbnail">
+                                            <span class="ms-2">{{$asset->name}}</span>
+                                        </td>
+                                        <td>{{$asset->pivot->average_price}}</td>
+                                        <td>{{$asset->current_price}}</td>
+                                        <td>{{$asset->pivot->amount}}</td>
+                                        <td>{{$asset->pivot->pnl}}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

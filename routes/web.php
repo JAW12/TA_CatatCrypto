@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetWalletController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -9,6 +10,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\UserController;
+use App\Models\AssetTransaction;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +28,7 @@ Route::get('/storage', function () {
 });
 
 
-Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('', [HomeController::class, 'index'])->name('index');
 // Route::get('/asset/init', [AssetController::class, 'init']);
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
@@ -41,20 +43,27 @@ Route::get('/', [HomeController::class, 'index'])->name('index');
 
 Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
     Route::group(['prefix' => 'dompet'], function(){
-        Route::get('/', [WalletController::class, 'index'])->name('user.wallet');
+        Route::get('', [WalletController::class, 'index'])->name('user.wallet');
         Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
         Route::get('/demografi', [WalletController::class, 'demography'])->name('user.wallet.demography');
 
         Route::group(['prefix' => '{wallet}'], function(){
-            Route::get('/', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
-            Route::post('/', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
-            Route::delete('/delete', [WalletController::class, 'destroy'])->name('user.wallet.delete');
-            Route::post('/restore', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
+            Route::get('', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
+            Route::post('', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
+            Route::delete('/aktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
+            Route::post('/nonaktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
 
             Route::group(['prefix' => 'aset'], function(){
-                Route::get('/', [AssetController::class, 'index'])->name('user.wallet.asset.list');
+                Route::get('', [AssetWalletController::class, 'index'])->name('user.wallet.asset.list');
+                Route::post('/tambah', [AssetWalletController::class, 'add'])->name('user.wallet.asset.add');
                 Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.list.autocomplete');
                 Route::get('/load', [AssetController::class, 'load'])->name('user.wallet.asset.load');
+
+                Route::group(['prefix' => '{asset}'], function(){
+                    Route::get('', [AssetWalletController::class, 'show'])->name('user.wallet.asset.detail');
+                    Route::get('/info', [AssetWalletController::class, 'info'])->name('user.wallet.asset.detail.info');
+                    Route::get('/tambah', [AssetTransaction::class, 'add'])->name('user.wallet.asset.detail.add');
+                });
             });
         });
 
@@ -62,13 +71,13 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
     });
 
     Route::group(['prefix' => 'jurnal'], function(){
-        Route::get('/', [JournalController::class, 'index'])->name('user.journal');
+        Route::get('', [JournalController::class, 'index'])->name('user.journal');
         Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
         Route::get('/{id}', [JournalController::class, 'detail'])->name('user.journal.detail');
     });
 
     Route::group(['prefix' => 'pustaka'], function(){
-        Route::get('/', [LibraryController::class, 'index'])->name('user.library');
+        Route::get('', [LibraryController::class, 'index'])->name('user.library');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::get('/favorit', [LibraryController::class, 'favoritePage'])->name('user.library.favorite');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
@@ -88,7 +97,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
     Route::group(['prefix' => 'pengguna'], function(){
-        Route::get('/', [UserController::class, 'index'])->name('admin.users');
+        Route::get('', [UserController::class, 'index'])->name('admin.users');
         Route::get('/demografi', [UserController::class, 'demography'])->name('admin.users.demography');
     });
 
@@ -98,7 +107,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
     });
 
     Route::group(['prefix' => 'pustaka'], function(){
-        Route::get('/', [LibraryController::class, 'index'])->name('admin.library');
+        Route::get('', [LibraryController::class, 'index'])->name('admin.library');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('admin.library.add');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('admin.library.reports');
     });

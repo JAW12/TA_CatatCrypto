@@ -1,16 +1,5 @@
 @push('styles')
     <style>
-        .ui-autocomplete {
-            max-height: 25vh;
-            overflow-y: auto;
-            /* prevent horizontal scrollbar */
-            overflow-x: ;
-        }
-
-        * html .ui-autocomplete {
-            height: 25vh;
-        }
-
         a.btn-social,
         .btn-social {
             border-radius: 50%;
@@ -142,41 +131,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
 @endpush
 @push('scripts')
-    {{-- <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-<script>
-    $(function(){
-        $("#inputAset").keyup(function(){
-            $("#asetResult").empty();
-
-            var query = $(this).val();
-            if(query != ''){
-                var _token = $('input[name="_token"]').val();
-                $.ajax({
-                    url:"{{route('user.wallet.asset.list.autocomplete', $wallet->id)}}",
-                    method:"POST",
-                    data:{query:query, _token:_token},
-                    success:function(data){
-                        $("#asetResult").fadeIn();
-                        data.forEach(element => {
-                            // console.log(element['name']);
-                            $("#asetResult").append(
-                                `<li class="aset-item"><a class="dropdown-item" href="#">${element['name']}</a></li>`
-                            );
-                        });
-                    }
-                })
-            }
-        })
-
-        $(document).on('click', '.aset-item', function(){
-            // alert('tes');
-            $("#inputAset").val($(this).text());
-            $("#asetResult").fadeOut(function(){
-                $(this).empty();
-            });
-        });
-    });
-</script> --}}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -185,34 +139,6 @@
         function capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
-        // $(document).ready(function() {
-
-        //     $("#inputAset").autocomplete({
-        //         source: function(request, response) {
-        //             // Fetch data
-        //             $.ajax({
-        //                 url: "{{ route('user.wallet.asset.list.autocomplete', $wallet->id) }}",
-        //                 type: 'get',
-        //                 dataType: "json",
-        //                 data: {
-        //                     query: request.term
-        //                 },
-        //                 success: function(data) {
-        //                     // console.log(data);
-        //                     response(data);
-        //                 }
-        //             });
-        //         },
-        //         select: function(event, ui) {
-        //             // // Set selection
-        //             console.log(ui.item)
-        //             // $('#employee_search').val(ui.item.label); // display the selected text
-        //             // $('#employeeid').val(ui.item.value); // save selected id to input
-        //             return false;
-        //         }
-        //     });
-
-        // });
 
         function load(query) {
             $.ajax({
@@ -398,77 +324,17 @@
             });
         }
 
-        $("#inputAset").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "{{ route('user.wallet.asset.list.autocomplete', $wallet->id) }}",
-                    type: "get",
-                    dataType: "json",
-                    data: {
-                        query: request.term
-                    },
-                    success: function(data) {
-                        // console.log(data);
-                        // var resp = $.map(data,function(obj){
-                        //     return obj.label;
-                        // });
-                        // response(resp);
-                        response($.map(data, function(el) {
-                            return {
-                                label: el.label,
-                                value: el.value
-                            };
-                        }));
-                    }
-                });
-            },
-            select: function(event, ui) {
-                // console.log(ui.item)
-                $('#inputAset').val(ui.item.label);
-                $("#btnTambah").val(ui.item.value);
-                load(ui.item.value);
-                return false;
-            },
-
-            open: function() {
-                $('ul.ui-autocomplete').hide().fadeIn("fast")
-            },
-            close: function() {
-                $('ul.ui-autocomplete').show().fadeOut("fast")
-            }
-        });
-
-        $("#inputAset").bind("keypress", {}, keypressInBox);
-
-        function keypressInBox(e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) { //Enter keycode
-                load($("#inputAset").val());
-            }
-        };
+        load("{{$asset->coin_gecko_id}}");
     </script>
 @endpush
 
 <x-app-layout :assets="$assets ?? []">
-    <x-back-button>{{route('user.wallet.detail', $wallet->id)}}</x-back-button>
+    <x-back-button>{{route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id])}}</x-back-button>
     <div>
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header d-md-flex justify-content-between">
-                        <div class="header-title">
-                            <h4 class="card-title">Tambah Aset</h4>
-                        </div>
-                    </div>
                     <div class="card-body min-vh-100">
-                        <div class="ui-widget">
-                            <input type="text" name="inputAset" id="inputAset" class="form-control"
-                                placeholder="Masukkan aset yang ingin Anda tambahkan">
-                            {{-- <ul id="asetResult" class="dropdown-menu"
-                                style="display:block; position: relative;width:100%">
-
-                            </ul> --}}
-                        </div>
                         <div id="asetDetail" class="mt-3" style="display: none">
                             <div class="row justify-content-around">
                                 <div class="col-sm-12 col-md-4 row justify-content-center align-items-center">
@@ -600,16 +466,7 @@
                                     </p>
                                 </div>
                                 <div class="col-sm-12 col-md-4" id="twitter-timeline">
-
-
                                 </div>
-                            </div>
-                            <div class="justify-content-end mt-3 mx-1">
-                                <form action="{{ route('user.wallet.asset.add', $wallet->id) }}" method="post">
-                                    @csrf
-                                    <button id="btnTambah" name="id" class="btn btn-primary">Tambah
-                                        Aset</button>
-                                </form>
                             </div>
                         </div>
                     </div>
