@@ -124,17 +124,27 @@ class AssetController extends Controller
      */
 
 
-    public function autocomplete(Request $request){
+    public function autocomplete(Wallet $wallet, Request $request){
         // $data = Asset::select("name", "coin_gecko_id")
         // ->where('name', 'LIKE', '%'. $request->get('query'). '%')
         // ->get();
+        $data = [];
+        if($wallet->binance_api_key == null){
+            $data = DB::table('assets')
+            ->select(DB::raw("CONCAT(symbol,' - ', name) AS label, coin_gecko_id AS value"))
+            ->where('symbol', 'LIKE', '%'. $request->get('query'). '%')
+            ->orWhere('name', 'LIKE', '%'. $request->get('query'). '%')
+            ->orderBy('name', 'asc')
+            ->get();
+        }
+        else{
+            $data = DB::table('assets')
+            ->select(DB::raw("CONCAT(symbol,' - ', name) AS label, coin_gecko_id AS value"))
+            ->whereRaw("binance_symbol <> '' AND (symbol LIKE '%" . $request->get('query') . "%' OR name LIKE '%" . $request->get('query') . "%')")
+            ->orderBy('name', 'asc')
+            ->get();
+        }
 
-        $data = DB::table('assets')
-        ->select(DB::raw("CONCAT(symbol,' - ', name) AS label, coin_gecko_id AS value"))
-        ->where('symbol', 'LIKE', '%'. $request->get('query'). '%')
-        ->orWhere('name', 'LIKE', '%'. $request->get('query'). '%')
-        ->orderBy('name', 'asc')
-        ->get();
 
         return response()->json($data);
     }

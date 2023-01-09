@@ -31,7 +31,7 @@
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td><small>Rp</small></td>
+                                        {{-- <td><small>Rp</small></td> --}}
                                     </tr>
                                 </table>
                             </div>
@@ -43,7 +43,7 @@
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td><small>Rp</small></td>
+                                        {{-- <td><small>Rp</small></td> --}}
                                     </tr>
                                 </table>
                             </div>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AssetTransaction extends Model
 {
     use HasFactory;
-    protected $table = 'asset_transaction';
+    protected $table = 'asset_transactions';
     protected $primaryKey = 'id';
     protected $guarded = [];
 

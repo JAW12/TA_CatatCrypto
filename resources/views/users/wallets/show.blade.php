@@ -83,11 +83,11 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
-                                        <td><strong>$</strong></td>
+                                        {{-- <td><strong>$</strong></td> --}}
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td><small>Rp</small></td>
+                                        {{-- <td><small>Rp</small></td> --}}
                                     </tr>
                                 </table>
                             </div>
@@ -99,7 +99,7 @@
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td><small>Rp</small></td>
+                                        {{-- <td><small>Rp</small></td> --}}
                                     </tr>
                                 </table>
                             </div>
@@ -124,10 +124,10 @@
                                             <img src="{{$asset->thumb}}" alt="logo_crypto" class="img-thumbnail">
                                             <span class="ms-2">{{$asset->name}}</span>
                                         </td>
-                                        <td>{{$asset->pivot->average_price}}</td>
-                                        <td>{{$asset->current_price}}</td>
-                                        <td>{{$asset->pivot->amount}}</td>
-                                        <td>{{$asset->pivot->pnl}}</td>
+                                        <td>{{(float)$asset->pivot->average_price}}</td>
+                                        <td>{{(float)$asset->current_price}}</td>
+                                        <td>{{(float)$asset->pivot->amount}}</td>
+                                        <td>{{(float)$asset->pivot->pnl}}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetTransactionController;
 use App\Http\Controllers\AssetWalletController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -50,8 +51,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         Route::group(['prefix' => '{wallet}'], function(){
             Route::get('', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
             Route::post('', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
-            Route::delete('/aktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
-            Route::post('/nonaktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
+            Route::delete('/nonaktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
+            Route::post('/aktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
 
             Route::group(['prefix' => 'aset'], function(){
                 Route::get('', [AssetWalletController::class, 'index'])->name('user.wallet.asset.list');
@@ -62,7 +63,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
                 Route::group(['prefix' => '{asset}'], function(){
                     Route::get('', [AssetWalletController::class, 'show'])->name('user.wallet.asset.detail');
                     Route::get('/info', [AssetWalletController::class, 'info'])->name('user.wallet.asset.detail.info');
-                    Route::get('/tambah', [AssetTransaction::class, 'add'])->name('user.wallet.asset.detail.add');
+                    Route::post('/tambah', [AssetTransactionController::class, 'add'])->name('user.wallet.asset.detail.add');
+                    Route::delete('/hapus/{asset_transaction}', [AssetTransactionController::class, 'destroy'])->name('user.wallet.asset.detail.delete');
                 });
             });
         });
