@@ -57,7 +57,7 @@
                                         <th>Deskripsi</th>
                                         <th>Status</th>
                                         <th>Keuntungan</th>
-                                        <th>Total Deposit</th>
+                                        <th>Aset</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -78,8 +78,8 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
-                                            <td>$</td>
-                                            <td>$</td>
+                                            <td>${{ (float) number_format( $wallet->pnl , 16 , '.' , ',' )  }}</td>
+                                            <td>${{ (float) number_format( $wallet->amount_of_assets , 16 , '.' , ',' )  }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

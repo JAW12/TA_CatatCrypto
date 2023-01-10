@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('trade_id', 255)->nullable();
             $table->string('order_id', 255)->nullable();
             $table->integer('type')->comment('0 - buy, 1 - sell, 2 - transfer out, 3 - transfer in');
-            $table->decimal('price', 19, 8, true);
+            $table->decimal('price', 19, 8, true)->nullable();
             $table->decimal('amount', 19, 8, false);
-            $table->decimal('fee', 19, 8, true)->nullable();
+            $table->decimal('fee', 19, 8, true)->default(0);
+            $table->decimal('total', 19, 8, true)->nullable();
             $table->text('description')->nullable();
             $table->integer('status')->comment('0 - pending, 1 - filled');
             $table->integer('integrated')->comment('0 - manual, 1 - integrated');

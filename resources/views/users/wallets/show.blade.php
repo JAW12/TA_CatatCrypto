@@ -124,10 +124,10 @@
                                             <img src="{{$asset->thumb}}" alt="logo_crypto" class="img-thumbnail">
                                             <span class="ms-2">{{$asset->name}}</span>
                                         </td>
-                                        <td>{{(float)$asset->pivot->average_price}}</td>
-                                        <td>{{(float)$asset->current_price}}</td>
-                                        <td>{{(float)$asset->pivot->amount}}</td>
-                                        <td>{{(float)$asset->pivot->pnl}}</td>
+                                        <td>${{ (float) number_format( $asset->pivot->average_price , 16 , '.' , ',' )  }}</td>
+                                        <td>${{ (float) number_format( $asset->current_price , 16 , '.' , ',' )  }}</td>
+                                        <td>{{ (float) number_format( $asset->pivot->amount , 16 , '.' , ',' )  }}</td>
+                                        <td>${{ (float) number_format( $asset->pivot->pnl , 16 , '.' , ',' )  }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
