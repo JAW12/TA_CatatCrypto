@@ -1,3 +1,9 @@
+@push('styles')
+<style>
+    .nav.nav-tabs > li.disabled {     pointer-events: none; }
+    .nav.nav-tabs > li.disabled > button { color: silver!important;}
+</style>
+@endpush
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.6.0/autoNumeric.min.js"
         integrity="sha512-6j+LxzZ7EO1Kr7H5yfJ8VYCVZufCBMNFhSMMzb2JRhlwQ/Ri7Zv8VfJ7YI//cg9H5uXT2lQpb14YMvqUAdGlcg=="
@@ -59,6 +65,9 @@
         });
 
         function loadTransaction(price, amount, fee) {
+            if(fee == null){
+                fee = 0;
+            }
             let gross = parseFloat(price) * parseFloat(amount);
             let nett = gross + parseFloat(fee);
             // console.log(gross);
@@ -290,7 +299,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Koin:</strong></td>
-                                        <td><strong>{{ (float) number_format( $asset_wallet->amount , 16 , '.' , ',' ) }}</strong>
+                                        <td><strong>{{ (float) $asset_wallet->amount }}</strong>
                                         </td>
                                     </tr>
                                     <tr>
@@ -303,7 +312,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Harga Rata-Rata:</strong></td>
-                                        <td><strong>${{ (float) number_format( $asset_wallet->average_price , 16 , '.' , ',' ) }}</strong>
+                                        <td><strong>${{ (float) $asset_wallet->average_price }}</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -312,7 +321,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Harga Sekarang:</strong></td>
-                                        <td><strong>${{ (float) number_format( $asset->current_price , 16 , '.' , ',' )  }}</strong>
+                                        <td><strong>${{$asset->current_price}}</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -350,7 +359,7 @@
                                             </td>
                                             <td>
                                                 @if ($transaction->type == 0 or $transaction->type == 1)
-                                                    ${{ (float) number_format( $transaction->price , 16 , '.' , ',' )  }}
+                                                    ${{ (float) $transaction->price  }}
                                                 @else
                                                     -
                                                 @endif
@@ -360,17 +369,17 @@
                                             </td>
                                             <td>
                                                 @if ($transaction->type == 0)
-                                                    +{{ (float) number_format( $transaction->amount , 16 , '.' , ',' )  }}
+                                                    +{{ (float) $transaction->amount  }}
                                                 @elseif($transaction->type == 1)
-                                                    -{{ (float) number_format( $transaction->amount , 16 , '.' , ',' )  }}
+                                                    -{{ (float) $transaction->amount }}
                                                 @elseif($transaction->type == 2)
-                                                    -{{ (float) number_format( $transaction->amount , 16 , '.' , ',' )  }}
+                                                    -{{ (float) $transaction->amount }}
                                                 @elseif($transaction->type == 3)
-                                                    +{{ (float) number_format( $transaction->amount , 16 , '.' , ',' )  }}
+                                                    +{{ (float) $transaction->amount  }}
                                                 @endif
                                             </td>
                                             <td>
-                                                ${{ (float) number_format( $transaction->fee , 16 , '.' , ',' )  }}
+                                                ${{ (float) $transaction->fee }}
                                             </td>
                                             <td>
                                                 @if ($transaction->status == 1)
@@ -536,7 +545,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="bd-example">
-                        <ul class="nav nav-tabs nav-justified" id="myTab"
+                        <ul class="nav nav-tabs nav-justified" id="myTab "
                             role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="beli-tab" data-bs-toggle="tab"
@@ -548,8 +557,8 @@
                                     data-bs-target="#pills-jual" type="button" role="tab" aria-controls="jual"
                                     aria-selected="false">Jual</button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="transfer-tab" data-bs-toggle="tab"
+                            <li class="nav-item @if($wallet->binance_api_key != null) disabled @endif" role="presentation">
+                                <button class="nav-link " id="transfer-tab" data-bs-toggle="tab"
                                     data-bs-target="#pills-transfer" type="button" role="tab"
                                     aria-controls="transfer" aria-selected="false">Transfer</button>
                             </li>
@@ -575,26 +584,20 @@
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="beli_amount">
-                                                <span class="input-group-text" id="basic-addon2">SHIB</span>
+                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
                                             </div>
                                         </div>
-                                        @if ($wallet->binance_api_key == null)
-                                            <div class="col-sm-12 col-md-6">
-                                                <label for="fee" class="form-label text-dark">Biaya Tambahan
-                                                    (Diisi
-                                                    apabila manual)</label>
-                                                <input type="text" class="form-control" name="fee"
-                                                    id="beli_fee">
-                                            </div>
-                                        @endif
+                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
+                                            <input type="text" class="form-control" name="fee"
+                                                id="beli_fee">
+                                        </div>
                                     </div>
-                                    @if ($wallet->binance_api_key == null)
-                                        <div class="form-group form-group-alt">
-                                            <label for="time" class="form-label text-dark">Waktu</label>
-                                            <input type="datetime-local" id="beli_time" name="time"
-                                                class="form-control">
-                                        </div>
-                                    @endif
+                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                        <label for="time" class="form-label text-dark">Waktu</label>
+                                        <input type="datetime-local" id="beli_time" name="time"
+                                            class="form-control">
+                                    </div>
                                     <div class="form-group form-group-alt">
                                         <label for="description" class="form-label text-dark">Catatan</label>
                                         <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="beli_description"></textarea>
@@ -631,33 +634,27 @@
                                             placeholder="0.000" id="jual_price">
                                     </div>
                                     <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div class="col-sm-12 col-md-6">
+                                        <div class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
                                             <label for="amount" class="form-label text-dark">Jumlah Koin</label>
                                             <div class="form-group form-group-alt input-group mb-3">
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="jual_amount">
-                                                <span class="input-group-text" id="basic-addon2">SHIB</span>
+                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
                                             </div>
 
                                         </div>
-                                        @if ($wallet->binance_api_key == null)
-                                            <div class="col-sm-12 col-md-6">
-                                                <label for="fee" class="form-label text-dark">Biaya Tambahan
-                                                    (Diisi
-                                                    apabila manual)</label>
-                                                <input type="text" class="form-control" name="fee"
-                                                    id="jual_fee">
-                                            </div>
-                                        @endif
-                                    </div>
-                                    @if ($wallet->binance_api_key == null)
-                                        <div class="form-group form-group-alt">
-                                            <label for="time" class="form-label text-dark">Waktu</label>
-                                            <input type="datetime-local" name="time" class="form-control"
-                                                id="jual_time">
+                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
+                                            <input type="text" class="form-control" name="fee"
+                                                id="jual_fee">
                                         </div>
-                                    @endif
+                                    </div>
+                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                        <label for="time" class="form-label text-dark">Waktu</label>
+                                        <input type="datetime-local" name="time" class="form-control"
+                                            id="jual_time">
+                                    </div>
                                     <div class="form-group form-group-alt">
                                         <label for="description" class="form-label text-dark">Catatan</label>
                                         <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="jual_description"></textarea>
@@ -696,33 +693,27 @@
                                         </select>
                                     </div>
                                     <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div class="col-sm-12 col-md-6">
+                                        <div class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
                                             <label for="amount" class="form-label text-dark">Jumlah Koin</label>
                                             <div class="form-group form-group-alt input-group mb-3">
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="transfer_amount">
-                                                <span class="input-group-text" id="basic-addon2">SHIB</span>
+                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
                                             </div>
 
                                         </div>
-                                        @if ($wallet->binance_api_key == null)
-                                            <div class="col-sm-12 col-md-6">
-                                                <label for="fee" class="form-label text-dark">Biaya Tambahan
-                                                    (Diisi
-                                                    apabila manual)</label>
-                                                <input type="text" class="form-control" name="fee"
-                                                    id="transfer_fee">
-                                            </div>
-                                        @endif
-                                    </div>
-                                    @if ($wallet->binance_api_key == null)
-                                        <div class="form-group form-group-alt">
-                                            <label for="time" class="form-label text-dark">Waktu</label>
-                                            <input type="datetime-local" name="time" class="form-control"
-                                                id="transfer_time">
+                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
+                                            <input type="text" class="form-control" name="fee"
+                                                id="transfer_fee">
                                         </div>
-                                    @endif
+                                    </div>
+                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                        <label for="time" class="form-label text-dark">Waktu</label>
+                                        <input type="datetime-local" name="time" class="form-control"
+                                            id="transfer_time">
+                                    </div>
                                     <div class="form-group form-group-alt">
                                         <label for="description" class="form-label text-dark">Catatan</label>
                                         <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="transfer_description"></textarea>

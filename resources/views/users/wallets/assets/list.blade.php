@@ -329,7 +329,7 @@
                         $("#twitter-timeline").html(
                             `<a class="twitter-timeline" height="950"
                                         href="https://twitter.com/${links.twitter_screen_name}?ref_src=twsrc%5Etfw">Tweets dari @${links.twitter_screen_name}</a>`
-                            );
+                        );
 
                         var tag = document.createElement('script');
                         tag.setAttribute('id', 'twitter-script');
@@ -363,35 +363,70 @@
                         }
                     });
 
-                    $(".tradingview-widget-container").html(
-                        `
+                    if (data.binance_symbol != null) {
+                        $(".tradingview-widget-container").html(
+                            `
                         <div id="tradingview_7f87e" style="height: 100vh"></div>
                         <div class="tradingview-widget-copyright">
-                            <a href="https://id.tradingview.com/symbols/${data.binance_symbol}/?exchange=BINANCE"                                                         rel="noopener" target="_blank">
+                            <a href="https://id.tradingview.com/symbols/${data.binance_symbol}/?exchange=BINANCE}"                                                         rel="noopener" target="_blank">
                                 <span class="blue-text">Chart ${data.binance_symbol}</span>
                             </a> oleh TradingView
                         </div>`);
 
-                    new TradingView.widget({
-                        "autosize": true,
-                        "symbol": `BINANCE:${data.binance_symbol}`,
-                        "interval": "60",
-                        "timezone": "Asia/Jakarta",
-                        "theme": "light",
-                        "style": "1",
-                        "locale": "id",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "withdateranges": true,
-                        "hide_side_toolbar": false,
-                        "details": true,
-                        "studies": [
-                            "MACD@tv-basicstudies",
-                            "RSI@tv-basicstudies",
-                            "Stochastic@tv-basicstudies"
-                        ],
-                        "container_id": "tradingview_7f87e"
-                    });
+                        var tradingview = new TradingView.widget({
+                            "autosize": true,
+                            "symbol": `BINANCE:${data.binance_symbol}`,
+                            "interval": "60",
+                            "timezone": "Asia/Jakarta",
+                            "theme": "light",
+                            "style": "1",
+                            "locale": "id",
+                            "toolbar_bg": "#f1f3f6",
+                            "enable_publishing": false,
+                            "withdateranges": true,
+                            "hide_side_toolbar": false,
+                            "details": true,
+                            "studies": [
+                                "MACD@tv-basicstudies",
+                                "RSI@tv-basicstudies",
+                                "Stochastic@tv-basicstudies"
+                            ],
+                            "container_id": "tradingview_7f87e"
+                        });
+                    } else {
+                        $(".tradingview-widget-container").html(
+                            `
+                        <div id="tradingview_7f87e" style="height: 100vh"></div>
+                        <div class="tradingview-widget-copyright">
+                            <a href="https://id.tradingview.com/symbols/${data.symbol}${data.special_targets}/?exchange=${data.exchanges}"                                                         rel="noopener" target="_blank">
+                                <span class="blue-text">Chart ${data.binance_symbol}</span>
+                            </a> oleh TradingView
+                        </div>`);
+
+                        var tradingview = new TradingView.widget({
+                            "autosize": true,
+                            "symbol": `${data.exchanges}:${data.symbol}${data.special_targets}`,
+                            "interval": "60",
+                            "timezone": "Asia/Jakarta",
+                            "theme": "light",
+                            "style": "1",
+                            "locale": "id",
+                            "toolbar_bg": "#f1f3f6",
+                            "enable_publishing": false,
+                            "withdateranges": true,
+                            "hide_side_toolbar": false,
+                            "details": true,
+                            "studies": [
+                                "MACD@tv-basicstudies",
+                                "RSI@tv-basicstudies",
+                                "Stochastic@tv-basicstudies"
+                            ],
+                            "container_id": "tradingview_7f87e"
+                        });
+                    }
+
+
+                    console.log(tradingview);
 
                     $("#asetDetail").fadeIn();
                 }
@@ -450,7 +485,7 @@
 @endpush
 
 <x-app-layout :assets="$assets ?? []">
-    <x-back-button>{{route('user.wallet.detail', $wallet->id)}}</x-back-button>
+    <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
     <div>
         <div class="row">
             <div class="col-sm-12">

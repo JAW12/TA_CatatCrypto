@@ -21,6 +21,14 @@
 </script>
 @endpush
 
+@php
+
+    function floatvalue($val){
+            $val = str_replace(",",".",$val);
+            $val = preg_replace('/\.(?=.*\.)/', '', $val);
+            return floatval($val);
+}
+@endphp
 <x-app-layout :assets="$assets ?? []">
     <x-back-button>{{route('user.wallet')}}</x-back-button>
     <div>
@@ -74,7 +82,9 @@
                             </form>
                             @endif
                             <button type="button" class="btn btn-dark">Lihat Laporan</button>
-                            <a href="{{route('user.wallet.asset.list', $wallet->id)}}" class="btn btn-primary">+ Tambah Aset</a>
+
+                            <a href="{{route('user.wallet.asset.list', $wallet->id)}}" class="btn btn-primary @if($wallet->deleted_at != '')
+                                disabled @endif" >+ Tambah Aset</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -118,16 +128,16 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($wallet->assets as $key => $asset)
-                                    <tr onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
-                                        style="cursor: pointer;">
+                                    <tr @if($wallet->deleted_at == '') onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
+                                        style="cursor: pointer;" @endif>
                                         <td>
                                             <img src="{{$asset->thumb}}" alt="logo_crypto" class="img-thumbnail">
                                             <span class="ms-2">{{$asset->name}}</span>
                                         </td>
-                                        <td>${{ (float) number_format( $asset->pivot->average_price , 16 , '.' , ',' )  }}</td>
-                                        <td>${{ (float) number_format( $asset->current_price , 16 , '.' , ',' )  }}</td>
-                                        <td>{{ (float) number_format( $asset->pivot->amount , 16 , '.' , ',' )  }}</td>
-                                        <td>${{ (float) number_format( $asset->pivot->pnl , 16 , '.' , ',' )  }}</td>
+                                        <td>${{ (float) $asset->pivot->average_price }}</td>
+                                        <td>${{ (float) $asset->current_price}}</td>
+                                        <td>{{ (float) $asset->pivot->amount  }}</td>
+                                        <td>${{ (float) $asset->pivot->pnl  }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

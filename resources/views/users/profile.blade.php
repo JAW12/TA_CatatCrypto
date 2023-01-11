@@ -25,8 +25,6 @@
                                 <div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
                                     <div class="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
                                         <h4 class="me-2 h4">{{ $data->full_name ?? 'Austin Robertson' }}</h4>
-                                        <span class="text-capitalize mt-1"> -
-                                            {{ str_replace('_', ' ', auth()->user()->user_type) ?? 'Marketing Administrator' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -842,6 +840,11 @@
                         <div class="bd-example table-responsive">
                             <table class="table table-striped">
                                 <tbody>
+                                    <tr>
+                                        <th>Jenis Membership</th>
+                                        <td><span class="text-capitalize mt-1">{{ str_replace('_', ' ', auth()->user()->user_type) ?? 'Marketing Administrator' }}</span>
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <th>Aktif dari</th>
                                         <td>{{ $data->membership_since == null ? '-' : Carbon\Carbon::parse($data->membership_since)->formatLocalized('%d %B %Y') }}

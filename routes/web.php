@@ -30,7 +30,7 @@ Route::get('/storage', function () {
 
 
 Route::get('', [HomeController::class, 'index'])->name('index');
-// Route::get('/asset/init', [AssetController::class, 'init']);
+Route::get('/asset/init', [AssetController::class, 'init']);
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
 //     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');
@@ -55,7 +55,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
             Route::post('/aktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
 
             Route::group(['prefix' => 'aset'], function(){
-                Route::get('', [AssetWalletController::class, 'index'])->name('user.wallet.asset.list');
+                Route::get('', [AssetController::class, 'index'])->name('user.wallet.asset.list');
                 Route::post('/tambah', [AssetWalletController::class, 'add'])->name('user.wallet.asset.add');
                 Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.list.autocomplete');
                 Route::get('/load', [AssetController::class, 'load'])->name('user.wallet.asset.load');

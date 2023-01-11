@@ -59,7 +59,7 @@ class AssetController extends Controller
         // $response = Binance::call(false, "SPOT", $url, $params, $type);
         // // print_r($response);
 
-        // $client = new CoinGeckoClient();
+        $client = new CoinGeckoClient();
 
         // $bool = false;
         // $counter = 1;
@@ -115,6 +115,41 @@ class AssetController extends Controller
         //     $asset->symbol = substr($asset->binance_symbol, 0, -4);
         //     $asset->save();
         // }
+
+        $assets = Asset::orderBy('id', 'asc')->get();
+        $counter = 0;
+        $last = "";
+        $last_id = "";
+        $bool = false;
+        foreach ($assets as $key => $asset) {
+            if($asset['id'] == '402'){
+                $bool = true;
+                // print_r($bool);
+            }
+            if($bool == true){
+                if($counter < 15){
+                    $counter++;
+                    $data = $client->coins()->getCoin($asset['coin_gecko_id']);
+                    try {
+                        $asset->update([
+                            'thumb' => $data['image']['small'],
+                        ]);
+                        print_r($counter);
+                        print_r("<br>");
+                    } catch (\Throwable $th) {
+                        print_r($th);
+                    }
+                    $last = $asset['coin_gecko_id'];
+                    $last_id = $asset['id'];
+                }
+            }
+        }
+        print_r("<br>");
+        print_r($last);
+        print_r("<br>");
+        print_r($last_id);
+        print_r("<br>");
+        print_r(now());
     }
 
     /**
@@ -123,6 +158,10 @@ class AssetController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+    public function index(Wallet $wallet)
+    {
+        return view('users.wallets.assets.list', compact('wallet'));
+    }
 
     public function autocomplete(Wallet $wallet, Request $request){
         // $data = Asset::select("name", "coin_gecko_id")
@@ -151,11 +190,14 @@ class AssetController extends Controller
 
     public function load(Request $request){
 
+        $exchanges_available = ['binance', 'bingx', 'bitget', 'bitfinex', 'bitflyer', 'bithumb', 'bitkub', 'bitmex', 'bitpanda', 'bitrue', 'btse', 'bitso', 'bitstamp' , 'bittrex', 'bybit_spot', 'cex', 'gdax', 'coinex', 'currency', 'delta_spot', 'deribit', 'dydx', 'exmo', 'gate', 'gemini', 'honeyswap', 'honeyswap_polygon', 'huobi', 'korbit', 'kraken', 'kucoin', 'maiar', 'mercado', 'mxc', 'okcoin', 'okex', 'pangolin', 'pancakeswap_ethereum', 'pancakeswap_new', 'phemex', 'poloniex', 'spookyswap', 'sushiswap, ', 'therocktrading', 'traderjoe', 'uniswap_v2', 'uniswap_v3', 'uniswap_v3_arbitrum', 'uniswap_v3_polygon_pos', 'upbit', 'whitebit', 'wootrade'];
+
         $client = new CoinGeckoClient();
 
         $asset = Asset::where('coin_gecko_id', $request->get('query'))->first();
         if($asset){
             $data = $client->coins()->getCoin($request->get('query'));
+            // dd($data);
             $update = $asset->update([
                 'name' => $data['name'],
                 'platforms' => json_encode($data['platforms']),
@@ -179,11 +221,28 @@ class AssetController extends Controller
             $data = $client->search()->getSearchResult(["query" => $request->get('query')]);
             if(count($data['coins']) > 0){
                 $coin = $client->coins()->getCoin($data['coins'][0]['id']);
+                $tickers = $coin['tickers'];
+                $exchange_found = null;
+                $targets_found = null;
+                // dd($tickers);
+                foreach ($tickers as $key => $ticker) {
+                    foreach($exchanges_available as $exc){
+                        if($ticker['market']['identifier'] == $exc and ($ticker['target'] == 'USDT' or $ticker['target'] == 'BUSD')){
+                            if($exchange_found == null){
+                                $exchange_found = $exc;
+                                $targets_found = $ticker['target'];
+                            }
+                        }
+                    }
+                }
+
                 $asset = Asset::updateOrCreate([
                     'coin_gecko_id' => $data['coins'][0]['id'],
                     'name' => $coin['name'],
                     'symbol' => strtoupper($coin['symbol']),
                     'platforms' => json_encode($coin['platforms']),
+                    'exchanges' => $exchange_found,
+                    'special_targets' => $targets_found,
                     'links' => json_encode($coin['links']),
                     'market_cap_rank' => $coin['market_cap_rank'],
                     'market_cap' => $coin['market_data']['market_cap']['usd'],
@@ -195,7 +254,9 @@ class AssetController extends Controller
                     'current_price' => $coin['market_data']['current_price']['usd'],
                     'thumb' => $coin['image']['thumb'],
                 ]);
-                print_r($asset);
+
+
+                return response()->json($asset);
                 // try {
 
                 //     print_r($asset);

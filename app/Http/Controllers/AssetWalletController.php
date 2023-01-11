@@ -9,10 +9,6 @@ use Illuminate\Http\Request;
 
 class AssetWalletController extends Controller
 {
-    public function index(Wallet $wallet)
-    {
-        return view('users.wallets.assets.list', compact('wallet'));
-    }
 
     public function add(Wallet $wallet, Request $request){
         $asset = Asset::where('coin_gecko_id', $request->id)->first();

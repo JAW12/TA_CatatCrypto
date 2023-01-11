@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('binance_symbol', 255)->unique()->nullable();
             $table->string('name', 255);
             $table->json('platforms');
+            $table->string('exchanges', 255)->nullable();
+            $table->string('special_targets', 255)->nullable();
             $table->json('links');
             $table->integer('market_cap_rank')->nullable();
             $table->bigInteger('market_cap', false, true);

@@ -10,8 +10,10 @@
                         <div class="header-title">
                             <h4 class="card-title">Daftar Dompet</h4>
                             @if ($data->max_wallets >= 0)
-                                <h6 class="text-muted"><small>Tersisa {{ $data->max_wallets - $data->wallets->count() }}
-                                        Dompet</small></h6>
+                                {{-- <h6 class="text-muted"><small>Tersisa {{ $data->max_wallets - $data->wallets->count() }}
+                                        Dompet</small></h6> --}}
+                                <h6 class="text-muted"><small>{{ $data->wallets->count()}} / {{$data->max_wallets}}
+                                    Dompet, Tersedia {{ $data->max_wallets - $data->wallets->count() }} Dompet yang bisa ditambahkan</small></h6>
                             @endif
                         </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
@@ -78,8 +80,8 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
-                                            <td>${{ (float) number_format( $wallet->pnl , 16 , '.' , ',' )  }}</td>
-                                            <td>${{ (float) number_format( $wallet->amount_of_assets , 16 , '.' , ',' )  }}</td>
+                                            <td>${{ (float) $wallet->pnl }}</td>
+                                            <td>${{ (float) $wallet->amount_of_assets }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
