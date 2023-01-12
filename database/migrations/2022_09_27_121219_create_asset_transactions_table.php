@@ -26,7 +26,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('status')->comment('0 - pending, 1 - filled');
             $table->integer('integrated')->comment('0 - manual, 1 - integrated');
-            $table->dateTime('time')->nullable();
+            $table->timestamp('time')->nullable();
             $table->timestamps();
 
             $table->foreign('asset_wallet_id')->references('id')->on('asset_wallet')->onDelete('CASCADE');

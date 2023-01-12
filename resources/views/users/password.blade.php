@@ -1,4 +1,4 @@
-<x-app-layout :assets="$assets ?? []">
+<x-app-layout :options="['loading']">
     <form method="POST">
         @csrf
         @method('PATCH')

@@ -12,6 +12,7 @@ use App\Models\Asset;
 use App\Models\AssetTransaction;
 use App\Models\AssetWallet;
 use Codenixsv\CoinGeckoApi\CoinGeckoClient;
+use Exception;
 
 class WalletController extends Controller
 {
@@ -63,6 +64,16 @@ class WalletController extends Controller
         }
     }
 
+    public function console_log($output, $with_script_tags = true)
+    {
+        $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
+            ');';
+        if ($with_script_tags) {
+            $js_code = '<script>' . $js_code . '</script>';
+        }
+        echo $js_code;
+    }
+
     /**
      * Display the specified resource.
      *
@@ -71,29 +82,29 @@ class WalletController extends Controller
      */
     public function show(Wallet $wallet)
     {
-        // $client = new CoinGeckoClient();
-        // // dd($wallet->assets);
-        print_r("<pre>");
-        if ($wallet->binance_api_key != null) {
-            $wallet->assets()->sync([]);
+        return view('users.wallets.show', compact('wallet'));
+    }
 
+    public function load(Wallet $wallet)
+    {
+        if ($wallet->binance_api_key != null) {
             Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
             $url = "/api/v3/account";
             $params = [];
             $type = "GET";
-            $response = Binance::call(true, "SPOT", $url, $params, $type);
+            $account_info = Binance::call(true, "SPOT", $url, $params, $type);
 
-            if($response != null){
-                foreach ($response['balances'] as $balance) {
+            // print_r("<pre>");
+            $assets = [];
+            if ($account_info != null) {
+                foreach ($account_info['balances'] as $balance) {
                     $asset = Asset::where('symbol', $balance['asset'])->first();
                     if ($asset != null) {
-                        if ($wallet->assets()->find($asset->id) == null) {
-                            $add = $wallet->assets()->attach($asset->id);
-                        }
+                        $assets[$asset->id] = ['amount' => $balance['free'] + $balance['locked']];
                     }
                 }
             }
-
+            $wallet->assets()->sync($assets);
 
             foreach ($wallet->assets as $asset) {
                 $url = "/api/v3/allOrders";
@@ -101,51 +112,63 @@ class WalletController extends Controller
                     'symbol' => $asset->binance_symbol,
                 ];
                 $type = "GET";
-                $response = Binance::call(true, "SPOT", $url, $params, $type);
-                if ($response != null) {
-                    if (array_key_exists('code', $response) != 1) {
-                        // print_r($response);
-                        foreach ($response as $k_order => $order) {
-                            // print_r($order);
+                $all_orders = Binance::call(true, "SPOT", $url, $params, $type);
+                if ($all_orders != null) {
+                    if (array_key_exists('code', $all_orders) != 1) {
+                        // print_r($all_orders);
+                        foreach ($all_orders as $k_order => $order) {
+                            $type = '';
+                            if ($order['side'] == 'BUY') {
+                                $type = 0;
+                            } else if ($order['side'] == 'SELL') {
+                                $type = 1;
+                            }
                             if ($order['status'] == 'NEW') {
-
+                                $asset_wallet = AssetWallet::where('asset_id', $asset->id)->first();
+                                if ($asset_wallet != null) {
+                                    try {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $order['orderId'],
+                                            'type' => $type,
+                                            'price' => $order['price'],
+                                            'amount' => $order['origQty'],
+                                            'total' => $order['price'] * $order['origQty'],
+                                            'status' => 0,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
+                                        ]);
+                                    } catch (\Throwable $th) {
+                                        //throw $th;
+                                    }
+                                }
                             } else if ($order['status'] == 'FILLED') {
-                                $fetch_asset = Asset::where('binance_symbol', $order['symbol'])->first();
-                                if ($fetch_asset != null) {
-                                    $fetch_asset_wallet = AssetWallet::where('asset_id', $fetch_asset->id)->first();
-                                    if ($fetch_asset_wallet != null) {
-                                        $url_trades = "/api/v3/myTrades";
-                                        $params_trades = [
-                                            'symbol' => $asset->binance_symbol,
-                                            'orderId' => $order['orderId']
-                                        ];
-                                        $type_trades = "GET";
-                                        $trade_response = Binance::call(true, "SPOT", $url_trades, $params_trades, $type_trades);
-
-                                        $type = '';
-                                        if($order['side'] == 'BUY'){
-                                            $type = 0;
-                                        }
-                                        else if($order['side'] == 'SELL'){
-                                            $type = 1;
-                                        }
-                                        try {
-                                            AssetTransaction::create([
-                                                'asset_wallet_id' => $fetch_asset_wallet->id,
-                                                'trade_id' => $trade_response[0]['id'],
+                                $url_trades = "/api/v3/myTrades";
+                                $params_trades = [
+                                    'symbol' => $asset->binance_symbol,
+                                    'orderId' => $order['orderId']
+                                ];
+                                $type_trades = "GET";
+                                $myTrades = Binance::call(true, "SPOT", $url_trades, $params_trades, $type_trades)[0];
+                                // print_r($myTrades);
+                                $asset_wallet = AssetWallet::where('asset_id', $asset->id)->first();
+                                if ($asset_wallet != null) {
+                                    try {
+                                        $asset_wallet->transactions()->create(
+                                            [
+                                                'trade_id' => $myTrades['id'],
                                                 'order_id' => $order['orderId'],
                                                 'type' => $type,
-                                                'price' => $trade_response[0]['price'],
-                                                'amount' => $trade_response[0]['qty'],
-                                                'fee' => $trade_response[0]['commision'],
-                                                'total' => ($trade_response[0]['price'] * $trade_response[0]['qty']) + $trade_response[0]['commision'],
+                                                'price' => $myTrades['price'],
+                                                'amount' => $myTrades['qty'],
+                                                'fee' => $myTrades['commission'],
+                                                'total' => $myTrades['price'] * $myTrades['qty'],
                                                 'status' => 1,
                                                 'integrated' => 1,
-                                                'time' => $trade_response[0]['time']
-                                            ]);
-                                        } catch (\Throwable $th) {
-                                            print_r($th);
-                                        }
+                                                'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
+                                            ]
+                                        );
+                                    } catch (\Throwable $th) {
+                                        throw $th;
                                     }
                                 }
                             }
@@ -153,10 +176,11 @@ class WalletController extends Controller
                     }
                 }
             }
-            dd('tes');
         }
 
-        return view('users.wallets.show', compact('wallet'));
+        $data = $wallet;
+        $data['assets'] = $wallet->assets;
+        return response()->json($data);
     }
 
     /**

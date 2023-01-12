@@ -50,6 +50,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
 
         Route::group(['prefix' => '{wallet}'], function(){
             Route::get('', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
+            Route::get('/load', [WalletController::class, 'load'])->name('user.wallet.detail.load')->withTrashed();
             Route::post('', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
             Route::delete('/nonaktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
             Route::post('/aktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();

@@ -12,6 +12,13 @@
 </head>
 <body class="" >
 @include('partials.dashboard._body')
+@if(in_array("loading", $options))
+<script>
+    $(function(){
+        loaderInit();
+    });
+</script>
+@endif
 </body>
 
 </html>

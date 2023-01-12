@@ -1,7 +1,7 @@
 @push('scripts')
 @endpush
 
-<x-app-layout :assets="$assets ?? []">
+<x-app-layout :options="['loading']">
     <div>
         <div class="row">
             <div class="col-sm-12">

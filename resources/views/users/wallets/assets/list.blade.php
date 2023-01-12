@@ -484,7 +484,7 @@
     </script>
 @endpush
 
-<x-app-layout :assets="$assets ?? []">
+<x-app-layout :options="['loading']">
     <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
     <div>
         <div class="row">

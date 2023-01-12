@@ -15432,7 +15432,9 @@ body.offcanvas-active {
   background-size: 20%;
   width: 100%;
   height: 100%;
-  position: relative;
+  background-position: center;
+  background-image: url('/images/loader.gif');
+  background-repeat: no-repeat;
 }
 
 .credit-card-widget .primary-gradient-card {
@@ -18627,7 +18629,7 @@ body.offcanvas-active {
 }
 
 /*
- * Background color 
+ * Background color
  */
 .bg-soft-primary {
   color: #344ed1;

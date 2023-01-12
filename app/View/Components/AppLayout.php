@@ -6,13 +6,13 @@ use Illuminate\View\Component;
 
 class AppLayout extends Component
 {
-    public $layout, $dir, $assets;
+    public $layout, $dir, $options;
 
-    public function __construct($layout = '', $dir=false, $assets = [])
+    public function __construct($layout = '', $dir=false, $options = [])
     {
         $this->layout = $layout;
         $this->dir = $dir;
-        $this->assets = $assets;
+        $this->options = $options;
     }
 
     /**
@@ -45,7 +45,7 @@ class AppLayout extends Component
             //     return view('layouts.dashboard.admin');
             //     break;
             default:
-                return view('layouts.dashboard.dashboard');
+                return view('layouts.dashboard.dashboard', ['options' => $this->options]);
             break;
         }
     }

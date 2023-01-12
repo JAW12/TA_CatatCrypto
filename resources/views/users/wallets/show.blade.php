@@ -1,36 +1,102 @@
 @push('scripts')
 <script>
-    $('#delete-wallet').click(function(e){
-        e.preventDefault() // Don't post the form, unless confirmed
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Apakah anda yakin akan menonaktifkan dompet ini?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Iya, nonaktifkan!',
-            cancelButtonText: 'Tidak',
-            }).then((result) => {
-            if (result.isConfirmed) {
-                $(e.target).closest('form').submit() // Post the surrounding form
+    loadData();
 
-            }
-        })
-    });
-</script>
+    function loadData(){
+        $.ajax({
+            url: "{{ route('user.wallet.detail.load', $wallet->id) }}",
+            type: "get",
+            success: function(data) {
+                // console.log(data.assets);
+                let assets = data.assets;
+
+                let table = document.createElement('table');
+                table.setAttribute("id", "wallets-list-table");
+                table.setAttribute("class", "table table-striped table-hover");
+                table.setAttribute("role", "grid");
+                table.setAttribute("data-toggle", "data-table");
+
+                let thead = document.createElement("thead");
+                thead.innerHTML = `
+                    <tr class='light'>
+                        <th>Nama</th>
+                        <th>Harga Rata-Rata</th>
+                        <th>Harga Sekarang</th>
+                        <th>Jumlah Koin</th>
+                        <th>Keuntungan</th>
+                    </tr>`;
+
+                let tbody = document.createElement("tbody");
+                if(assets != null){
+                    assets.forEach(asset => {
+                    let tr = document.createElement('tr');
+                    let deleted_at = "<?php echo $wallet->deleted_at ?>";
+                    let route = `<?php echo route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => ":asset"]) ?>`;
+                    route = route.replace(':asset', asset.id);
+                    console.log(route);
+                    if(deleted_at == ""){
+                        tr.setAttribute('onclick', `window.location="${route}"`);
+                        tr.setAttribute('style', 'cursor:pointer;');
+                    }
+                    tr.innerHTML = `<td>
+                        <img src="${asset.thumb}" alt="logo_crypto" class="img-thumbnail">
+                        <span class="ms-2">${asset.name}</span>
+                    </td>
+                    <td>${parseFloat(asset.pivot.average_price)}</td>
+                    <td>${parseFloat(asset.current_price)}</td>
+                    <td>${parseFloat(asset.pivot.amount)}</td>
+                    <td>${parseFloat(asset.pivot.pnl)}</td>`
+
+                    tbody.append(tr);
+                });
+                }
+
+
+                table.append(thead);
+                table.append(tbody);
+
+                $("#table-container").append(table);
+                datatableInit();
+                loaderInit();
+                }
+            });
+        }
+
+
+        $(function() {
+            $('#delete-wallet').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan menonaktifkan dompet ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, nonaktifkan!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $(e.target).closest('form').submit() // Post the surrounding form
+
+                    }
+                })
+            });
+        });
+    </script>
 @endpush
 
 @php
 
-    function floatvalue($val){
-            $val = str_replace(",",".",$val);
-            $val = preg_replace('/\.(?=.*\.)/', '', $val);
-            return floatval($val);
-}
+    function floatvalue($val)
+    {
+        $val = str_replace(',', '.', $val);
+        $val = preg_replace('/\.(?=.*\.)/', '', $val);
+        return floatval($val);
+    }
 @endphp
 <x-app-layout :assets="$assets ?? []">
-    <x-back-button>{{route('user.wallet')}}</x-back-button>
+    <x-back-button>{{ route('user.wallet') }}</x-back-button>
     <div>
         <div class="row">
             <div class="col-sm-12">
@@ -46,7 +112,8 @@
                                 @if ($wallet->binance_api_key != '')
                                     <span class="badge rounded-pill" style="background-color: #F3BA2F">Binance</span>
                                 @endif
-                                <a class="text-dark" data-bs-toggle="modal" data-bs-target="#ubahDompetModal" style="cursor:pointer">
+                                <a class="text-dark" data-bs-toggle="modal" data-bs-target="#ubahDompetModal"
+                                    style="cursor:pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                         <path
@@ -70,21 +137,23 @@
                         </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
                             @if ($wallet->deleted_at == '')
-                            <form action="{{route('user.wallet.delete', $wallet->id)}}" method="post">
-                                @csrf
-                                @method('delete')
-                                <button type="submit" id="delete-wallet" class="btn btn-secondary">Nonaktifkan</button>
-                            </form>
+                                <form action="{{ route('user.wallet.delete', $wallet->id) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" id="delete-wallet"
+                                        class="btn btn-secondary">Nonaktifkan</button>
+                                </form>
                             @elseif($wallet->deleted_at != '')
-                            <form action="{{route('user.wallet.restore', $wallet->id)}}" method="post">
-                                @csrf
-                                <button type="submit" class="btn btn-success">Aktifkan</button>
-                            </form>
+                                <form action="{{ route('user.wallet.restore', $wallet->id) }}" method="post">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success">Aktifkan</button>
+                                </form>
                             @endif
                             <button type="button" class="btn btn-dark">Lihat Laporan</button>
 
-                            <a href="{{route('user.wallet.asset.list', $wallet->id)}}" class="btn btn-primary @if($wallet->deleted_at != '')
-                                disabled @endif" >+ Tambah Aset</a>
+                            <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"
+                                class="btn btn-primary @if ($wallet->deleted_at != '') disabled @endif">+ Tambah
+                                Aset</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -114,8 +183,8 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
+                        <div class="table-responsive" id="table-container">
+                            {{-- <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
                                 data-toggle="data-table">
                                 <thead>
                                     <tr class="light">
@@ -126,22 +195,23 @@
                                         <th>Keuntungan</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($wallet->assets as $key => $asset)
-                                    <tr @if($wallet->deleted_at == '') onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
+                                <tbody id="list-assets"> --}}
+                                    {{-- @foreach ($wallet->assets as $key => $asset)
+                                        <tr
+                                            @if ($wallet->deleted_at == '') onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
                                         style="cursor: pointer;" @endif>
-                                        <td>
-                                            <img src="{{$asset->thumb}}" alt="logo_crypto" class="img-thumbnail">
-                                            <span class="ms-2">{{$asset->name}}</span>
-                                        </td>
-                                        <td>${{ (float) $asset->pivot->average_price }}</td>
-                                        <td>${{ (float) $asset->current_price}}</td>
-                                        <td>{{ (float) $asset->pivot->amount  }}</td>
-                                        <td>${{ (float) $asset->pivot->pnl  }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                            <td>
+                                                <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
+                                                <span class="ms-2">{{ $asset->name }}</span>
+                                            </td>
+                                            <td>${{ (float) $asset->pivot->average_price }}</td>
+                                            <td>${{ (float) $asset->current_price }}</td>
+                                            <td>{{ (float) $asset->pivot->amount }}</td>
+                                            <td>${{ (float) $asset->pivot->pnl }}</td>
+                                        </tr>
+                                    @endforeach --}}
+                                {{-- </tbody>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -157,24 +227,27 @@
                 </div>
                 <div class="modal-body">
                     <div class="">
-                        <form action="{{route('user.wallet.update', $wallet->id)}}" method="post">
+                        <form action="{{ route('user.wallet.update', $wallet->id) }}" method="post">
                             @csrf
                             <div class="form-group mb-2">
                                 <label for="name" class="form-label text-dark">Nama Dompet</label>
-                                <input type="text" class="form-control" name="name" value="{{$wallet->name}}">
+                                <input type="text" class="form-control" name="name" value="{{ $wallet->name }}">
                             </div>
                             <div class="form-group row gx-2 gy-0">
-                                <label for="binance_api_key" class="form-label text-dark">Integrasi Binance (Opsional)</label>
+                                <label for="binance_api_key" class="form-label text-dark">Integrasi Binance
+                                    (Opsional)</label>
                                 <div class="col-sm-12 col-md-6">
-                                    <input type="text" class="form-control" name="binance_api_key" placeholder="API Key" value={{$wallet->binance_api_key}}>
+                                    <input type="text" class="form-control" name="binance_api_key"
+                                        placeholder="API Key" value={{ $wallet->binance_api_key }}>
                                 </div>
                                 <div class="col-sm-12 col-md-6">
-                                    <input type="text" class="form-control" name="binance_secret_key" placeholder="Secret Key" value={{$wallet->binance_secret_key}}>
+                                    <input type="text" class="form-control" name="binance_secret_key"
+                                        placeholder="Secret Key" value={{ $wallet->binance_secret_key }}>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="description" class="form-label text-dark">Catatan</label>
-                                <textarea name="description" class="form-control" style="height: 15vh; resize:none">{{$wallet->description}}</textarea>
+                                <textarea name="description" class="form-control" style="height: 15vh; resize:none">{{ $wallet->description }}</textarea>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <button type="reset" class="btn btn-danger">Reset</button>
