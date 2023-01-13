@@ -7,7 +7,7 @@
             url: "{{ route('user.wallet.detail.load', $wallet->id) }}",
             type: "get",
             success: function(data) {
-                // console.log(data.assets);
+                console.log(data);
                 let assets = data.assets;
 
                 let table = document.createElement('table');
@@ -38,29 +38,87 @@
                         tr.setAttribute('onclick', `window.location="${route}"`);
                         tr.setAttribute('style', 'cursor:pointer;');
                     }
+
+                    let pnlString = '';
+                    if(asset.pivot.pnl > 0){
+                        pnlString = `<td class="text-success">$${parseFloat(asset.pivot.pnl)}<br><small>+${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                    }
+                    else if(asset.pivot.pnl < 0){
+                        pnlString = `<td class="text-danger">$${parseFloat(asset.pivot.pnl)}<br><small>-${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                    }
+                    else{
+                        pnlString = `<td class="text-secondary">$${parseFloat(asset.pivot.pnl)}<br><small>${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                    }
+
                     tr.innerHTML = `<td>
                         <img src="${asset.thumb}" alt="logo_crypto" class="img-thumbnail">
                         <span class="ms-2">${asset.name}</span>
                     </td>
-                    <td>${parseFloat(asset.pivot.average_price)}</td>
-                    <td>${parseFloat(asset.current_price)}</td>
-                    <td>${parseFloat(asset.pivot.amount)}</td>
-                    <td>${parseFloat(asset.pivot.pnl)}</td>`
+                    <td>$${parseFloat(asset.pivot.average_price)}</td>
+                    <td>$${parseFloat(asset.current_price)}</td>
+                    <td>${parseFloat(asset.pivot.amount)}<br><small class="text-muted">$${parseFloat(asset.pivot.total)}</small></td>
+                    ${pnlString}`;
+
+
 
                     tbody.append(tr);
                 });
                 }
 
+                let total_pnl = '';
+                if (data.pnl > 0) {
+                    total_pnl = `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                } else if (data.pnl < 0) {
+                    total_pnl = `<span class="h6 text-danger"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                } else {
+                    total_pnl = `<span class="h6"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                }
+                $("#total_pnl").html(total_pnl);
+
+                $("#amount_of_assets").html(`<strong>$${parseFloat(data.amount_of_assets)}</strong>`);
 
                 table.append(thead);
                 table.append(tbody);
 
-                $("#table-container").append(table);
+                $("#table-container").html(table);
                 datatableInit();
                 loaderInit();
-                }
-            });
+                },
+            error: function (request, status, error) {
+                let table = document.createElement('table');
+                table.setAttribute("id", "wallets-list-table");
+                table.setAttribute("class", "table table-striped table-hover");
+                table.setAttribute("role", "grid");
+                table.setAttribute("data-toggle", "data-table");
+
+                let thead = document.createElement("thead");
+                thead.innerHTML = `
+                    <tr class='light'>
+                        <th>Nama</th>
+                        <th>Harga Rata-Rata</th>
+                        <th>Harga Sekarang</th>
+                        <th>Jumlah Koin</th>
+                        <th>Keuntungan</th>
+                    </tr>`;
+
+                let tbody = document.createElement("tbody");
+                table.append(thead);
+                table.append(tbody);
+
+                $("#table-container").html(table);
+                datatableInit();
+                loaderInit();
+                Swal.fire({
+                icon: 'error',
+                title: 'Oops!!!',
+                text: 'Load gagal',
+                confirmButtonColor: "#3a57e8"
+                });
+            }
+        });
+
         }
+
 
 
         $(function() {
@@ -162,7 +220,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
-                                        {{-- <td><strong>$</strong></td> --}}
+                                        <td id="amount_of_assets"><strong>${{(float)$wallet->amount_of_assets}}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -174,7 +232,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td><strong>$</strong></td>
+                                        <td id="total_pnl"><span class="h6 @if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif"><strong>{{(float)$wallet->pnl}}</strong></span></td>
                                     </tr>
                                     <tr>
                                         <td></td>

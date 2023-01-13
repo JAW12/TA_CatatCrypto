@@ -25,6 +25,6 @@ class Wallet extends Model
     }
 
     public function assets(){
-        return $this->belongsToMany(Asset::class, 'asset_wallet', 'wallet_id', 'asset_id')->withPivot('amount', 'average_price', 'pnl');
+        return $this->belongsToMany(Asset::class, 'asset_wallet', 'wallet_id', 'asset_id')->withPivot('amount', 'average_price', 'total', 'pnl', 'pnl_percentage');
     }
 }

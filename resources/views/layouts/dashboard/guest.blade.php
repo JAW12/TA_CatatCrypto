@@ -30,6 +30,11 @@
         {{ $slot }}
     </div>
     @include('partials.dashboard._scripts')
+    <script>
+        $(function(){
+            loaderInit();
+        });
+    </script>
 </body>
 
 </html>

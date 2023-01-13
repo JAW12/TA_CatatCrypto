@@ -1,8 +1,13 @@
 @push('styles')
-<style>
-    .nav.nav-tabs > li.disabled {     pointer-events: none; }
-    .nav.nav-tabs > li.disabled > button { color: silver!important;}
-</style>
+    <style>
+        .nav.nav-tabs>li.disabled {
+            pointer-events: none;
+        }
+
+        .nav.nav-tabs>li.disabled>button {
+            color: silver !important;
+        }
+    </style>
 @endpush
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.6.0/autoNumeric.min.js"
@@ -64,14 +69,239 @@
             decimalPlaces: 16
         });
 
+        loadData();
+        function loadData() {
+            $.ajax({
+                url: "{{ route('user.wallet.asset.detail.load', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}",
+                type: "get",
+                success: function(data) {
+                    // console.log(data);
+                    let transactions = data.transactions;
+                    let symbol = "<?php echo $asset->symbol; ?>";
+                    let current_price = "<?php echo $asset->current_price; ?>";
+
+                    let table = document.createElement('table');
+                    table.setAttribute("id", "assets-list-table");
+                    table.setAttribute("class", "table table-striped table-hover");
+                    table.setAttribute("role", "grid");
+                    table.setAttribute("data-toggle", "data-table");
+
+                    let thead = document.createElement("thead");
+                    thead.innerHTML = `
+                        <tr class='light'>
+                            <th>#</th>
+                            <th>Tipe</th>
+                            <th>Harga</th>
+                            <th>Waktu</th>
+                            <th>Jumlah Aset</th>
+                            <th>Biaya Tambahan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>`;
+
+                    let tbody = document.createElement("tbody");
+                    if (transactions != null) {
+                        $ctr = 1;
+                        transactions.forEach(transaction => {
+                            let type = "Beli";
+                            let price = "-";
+                            let amount = "";
+                            let total = "";
+                            if (transaction.type == 0) {
+                                type = "Beli";
+                                price = "$".concat(parseFloat(transaction.price));
+                                amount = "+".concat(parseFloat(transaction.amount)).concat(' ').concat(
+                                    symbol);
+                                total = "+".concat(parseFloat(transaction.total)).concat('$');
+                            } else if (transaction.type == 1) {
+                                price = "$".concat(parseFloat(transaction.price));
+                                type = "Jual";
+                                amount = parseFloat(transaction.amount).toString().concat(' ').concat(
+                                    symbol);
+                                total = parseFloat(transaction.total).toString().concat('$');
+                            } else if (transaction.type == 2) {
+                                type = "Transfer Keluar";
+                                amount = parseFloat(transaction.amount).toString().concat(' ').concat(
+                                    symbol);
+                                total = parseFloat(transaction.total).toString().concat('$');
+                            } else if (transaction.type == 3) {
+                                type = "Transfer Masuk";
+                                amount = "+".concat(parseFloat(transaction.amount)).concat(' ').concat(
+                                    symbol);
+                                total = "+".concat(parseFloat(transaction.total)).concat('$');
+                            }
+
+                            let fee = '-';
+                            if (transaction.fee > 0) {
+                                fee = "$" + parseFloat(transaction.fee).toString();
+                            }
+
+                            let status = '';
+                            if (transaction.status == 1) {
+                                status = '<span class="badge rounded-pill bg-primary">Terpenuhi</span>';
+                            } else if (transaction.status == 0) {
+                                status =
+                                    '<span class="badge rounded-pill bg-secondary">Belum Terpenuhi</span>';
+                            }
+
+                            let aksi = '';
+                            let binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
+                            let route = `<?php echo route('user.wallet.asset.detail.delete', ['wallet' => $wallet->id, 'asset' => $asset->id, 'asset_transaction' => ':asset_transaction']); ?>`;
+                            route = route.replace(':asset_transaction', transaction.id);
+                            if (binance_api_key != '') {
+                                if (transaction.status == 0) {
+                                    aksi = `
+                                        <div class="flex align-items-center list-asset-transaction-action">
+                                                <form action="${route}" method="post" class="d-inline">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="btn btn-sm btn-icon btn-danger btn-delete" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                                                    <path d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    <path d="M20.708 6.23975H3.75" stroke="currentColor" stroke-width="1.5"  stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    <path d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    </svg>
+                                                                    </span>
+                                                                    </button>
+                                                                    </form>`;
+                                }
+                            } else {
+                                aksi = `
+                                    <div class="flex align-items-center list-asset-transaction-action">
+                                        <button type="button" class="btn btn-sm btn-icon btn-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal" data-transaction-id='${JSON.stringify(transaction)}'>
+                                            <span class="btn-inner">
+                                                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <path d="M15.1655 4.60254L19.7315 9.16854" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    </svg>
+                                                    </span>
+                                                    </button>
+                                                    <form action="${route}" method="post" class="d-inline">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="btn btn-sm btn-icon btn-danger btn-delete" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                                                    <path d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    <path d="M20.708 6.23975H3.75" stroke="currentColor" stroke-width="1.5"  stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    <path d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                                    </svg>
+                                                                    </span>
+                                                                    </button>
+                                                                    </form>`;
+                            }
+                            let tr = document.createElement('tr');
+                            tr.innerHTML = `<td>${$ctr++}</td>
+                                    <td>${type}</td>
+                                    <td>${price}</td>
+                                    <td>${transaction.time}</td>
+                                    <td>${amount}<br>${total}</td>
+                                    <td>${fee}</td>
+                                    <td>${status}</td>
+                                    <td>${aksi}</td>`;
+
+                            tbody.append(tr);
+                        });
+                        table.append(thead);
+                        table.append(tbody);
+
+                    }
+
+                    let change = '';
+                    if (data.pnl > 0) {
+                        change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                    } else if (data.pnl < 0) {
+                        change = `<span class="h6 text-danger">${parseFloat(data.pnl).toFixed(2)}$ (${-parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                    } else {
+                        change = `<span class="h6">${parseFloat(data.pnl).toFixed(2)}$ (${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                    }
+                    $("#change").html(change);
+
+                    $("#amount").html(`<strong>${parseFloat(data.amount)} ${symbol}</strong>`);
+
+                    $("#total").html(`<small>$ ${parseFloat(data.total)}</small>`);
+
+                    $("#average_price").html(`<strong>$ ${parseFloat(data.average_price)}</strong>`);
+
+                    $("#current_price").html(`<strong>$ ${parseFloat(current_price)}</strong>`);
+
+                    $("#table-container").html(table);
+                    let tables = $('[data-toggle="data-table"]').DataTable({
+                        "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                        "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                        },
+                    });
+                    loaderInit();
+
+                    $('.btn-delete').click(function(e) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Apakah Anda yakin?',
+                            text: "Apakah anda yakin akan menghapus transaksi ini?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Iya, hapus!',
+                            cancelButtonText: 'Tidak',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $(e.target).closest('form').submit() // Post the surrounding form
+                            }
+                        })
+                    });
+                },
+                error: function(request, status, error) {
+                    let symbol = "<?php echo $asset->symbol; ?>";
+                    let current_price = "<?php echo $asset->current_price; ?>";
+
+                    let table = document.createElement('table');
+                    table.setAttribute("id", "assets-list-table");
+                    table.setAttribute("class", "table table-striped table-hover");
+                    table.setAttribute("role", "grid");
+                    table.setAttribute("data-toggle", "data-table");
+
+                    let thead = document.createElement("thead");
+                    thead.innerHTML = `
+                    <tr class='light'>
+                        <th>#</th>
+                        <th>Tipe</th>
+                        <th>Harga</th>
+                        <th>Waktu</th>
+                        <th>Jumlah Aset</th>
+                        <th>Biaya Tambahan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>`;
+
+                    let tbody = document.createElement("tbody");
+                    table.append(thead);
+                    table.append(tbody);
+
+                    $("#table-container").html(table);
+                    datatableInit();
+                    loaderInit();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!!!',
+                        text: 'Load gagal',
+                        confirmButtonColor: "#3a57e8"
+                    });
+                }
+            });
+        }
+
         function loadTransaction(price, amount, fee) {
-            if(fee == null){
+            if (fee == null) {
                 fee = 0;
             }
             let gross = parseFloat(price) * parseFloat(amount);
             let nett = gross + parseFloat(fee);
             // console.log(gross);
-            console.log(price, amount, fee, gross, nett);
+            // console.log(price, amount, fee, gross, nett);
 
             return nett;
         }
@@ -95,6 +325,7 @@
         }
 
         function setAmount(value) {
+            value = Math.abs(value);
             autoNumericAmountBeli.set(value);
             autoNumericAmountJual.set(value);
             autoNumericAmountTransfer.set(value);
@@ -107,19 +338,20 @@
         }
 
         function setTotal(value) {
+            value = Math.abs(value);
             autoNumericTotalBeli.set(value);
             autoNumericTotalJual.set(value);
         }
 
         $(function() {
-
             $('#tambahTransaksiModal').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget)
-                var recipient = button.data('transaction-id')
+                var button = $(event.relatedTarget);
+                var recipient = button.data('transaction-id');
 
                 var modal = $(this);
                 if (recipient != null) {
                     modal.find('.modal-title').text('Ubah Transaksi');
+                    console.log(recipient);
                     var dt = Date.parse(recipient.time);
 
                     setPrice(recipient.price);
@@ -130,13 +362,11 @@
                     $("input[name=time]").val(datetimeLocal(dt));
                     $("input[name=transaction_id]").val(parseFloat(recipient.id));
 
-                    if(recipient.type == 0){
+                    if (recipient.type == 0) {
                         $('#beli-tab').tab('show');
-                    }
-                    else if(recipient.type == 1){
+                    } else if (recipient.type == 1) {
                         $('#jual-tab').tab('show');
-                    }
-                    else if(recipient.type > 1){
+                    } else if (recipient.type > 1) {
                         $('#transfer-tab').tab('show');
                     }
                 } else {
@@ -246,29 +476,11 @@
             //     $("input[name=total]").val(0);
             //     $("input[name=time]").val();
             // });
-
-            $('.btn-delete').click(function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Apakah anda yakin akan menghapus transaksi ini?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Iya, hapus!',
-                    cancelButtonText: 'Tidak',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $(e.target).closest('form').submit() // Post the surrounding form
-                    }
-                })
-            });
         });
     </script>
 @endpush
 
-<x-app-layout :options="['loading']">
+<x-app-layout>
     <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
     <div>
         <div class="row">
@@ -279,8 +491,9 @@
                             <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
                             <h4 class="card-title ms-3 mt-2">
                                 {{ $asset->name }}
-                                <span class="h6">{{ $asset_wallet->pnl }}$ (-50%)</span>
-                                <span class="h6"><small>-Rp.500.000</small></span>
+                                <span id="change">
+                                    <span class="h6 @if($asset_wallet->pnl > 0) text-success @elseif($asset_wallet->pnl < 0) text-danger @endif">{{(float)$asset_wallet->pnl}}$ ({{(float)$asset_wallet->pnl_percentage}}%)</span>
+                                </span>
                                 <a href="{{ route('user.wallet.asset.detail.info', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}""
                                     class="btn btn-light btn-sm">Lihat Info Koin</a>
                             </h4>
@@ -299,12 +512,11 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Koin:</strong></td>
-                                        <td><strong>{{ (float) $asset_wallet->amount }}</strong>
-                                        </td>
+                                        <td id="amount"><strong>{{ (float) $asset_wallet->amount}} {{$asset->symbol}}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
-                                        <td><small>$</small></td>
+                                        <td id="total"><small>$ {{ (float) $asset_wallet->total}}</small></td>
                                     </tr>
                                 </table>
                             </div>
@@ -312,8 +524,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Harga Rata-Rata:</strong></td>
-                                        <td><strong>${{ (float) $asset_wallet->average_price }}</strong>
-                                        </td>
+                                        <td id="average_price"><strong>$ {{ (float)$asset_wallet->average_price}}</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -321,14 +532,13 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Harga Sekarang:</strong></td>
-                                        <td><strong>${{$asset->current_price}}</strong>
-                                        </td>
+                                        <td id="current_price"><strong>$ {{(float)$asset->current_price}}</strong></td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table id="assets-list-table" class="table table-striped table-hover" role="grid"
+                        <div class="table-responsive" id="table-container">
+                            {{-- <table id="assets-list-table" class="table table-striped table-hover" role="grid"
                                 data-toggle="data-table">
                                 <thead>
                                     <tr class="light">
@@ -359,7 +569,7 @@
                                             </td>
                                             <td>
                                                 @if ($transaction->type == 0 or $transaction->type == 1)
-                                                    ${{ (float) $transaction->price  }}
+                                                    ${{ (float) $transaction->price }}
                                                 @else
                                                     -
                                                 @endif
@@ -369,22 +579,41 @@
                                             </td>
                                             <td>
                                                 @if ($transaction->type == 0)
-                                                    +{{ (float) $transaction->amount  }}
+                                                    +{{ (float) $transaction->amount }}
                                                 @elseif($transaction->type == 1)
-                                                    -{{ (float) $transaction->amount }}
+                                                    {{ (float) $transaction->amount }}
                                                 @elseif($transaction->type == 2)
-                                                    -{{ (float) $transaction->amount }}
+                                                    {{ (float) $transaction->amount }}
                                                 @elseif($transaction->type == 3)
-                                                    +{{ (float) $transaction->amount  }}
+                                                    +{{ (float) $transaction->amount }}
                                                 @endif
+
+                                                {{ $asset->symbol }}
+
+                                                <br>
+
+                                                @if ($transaction->type == 0)
+                                                    <small>+{{ (float) $transaction->total }}$</small>
+                                                @elseif($transaction->type == 1)
+                                                    <small>{{ (float) $transaction->total }}$</small>
+                                                @elseif($transaction->type == 2)
+                                                    <small>{{ (float) $transaction->total }}$</small>
+                                                @elseif($transaction->type == 3)
+                                                    <small>+{{ (float) $transaction->total }}$</small>
+                                                @endif
+
                                             </td>
                                             <td>
-                                                ${{ (float) $transaction->fee }}
+                                                @if ($transaction->fee > 0)
+                                                    ${{ (float) $transaction->fee }}
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                             <td>
                                                 @if ($transaction->status == 1)
                                                     <span class="badge rounded-pill bg-primary">Terpenuhi</span>
-                                                @elseif($wallet->status == 0)
+                                                @elseif($transaction->status == 0)
                                                     <span class="badge rounded-pill bg-secondary">Belum Terpenuhi</span>
                                                 @endif
                                             </td>
@@ -528,12 +757,12 @@
                         </tr>
                         @endforeach
                         </tbody>
-                        </table>
+                        </table> --}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     <div class="modal fade" id="tambahTransaksiModal" tabindex="-1" aria-labelledby="tambahTransaksiLabel"
         aria-hidden="true">
@@ -545,8 +774,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="bd-example">
-                        <ul class="nav nav-tabs nav-justified" id="myTab "
-                            role="tablist">
+                        <ul class="nav nav-tabs nav-justified" id="myTab " role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="beli-tab" data-bs-toggle="tab"
                                     data-bs-target="#pills-beli" type="button" role="tab" aria-controls="beli"
@@ -557,7 +785,7 @@
                                     data-bs-target="#pills-jual" type="button" role="tab" aria-controls="jual"
                                     aria-selected="false">Jual</button>
                             </li>
-                            <li class="nav-item @if($wallet->binance_api_key != null) disabled @endif" role="presentation">
+                            <li class="nav-item @if ($wallet->binance_api_key != null) disabled @endif" role="presentation">
                                 <button class="nav-link " id="transfer-tab" data-bs-toggle="tab"
                                     data-bs-target="#pills-transfer" type="button" role="tab"
                                     aria-controls="transfer" aria-selected="false">Transfer</button>
@@ -573,8 +801,8 @@
                                     <input type="hidden" name="transaction_id" id="beli_transaction_id">
                                     <div class="form-group form-group-alt mb-2">
                                         <label for="price" class="form-label text-dark">Harga Koin</label>
-                                        <input type="text" class="form-control" name="price"
-                                            placeholder="0.000" id="beli_price">
+                                        <input type="text" class="form-control" name="price" placeholder="0.000"
+                                            id="beli_price">
                                     </div>
                                     <div class="form-group form-group-alt row gx-2 gy-0">
                                         <div
@@ -584,16 +812,19 @@
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="beli_amount">
-                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
+                                                <span class="input-group-text"
+                                                    id="basic-addon2">{{ $asset->symbol }}</span>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                        <div
+                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
                                             <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
                                             <input type="text" class="form-control" name="fee"
                                                 id="beli_fee">
                                         </div>
                                     </div>
-                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                    <div
+                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
                                         <label for="time" class="form-label text-dark">Waktu</label>
                                         <input type="datetime-local" id="beli_time" name="time"
                                             class="form-control">
@@ -634,23 +865,27 @@
                                             placeholder="0.000" id="jual_price">
                                     </div>
                                     <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
+                                        <div
+                                            class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
                                             <label for="amount" class="form-label text-dark">Jumlah Koin</label>
                                             <div class="form-group form-group-alt input-group mb-3">
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="jual_amount">
-                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
+                                                <span class="input-group-text"
+                                                    id="basic-addon2">{{ $asset->symbol }}</span>
                                             </div>
 
                                         </div>
-                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                        <div
+                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
                                             <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
                                             <input type="text" class="form-control" name="fee"
                                                 id="jual_fee">
                                         </div>
                                     </div>
-                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                    <div
+                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
                                         <label for="time" class="form-label text-dark">Waktu</label>
                                         <input type="datetime-local" name="time" class="form-control"
                                             id="jual_time">
@@ -693,23 +928,27 @@
                                         </select>
                                     </div>
                                     <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
+                                        <div
+                                            class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
                                             <label for="amount" class="form-label text-dark">Jumlah Koin</label>
                                             <div class="form-group form-group-alt input-group mb-3">
                                                 <input type="text" name="amount" class="form-control"
                                                     aria-label="Jumlah Koin" aria-describedby="basic-addon2"
                                                     id="transfer_amount">
-                                                <span class="input-group-text" id="basic-addon2">{{$asset->symbol}}</span>
+                                                <span class="input-group-text"
+                                                    id="basic-addon2">{{ $asset->symbol }}</span>
                                             </div>
 
                                         </div>
-                                        <div class="col-sm-12 col-md-6 @if($wallet->binance_api_key != null) d-none @endif">
+                                        <div
+                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
                                             <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
                                             <input type="text" class="form-control" name="fee"
                                                 id="transfer_fee">
                                         </div>
                                     </div>
-                                    <div class="form-group form-group-alt @if($wallet->binance_api_key != null) d-none @endif">
+                                    <div
+                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
                                         <label for="time" class="form-label text-dark">Waktu</label>
                                         <input type="datetime-local" name="time" class="form-control"
                                             id="transfer_time">

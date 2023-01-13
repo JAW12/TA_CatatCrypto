@@ -37,6 +37,10 @@ class AssetTransactionController extends Controller
             $request['price'] = 0;
             $request['total'] = 0;
         }
+        if($request->type == 1 or $request->type == 3){
+            $request['amount'] = -$request['amount'];
+            $request['total'] = -$request['total'];
+        }
 
         if($request->get('transaction_id') == null){
             $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
@@ -111,10 +115,18 @@ class AssetTransactionController extends Controller
                             ]);
                         }
                     }
+                    else if($response['status'] == 'NEW'){
+                        $asset_transaction->update([
+                            'order_id' => $response['orderId'],
+                        ]);
+                    }
 
                     DB::commit();
+                    return redirect()->back()->withSuccess('Transaksi berhasil ditambahkan');
                 } catch(Exception $ex){
+                    // dd($ex);
                     DB::rollBack();
+                    return redirect()->back()->withError('Transaksi gagal ditambahkan');
                 }
             }
         }
@@ -133,12 +145,46 @@ class AssetTransactionController extends Controller
         // dd($asset_wallet);
     }
 
+    public function checkSymbol(Wallet $wallet, Asset $asset, $symbol){
+        // Binance::auth("WC7uqJLrRXlXsCTCz5WnKnZjHwY2STx7BIR1O79mZdP2C1IZzHkpBn9FYRen0yPN", "oPGTu1IIqZOZfKBYhkmSoC9wQNKIieOs8GkX46nVoL0c5x6kRAW7p71IggO5CcHK");
+        Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
+        $url = "/api/v3/exchangeInfo";
+        $params = [
+            'symbol' => $symbol,
+        ];
+        $type = "GET";
+        $response = Binance::call(false, "SPOT", $url, $params, $type);
+        dd($response);
+    }
+
     public function destroy(Wallet $wallet, Asset $asset, AssetTransaction $asset_transaction){
-        $delete = $asset_transaction->delete();
-        if ($asset_transaction) {
-            return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
-        } else {
-            return redirect()->back()->withError('Transaksi gagal dihapus');
+        if($asset_transaction->integrated == 1){
+            Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
+            $url = "/api/v3/order";
+            $params = [
+                'symbol' => $asset->binance_symbol,
+                'orderId' => $asset_transaction->order_id,
+            ];
+            $type = "DELETE";
+            $response = Binance::call(true, "SPOT", $url, $params, $type);
+            if($response['status'] == 'CANCELED'){
+                $delete = $asset_transaction->delete();
+                if ($asset_transaction) {
+                    return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
+                } else {
+                    return redirect()->back()->withError('Transaksi gagal dihapus');
+                }
+            }
         }
+        else{
+            $delete = $asset_transaction->delete();
+            if ($asset_transaction) {
+                return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
+            } else {
+                return redirect()->back()->withError('Transaksi gagal dihapus');
+            }
+        }
+
+
     }
 }

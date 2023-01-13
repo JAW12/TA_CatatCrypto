@@ -63,7 +63,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
 
                 Route::group(['prefix' => '{asset}'], function(){
                     Route::get('', [AssetWalletController::class, 'show'])->name('user.wallet.asset.detail');
+                    Route::get('/load', [AssetWalletController::class, 'load'])->name('user.wallet.asset.detail.load');
                     Route::get('/info', [AssetWalletController::class, 'info'])->name('user.wallet.asset.detail.info');
+                    Route::get('/checkSymbol/{symbol}', [AssetTransactionController::class, 'checkSymbol']);
                     Route::post('/ubah', [AssetTransactionController::class, 'add_update'])->name('user.wallet.asset.detail.add');
                     Route::delete('/hapus/{asset_transaction}', [AssetTransactionController::class, 'destroy'])->name('user.wallet.asset.detail.delete');
                 });

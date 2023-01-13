@@ -13,6 +13,7 @@ use App\Models\AssetTransaction;
 use App\Models\AssetWallet;
 use Codenixsv\CoinGeckoApi\CoinGeckoClient;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
@@ -87,26 +88,43 @@ class WalletController extends Controller
 
     public function load(Wallet $wallet)
     {
+        $total_assets_wallet = 0;
+        $total_pnl_wallet = 0;
         if ($wallet->binance_api_key != null) {
+            // print_r("<pre>");
             Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
             $url = "/api/v3/account";
             $params = [];
             $type = "GET";
             $account_info = Binance::call(true, "SPOT", $url, $params, $type);
 
-            // print_r("<pre>");
+            // print_r("Assets Balance <br>");
             $assets = [];
             if ($account_info != null) {
                 foreach ($account_info['balances'] as $balance) {
                     $asset = Asset::where('symbol', $balance['asset'])->first();
+                    // print_r($balance);
                     if ($asset != null) {
-                        $assets[$asset->id] = ['amount' => $balance['free'] + $balance['locked']];
+                        $asset_wallet = $wallet->assets()->where('asset_id', $asset->id)->first();
+                        if($asset_wallet == null){
+                            $wallet->assets()->create([
+                                'asset_id' => $asset->id,
+                                'amount' => $balance['free'] + $balance['locked']
+                            ]);
+                        }
+                        // $assets[$asset->id] = ['amount' => $balance['free'] + $balance['locked']];
+                        // print_r($asset['name'] . ' : ' . $balance['free'] . ' + ' . $balance['locked'] . ' = ' .  $balance['free'] + $balance['locked'] . "<br>");
                     }
                 }
             }
-            $wallet->assets()->sync($assets);
 
+            // $wallet->assets()->sync($assets);
+
+            // print_r("<br>Assets Transaction <br>");
             foreach ($wallet->assets as $asset) {
+                // print_r($asset->name . "<br>");
+                $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
+
                 $url = "/api/v3/allOrders";
                 $params = [
                     'symbol' => $asset->binance_symbol,
@@ -115,31 +133,52 @@ class WalletController extends Controller
                 $all_orders = Binance::call(true, "SPOT", $url, $params, $type);
                 if ($all_orders != null) {
                     if (array_key_exists('code', $all_orders) != 1) {
-                        // print_r($all_orders);
                         foreach ($all_orders as $k_order => $order) {
+                            // print_r($order);
+                            // print_r('<br>');
                             $type = '';
                             if ($order['side'] == 'BUY') {
                                 $type = 0;
                             } else if ($order['side'] == 'SELL') {
                                 $type = 1;
                             }
+
+                            $negative = -1;
+                            if ($type == 0) {
+                                $negative = 1;
+                            }
                             if ($order['status'] == 'NEW') {
-                                $asset_wallet = AssetWallet::where('asset_id', $asset->id)->first();
                                 if ($asset_wallet != null) {
                                     try {
-                                        $asset_wallet->transactions()->create([
-                                            'order_id' => $order['orderId'],
-                                            'type' => $type,
-                                            'price' => $order['price'],
-                                            'amount' => $order['origQty'],
-                                            'total' => $order['price'] * $order['origQty'],
-                                            'status' => 0,
-                                            'integrated' => 1,
-                                            'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
-                                        ]);
+                                        $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
+                                        if ($asset_transaction == null) {
+                                            $asset_wallet->transactions()->create([
+                                                'order_id' => $order['orderId'],
+                                                'type' => $type,
+                                                'price' => $order['price'],
+                                                'amount' => $negative * $order['origQty'],
+                                                'total' => $order['price'] * $negative * $order['origQty'],
+                                                'status' => 0,
+                                                'integrated' => 1,
+                                                'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
+                                            ]);
+                                        } else {
+                                            $asset_transaction->update([
+                                                'order_id' => $order['orderId'],
+                                                'type' => $type,
+                                                'price' => $order['price'],
+                                                'amount' => $negative * $order['origQty'],
+                                                'total' => $order['price'] * $negative * $order['origQty'],
+                                                'status' => 0,
+                                                'integrated' => 1,
+                                                'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
+                                            ]);
+                                        }
                                     } catch (\Throwable $th) {
                                         //throw $th;
                                     }
+                                    $order['time'] = date('d-m-Y H:i:s', $order['time'] / 1000);
+                                    // print_r("NEW " . $order['time'] . " : " . $order['side'] . ' ' . $order['origQty'] . ' x ' . $order['price'] . ' = ' . $order['origQty'] * $order['price'] . '<br><br>');
                                 }
                             } else if ($order['status'] == 'FILLED') {
                                 $url_trades = "/api/v3/myTrades";
@@ -150,33 +189,134 @@ class WalletController extends Controller
                                 $type_trades = "GET";
                                 $myTrades = Binance::call(true, "SPOT", $url_trades, $params_trades, $type_trades)[0];
                                 // print_r($myTrades);
-                                $asset_wallet = AssetWallet::where('asset_id', $asset->id)->first();
+                                // print_r("<br>");
                                 if ($asset_wallet != null) {
                                     try {
-                                        $asset_wallet->transactions()->create(
-                                            [
+                                        $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
+                                        if ($asset_transaction == null) {
+                                            $asset_wallet->transactions()->create([
                                                 'trade_id' => $myTrades['id'],
                                                 'order_id' => $order['orderId'],
                                                 'type' => $type,
                                                 'price' => $myTrades['price'],
-                                                'amount' => $myTrades['qty'],
+                                                'amount' => $negative * $myTrades['qty'],
                                                 'fee' => $myTrades['commission'],
-                                                'total' => $myTrades['price'] * $myTrades['qty'],
+                                                'total' => $myTrades['price'] * $negative * $myTrades['qty'],
                                                 'status' => 1,
                                                 'integrated' => 1,
                                                 'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
-                                            ]
-                                        );
+                                            ]);
+                                        } else {
+                                            $asset_transaction->update([
+                                                'trade_id' => $myTrades['id'],
+                                                'order_id' => $order['orderId'],
+                                                'type' => $type,
+                                                'price' => $myTrades['price'],
+                                                'amount' => $negative * $myTrades['qty'],
+                                                'fee' => $myTrades['commission'],
+                                                'total' => $myTrades['price'] * $negative * $myTrades['qty'],
+                                                'status' => 1,
+                                                'integrated' => 1,
+                                                'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
+                                            ]);
+                                        }
                                     } catch (\Throwable $th) {
                                         throw $th;
                                     }
                                 }
+                                $myTrades['time'] = date('d-m-Y H:i:s', $myTrades['time'] / 1000);
+                                // print_r("FILLED " . $myTrades['time'] . " : " . $order['side'] . ' ' . $myTrades['qty'] . ' x ' . $myTrades['price'] . ' = ' . $myTrades['qty'] * $myTrades['price'] . '<br><br>');
                             }
                         }
                     }
                 }
+
+                // Hitung Average Price
+                $sumAmount = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('amount');
+                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('amount');
+                $sumTotal = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('total');
+                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('total');
+                if ($sumTotal > 0 and $sumAmountBought > 0) {
+                    $average_price = $sumTotalBought / $sumAmountBought;
+                } else {
+                    $average_price = $asset->current_price;
+                }
+                $asset_wallet->update([
+                    'average_price' => $average_price,
+                    'amount' => $sumAmount,
+                ]);
+
+                // Hitung PNL
+                $difference = $asset->current_price - $asset_wallet->average_price;
+                $pnl = $difference * $asset_wallet->amount;
+                $totalAverage = $asset_wallet->average_price * $asset_wallet->amount;
+                $totalCurrent = $asset->current_price * $asset_wallet->amount;
+                $pnlPercentage = 0;
+                if ($totalAverage > 0) {
+                    if ($totalAverage > $totalCurrent) {
+                        $pnlPercentage = $totalAverage - $totalCurrent;
+                        $pnlPercentage = ($pnlPercentage / $totalAverage) * 100;
+                    } else if ($totalAverage < $totalCurrent) {
+                        $pnlPercentage = $totalCurrent - $totalAverage;
+                        $pnlPercentage = ($pnlPercentage / $totalAverage) * 100;
+                    }
+                }
+                $asset_wallet->update([
+                    'total' => $totalAverage,
+                    'pnl' => $pnl,
+                    'pnl_percentage' => $pnlPercentage,
+                ]);
+
+                $total_pnl_wallet += $pnl;
+                $total_assets_wallet += $totalAverage;
+            }
+        } else {
+            foreach ($wallet->assets as $asset) {
+                $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
+
+                // Hitung Average Price
+                $sumAmount = $asset_wallet->transactions()->where('status', 1)->sum('amount');
+                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('amount');
+                $sumTotal = $asset_wallet->transactions()->where('status', 1)->sum('total');
+                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('total');
+                if ($sumTotal > 0 and $sumAmountBought > 0) {
+                    $average_price = $sumTotalBought / $sumAmountBought;
+                } else {
+                    $average_price = $asset->current_price;
+                }
+                $asset_wallet->update([
+                    'average_price' => $average_price,
+                    'amount' => $sumAmount,
+                ]);
+
+                // Hitung PNL
+                $difference = $asset->current_price - $asset_wallet->average_price;
+                $pnl = $difference * $asset_wallet->amount;
+                $totalAverage = $asset_wallet->average_price * $asset_wallet->amount;
+                $totalCurrent = $asset->current_price * $asset_wallet->amount;
+                $pnlPercentage = 0;
+                if ($totalAverage > 0) {
+                    if ($totalAverage > $totalCurrent) {
+                        $pnlPercentage = $totalAverage - $totalCurrent;
+                        $pnlPercentage = ($pnlPercentage / $totalAverage) * 100;
+                    } else if ($totalAverage < $totalCurrent) {
+                        $pnlPercentage = $totalCurrent - $totalAverage;
+                        $pnlPercentage = ($pnlPercentage / $totalAverage) * 100;
+                    }
+                }
+                $asset_wallet->update([
+                    'total' => $totalAverage,
+                    'pnl' => $pnl,
+                    'pnl_percentage' => $pnlPercentage,
+                ]);
+                $total_pnl_wallet += $pnl;
+                $total_assets_wallet += $totalAverage;
             }
         }
+        $wallet->update([
+            'pnl' => $total_pnl_wallet,
+            'amount_of_assets' => $total_assets_wallet,
+        ]);
 
         $data = $wallet;
         $data['assets'] = $wallet->assets;
