@@ -18,11 +18,11 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('pnl', 19, 2, true)->default();
+            $table->decimal('pnl', 19, 2, true)->default(0);
             $table->decimal('balances', 19, 8, true)->default(0);
             $table->integer('risk', false, true)->nullable();
             $table->bigInteger('count_of_trades')->default(0);
-            $table->decimal('winrate', 5, 4, true);
+            $table->decimal('winrate', 5, 4, true)->nullable();
             $table->decimal('target', 19, 8, true)->nullable();
             $table->timestamps();
 

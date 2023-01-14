@@ -171,8 +171,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.journal.detail', ['id' => Auth::id()])) }}"
-                        href="{{ route('user.journal.detail', ['id' => Auth::id()]) }}">
+                    <a href="{{ (request()->is('user/jurnal/*')) ? 'javascript:window.location.reload(true)' : route('user.journal') }}" class="nav-link {{ (request()->is('user/jurnal/*')) ? 'active' : '' }}" style="cursor:pointer">
+
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-journal-richtext" viewBox="0 0 16 16">

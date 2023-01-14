@@ -58,8 +58,8 @@
                                         <th>Nama</th>
                                         <th>Deskripsi</th>
                                         <th>Status</th>
-                                        <th>Keuntungan</th>
                                         <th>Aset</th>
+                                        <th>Keuntungan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -80,8 +80,8 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
-                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ abs((float) $wallet->pnl) }}</td>
                                             <td>${{ (float) $wallet->amount_of_assets }}</td>
+                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ abs((float) $wallet->pnl) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

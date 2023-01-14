@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Journal;
 use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class JournalController extends Controller
 {
@@ -15,17 +17,8 @@ class JournalController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $data = User::findOrFail(Auth::id());
+        return view('users.journals.list', compact('data'));
     }
 
     /**
@@ -36,7 +29,23 @@ class JournalController extends Controller
      */
     public function store(StoreJournalRequest $request)
     {
-        //
+        if (Auth::user()->max_journals == 0 or Auth::user()->journals->count() < Auth::user()->max_journals) {
+            $wallet = Auth::user()->journals()->create($request->all());
+            if ($wallet) {
+                return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
+            } else {
+                return redirect()->back()->withError('Jurnal gagal ditambahkan');
+            }
+        } else if (Auth::user()->max_journals == -1) {
+            $wallet = Auth::user()->journals()->create($request->all());
+            if ($wallet) {
+                return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
+            } else {
+                return redirect()->back()->withError('Jurnal gagal ditambahkan');
+            }
+        } else {
+            return redirect()->back()->withError('Jumlah jurnal yang dimiliki pengguna sudah mencapai batasnya');
+        }
     }
 
     /**

@@ -78,8 +78,12 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
 
     Route::group(['prefix' => 'jurnal'], function(){
         Route::get('', [JournalController::class, 'index'])->name('user.journal');
+        Route::post('/tambah', [JournalController::class, 'store'])->name('user.journal.add');
         Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
-        Route::get('/{id}', [JournalController::class, 'detail'])->name('user.journal.detail');
+        Route::group(['prefix' => '{journal}'], function(){
+            Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();
+
+        });
     });
 
     Route::group(['prefix' => 'pustaka'], function(){
