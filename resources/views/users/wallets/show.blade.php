@@ -1,23 +1,23 @@
 @push('scripts')
-<script>
-    loadData();
+    <script>
+        loadData();
 
-    function loadData(){
-        $.ajax({
-            url: "{{ route('user.wallet.detail.load', $wallet->id) }}",
-            type: "get",
-            success: function(data) {
-                console.log(data);
-                let assets = data.assets;
+        function loadData() {
+            $.ajax({
+                url: "{{ route('user.wallet.detail.load', $wallet->id) }}",
+                type: "get",
+                success: function(data) {
+                    // console.log(data);
+                    let assets = data.assets;
 
-                let table = document.createElement('table');
-                table.setAttribute("id", "wallets-list-table");
-                table.setAttribute("class", "table table-striped table-hover");
-                table.setAttribute("role", "grid");
-                table.setAttribute("data-toggle", "data-table");
+                    let table = document.createElement('table');
+                    table.setAttribute("id", "wallets-list-table");
+                    table.setAttribute("class", "table table-striped table-hover");
+                    table.setAttribute("role", "grid");
+                    table.setAttribute("data-toggle", "data-table");
 
-                let thead = document.createElement("thead");
-                thead.innerHTML = `
+                    let thead = document.createElement("thead");
+                    thead.innerHTML = `
                     <tr class='light'>
                         <th>Nama</th>
                         <th>Harga Rata-Rata</th>
@@ -26,31 +26,32 @@
                         <th>Keuntungan</th>
                     </tr>`;
 
-                let tbody = document.createElement("tbody");
-                if(assets != null){
-                    assets.forEach(asset => {
-                    let tr = document.createElement('tr');
-                    let deleted_at = "<?php echo $wallet->deleted_at ?>";
-                    let route = `<?php echo route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => ":asset"]) ?>`;
-                    route = route.replace(':asset', asset.id);
-                    console.log(route);
-                    if(deleted_at == ""){
-                        tr.setAttribute('onclick', `window.location="${route}"`);
-                        tr.setAttribute('style', 'cursor:pointer;');
-                    }
+                    let tbody = document.createElement("tbody");
+                    if (assets != null) {
+                        assets.forEach(asset => {
+                            let tr = document.createElement('tr');
+                            let deleted_at = "<?php echo $wallet->deleted_at; ?>";
+                            let route = `<?php echo route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => ':asset']); ?>`;
+                            route = route.replace(':asset', asset.id);
+                            console.log(route);
+                            if (deleted_at == "") {
+                                tr.setAttribute('onclick', `window.location="${route}"`);
+                                tr.setAttribute('style', 'cursor:pointer;');
+                            }
 
-                    let pnlString = '';
-                    if(asset.pivot.pnl > 0){
-                        pnlString = `<td class="text-success">$${parseFloat(asset.pivot.pnl)}<br><small>+${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
-                    }
-                    else if(asset.pivot.pnl < 0){
-                        pnlString = `<td class="text-danger">$${parseFloat(asset.pivot.pnl)}<br><small>-${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
-                    }
-                    else{
-                        pnlString = `<td class="text-secondary">$${parseFloat(asset.pivot.pnl)}<br><small>${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
-                    }
+                            let pnlString = '';
+                            if (asset.pivot.pnl > 0) {
+                                pnlString =
+                                    `<td class="text-success">$${parseFloat(asset.pivot.pnl)}<br><small>+${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                            } else if (asset.pivot.pnl < 0) {
+                                pnlString =
+                                    `<td class="text-danger">-$${Math.abs(parseFloat(asset.pivot.pnl))}<br><small>-${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                            } else {
+                                pnlString =
+                                    `<td class="text-secondary">$${parseFloat(asset.pivot.pnl)}<br><small>${parseFloat(asset.pivot.pnl_percentage)}%</small></td>`;
+                            }
 
-                    tr.innerHTML = `<td>
+                            tr.innerHTML = `<td>
                         <img src="${asset.thumb}" alt="logo_crypto" class="img-thumbnail">
                         <span class="ms-2">${asset.name}</span>
                     </td>
@@ -61,38 +62,41 @@
 
 
 
-                    tbody.append(tr);
-                });
-                }
+                            tbody.append(tr);
+                        });
+                    }
 
-                let total_pnl = '';
-                if (data.pnl > 0) {
-                    total_pnl = `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
-                } else if (data.pnl < 0) {
-                    total_pnl = `<span class="h6 text-danger"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
-                } else {
-                    total_pnl = `<span class="h6"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
-                }
-                $("#total_pnl").html(total_pnl);
+                    let total_pnl = '';
+                    if (data.pnl > 0) {
+                        total_pnl =
+                            `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                    } else if (data.pnl < 0) {
+                        total_pnl =
+                            `<span class="h6 text-danger"><strong>-$${Math.abs(parseFloat(data.pnl).toFixed(2))}</strong></span>`;
+                    } else {
+                        total_pnl =
+                            `<span class="h6"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                    }
+                    $("#total_pnl").html(total_pnl);
 
-                $("#amount_of_assets").html(`<strong>$${parseFloat(data.amount_of_assets)}</strong>`);
+                    $("#amount_of_assets").html(`<strong>$${parseFloat(data.amount_of_assets)}</strong>`);
 
-                table.append(thead);
-                table.append(tbody);
+                    table.append(thead);
+                    table.append(tbody);
 
-                $("#table-container").html(table);
-                datatableInit();
-                loaderInit();
+                    $("#table-container").html(table);
+                    datatableInit();
+                    loaderInit();
                 },
-            error: function (request, status, error) {
-                let table = document.createElement('table');
-                table.setAttribute("id", "wallets-list-table");
-                table.setAttribute("class", "table table-striped table-hover");
-                table.setAttribute("role", "grid");
-                table.setAttribute("data-toggle", "data-table");
+                error: function(request, status, error) {
+                    let table = document.createElement('table');
+                    table.setAttribute("id", "wallets-list-table");
+                    table.setAttribute("class", "table table-striped table-hover");
+                    table.setAttribute("role", "grid");
+                    table.setAttribute("data-toggle", "data-table");
 
-                let thead = document.createElement("thead");
-                thead.innerHTML = `
+                    let thead = document.createElement("thead");
+                    thead.innerHTML = `
                     <tr class='light'>
                         <th>Nama</th>
                         <th>Harga Rata-Rata</th>
@@ -101,25 +105,23 @@
                         <th>Keuntungan</th>
                     </tr>`;
 
-                let tbody = document.createElement("tbody");
-                table.append(thead);
-                table.append(tbody);
+                    let tbody = document.createElement("tbody");
+                    table.append(thead);
+                    table.append(tbody);
 
-                $("#table-container").html(table);
-                datatableInit();
-                loaderInit();
-                Swal.fire({
-                icon: 'error',
-                title: 'Oops!!!',
-                text: 'Load gagal',
-                confirmButtonColor: "#3a57e8"
-                });
-            }
-        });
+                    $("#table-container").html(table);
+                    datatableInit();
+                    loaderInit();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!!!',
+                        text: 'Load gagal',
+                        confirmButtonColor: "#3a57e8"
+                    });
+                }
+            });
 
         }
-
-
 
         $(function() {
             $('#delete-wallet').click(function(e) {
@@ -139,6 +141,33 @@
 
                     }
                 })
+            });
+
+            $("#btnKumpul").click(function(e) {
+                e.preventDefault();
+                let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
+                let new_binance_api_key = $("#binance_api_key").val();
+                console.log(old_binance_api_key);
+                console.log(new_binance_api_key);
+                if (old_binance_api_key != '' && new_binance_api_key == '') {
+                    Swal.fire({
+                        title: 'Apakah Anda yakin?',
+                        text: "Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Iya, hapus!',
+                        cancelButtonText: 'Tidak',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $(e.target).closest('form').submit() // Post the surrounding form
+                        }
+                    })
+                }
+                else{
+                    $(e.target).closest('form').submit() // Post the surrounding form
+                }
             });
         });
     </script>
@@ -220,7 +249,8 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
-                                        <td id="amount_of_assets"><strong>${{(float)$wallet->amount_of_assets}}</strong></td>
+                                        <td id="amount_of_assets">
+                                            <strong>${{ (float) $wallet->amount_of_assets }}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -232,7 +262,9 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td id="total_pnl"><span class="h6 @if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif"><strong>{{(float)$wallet->pnl}}</strong></span></td>
+                                        <td id="total_pnl"><span
+                                                class="h6 @if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif"><strong>{{ (float) $wallet->pnl }}</strong></span>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -254,7 +286,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="list-assets"> --}}
-                                    {{-- @foreach ($wallet->assets as $key => $asset)
+                            {{-- @foreach ($wallet->assets as $key => $asset)
                                         <tr
                                             @if ($wallet->deleted_at == '') onclick="window.location='{{ route('user.wallet.asset.detail', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}'"
                                         style="cursor: pointer;" @endif>
@@ -268,7 +300,7 @@
                                             <td>${{ (float) $asset->pivot->pnl }}</td>
                                         </tr>
                                     @endforeach --}}
-                                {{-- </tbody>
+                            {{-- </tbody>
                             </table> --}}
                         </div>
                     </div>
@@ -295,8 +327,9 @@
                                 <label for="binance_api_key" class="form-label text-dark">Integrasi Binance
                                     (Opsional)</label>
                                 <div class="col-sm-12 col-md-6">
-                                    <input type="text" class="form-control" name="binance_api_key"
-                                        placeholder="API Key" value={{ $wallet->binance_api_key }}>
+                                    <input id="binance_api_key" type="text" class="form-control"
+                                        name="binance_api_key" placeholder="API Key"
+                                        value={{ $wallet->binance_api_key }}>
                                 </div>
                                 <div class="col-sm-12 col-md-6">
                                     <input type="text" class="form-control" name="binance_secret_key"
@@ -309,7 +342,7 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <button type="reset" class="btn btn-danger">Reset</button>
-                                <button type="submit" class="btn btn-primary">Kumpul</button>
+                                <button id="btnKumpul" type="submit" class="btn btn-primary">Kumpul</button>
                             </div>
                         </form>
                     </div>

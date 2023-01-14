@@ -211,7 +211,7 @@
 
                     let change = '';
                     if (data.pnl > 0) {
-                        change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                     } else if (data.pnl < 0) {
                         change = `<span class="h6 text-danger">${parseFloat(data.pnl).toFixed(2)}$ (${-parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                     } else {
@@ -469,6 +469,23 @@
                 $("input[name=time]").val(time);
             });
 
+            $("#btnHapus").click(function(){
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan menghapus aset ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, hapus!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $(e.target).closest('form').submit() // Post the surrounding form
+                    }
+                })
+            });
+
             // $("button[type=reset]").on('click', function() {
             //     $("input[name=price]").val(0);
             //     $("input[name=amount]").val(0);
@@ -498,8 +515,15 @@
                                     class="btn btn-light btn-sm">Lihat Info Koin</a>
                             </h4>
                         </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
+                        <div class="d-grid @if($wallet->binance_api_key == null) gap-3 @else gap-2 @endif d-md-flex justify-content-md-end mt-3 mt-md-0">
                             <div>
+                                @if($wallet->binance_api_key == null)
+                                <form action="{{route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" method="post" class="d-inline">
+                                    @csrf
+                                    @method('delete')
+                                    <button id="btnHapus" type="submit" class="btn btn-danger">Hapus Aset Ini</button>
+                                </form>
+                                @endif
                                 <button type="button" class="btn btn-dark">Lihat Laporan</button>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#tambahTransaksiModal">+ Tambah Transaksi</button>

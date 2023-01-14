@@ -324,17 +324,6 @@ class WalletController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Wallet $wallet)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateWalletRequest  $request
@@ -343,6 +332,34 @@ class WalletController extends Controller
      */
     public function update(UpdateWalletRequest $request, Wallet $wallet)
     {
+        if($wallet->binance_api_key != null){
+            if($request->binance_api_key == '' or $request->binance_api_key == null){
+                Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
+                foreach ($wallet->assets as $asset) {
+                    $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
+                    $detaches = [];
+                    foreach($asset_wallet->transactions as $transaction){
+                        if($transaction->status == 0 and $transaction->integrated == 1){
+                            $url = "/api/v3/order";
+                            $params = [
+                                'symbol' => $asset->binance_symbol,
+                                'orderId' => $transaction->order_id,
+                            ];
+                            $type = "DELETE";
+                            $delete_order = Binance::call(true, "SPOT", $url, $params, $type);
+
+                            $detaches[] = $transaction;
+                        }
+                    }
+
+                    foreach ($detaches as $key => $value) {
+                        // dd($value);
+                        $asset_wallet->transactions()->where('id', $value->id)->delete();
+                    }
+                }
+            }
+        }
+
         $success = $wallet->update($request->all());
         if ($success) {
             return redirect()->back()->withSuccess('Dompet berhasil diubah');

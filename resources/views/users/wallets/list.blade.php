@@ -41,7 +41,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td class="@if($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif"><strong>${{(float)$data->wallets->sum('pnl')}}</strong></td>
+                                        <td class="@if($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif"><strong>@if($data->wallets->sum('pnl') < 0)-@endif${{abs((float)$data->wallets->sum('pnl'))}}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -80,7 +80,7 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
-                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">${{ (float) $wallet->pnl }}</td>
+                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ abs((float) $wallet->pnl) }}</td>
                                             <td>${{ (float) $wallet->amount_of_assets }}</td>
                                         </tr>
                                     @endforeach

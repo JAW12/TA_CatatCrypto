@@ -240,4 +240,9 @@ class AssetWalletController extends Controller
             return response()->json($data);
         }
     }
+
+    public function destroy(Wallet $wallet, Asset $asset){
+        $wallet->assets()->detach($asset);
+        return redirect()->route('user.wallet.detail', $wallet)->withSuccess('Aset berhasil dihapus');
+    }
 }

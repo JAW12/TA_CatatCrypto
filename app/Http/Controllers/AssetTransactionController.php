@@ -74,7 +74,7 @@ class AssetTransactionController extends Controller
                         'symbol' => $asset->binance_symbol,
                         'type' => 'LIMIT',
                         'timeInForce' => 'GTC',
-                        'quantity' => $asset_transaction->amount,
+                        'quantity' => abs($asset_transaction->amount),
                         'price' => (float)$asset_transaction->price,
                     ];
                     if($asset_transaction->type == 0){
@@ -85,7 +85,6 @@ class AssetTransactionController extends Controller
                     }
                     $type = "POST";
                     $response = Binance::call(true, "SPOT", $url, $params, $type);
-                    // print_r($response);
 
                     // $orderId = $response['orderId'];
                     // print_r($orderId);
