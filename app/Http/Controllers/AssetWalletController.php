@@ -242,6 +242,17 @@ class AssetWalletController extends Controller
     }
 
     public function destroy(Wallet $wallet, Asset $asset){
+        foreach($wallet->assets as $ass){
+            $ass_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $ass->id)->first();
+            if($ass_wallet != null){
+                foreach($ass_wallet->transactions as $trans){
+                    if($trans->type == 0 or $trans->type == 1){
+                        $wallet->balance = $wallet->balance + $trans->total;
+                        $wallet->save();
+                    }
+                }
+            }
+        }
         $wallet->assets()->detach($asset);
         return redirect()->route('user.wallet.detail', $wallet)->withSuccess('Aset berhasil dihapus');
     }

@@ -469,7 +469,8 @@
                 $("input[name=time]").val(time);
             });
 
-            $("#btnHapus").click(function(){
+            $("#btnHapus").click(function(e){
+                e.preventDefault();
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: "Apakah anda yakin akan menghapus aset ini?",

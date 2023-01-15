@@ -52,6 +52,10 @@ class AssetTransactionController extends Controller
                     $request['time'] = now();
                 }
                 $asset_transaction = AssetTransaction::create($request->except(['transaction_id']));
+                if($request->type == 0 or $request->type == 1){
+                    $wallet->balance = $wallet->balance - $request['total'];
+                    $wallet->save();
+                }
                 if ($asset_transaction) {
                     return redirect()->back()->withSuccess('Transaksi berhasil ditambahkan');
                 } else {
@@ -131,7 +135,15 @@ class AssetTransactionController extends Controller
         }
         else{
             $asset_transaction = AssetTransaction::findOrFail($request->get('transaction_id'));
+            if($asset_transaction->type == 0 or $asset_transaction->type == 1){
+                $wallet->balance = $wallet->balance + $asset_transaction->total;
+                $wallet->save();
+            }
             $update = $asset_transaction->update($request->except(['transaction_id']));
+            if($request->type == 0 or $request->type == 1){
+                $wallet->balance = $wallet->balance - $request['total'];
+                $wallet->save();
+            }
             if ($update) {
                 return redirect()->back()->withSuccess('Transaksi berhasil diubah');
             } else {
@@ -176,6 +188,10 @@ class AssetTransactionController extends Controller
             }
         }
         else{
+            if($asset_transaction->type == 0 or $asset_transaction->type == 1){
+                $wallet->balance = $wallet->balance + $asset_transaction->total;
+                $wallet->save();
+            }
             $delete = $asset_transaction->delete();
             if ($asset_transaction) {
                 return redirect()->back()->withSuccess('Transaksi berhasil dihapus');

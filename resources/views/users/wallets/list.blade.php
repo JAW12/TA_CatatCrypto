@@ -58,6 +58,7 @@
                                         <th>Nama</th>
                                         <th>Deskripsi</th>
                                         <th>Status</th>
+                                        <th>Saldo</th>
                                         <th>Aset</th>
                                         <th>Keuntungan</th>
                                     </tr>
@@ -80,6 +81,7 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
+                                            <td>${{ (float) $wallet->balance }}</td>
                                             <td>${{ (float) $wallet->amount_of_assets }}</td>
                                             <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ abs((float) $wallet->pnl) }}</td>
                                         </tr>
@@ -107,6 +109,10 @@
                             <div class="form-group form-group-alt mb-2">
                                 <label for="name" class="form-label text-dark">Nama Dompet</label>
                                 <input type="text" class="form-control" name="name" placeholder="Binance (Jem)">
+                            </div>
+                            <div class="form-group form-group-alt mb-2">
+                                <label for="balance" class="form-label text-dark">Saldo Dompet (Diisi apabila tidak ada Integrasi Binance)</label>
+                                <input type="text" class="form-control" name="balance" placeholder="0">
                             </div>
                             <div class="form-group form-group-alt row gx-2 gy-0">
                                 <label for="binance_api_key" class="form-label text-dark">Integrasi Binance

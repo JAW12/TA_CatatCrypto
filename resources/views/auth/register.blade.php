@@ -35,23 +35,23 @@
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="form-group">
-                                                <label for="first_name" class="form-label">Nama Depan</label>
+                                                <label for="first_name" class="form-label">Nama Depan <span class="text-danger">*</span></label>
                                                 <input id="name" name="first_name" value="{{ old('first_name') }}"
-                                                    class="form-control" type="text" placeholder=" " required
+                                                    class="form-control" type="text" placeholder="James" required
                                                     autofocus>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="form-group">
-                                                <label for="last_name" class="form-label">Nama Belakang</label>
+                                                <label for="last_name" class="form-label">Nama Belakang <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="text" name="last_name"
-                                                    placeholder=" " value="{{ old('last_name') }}" required>
+                                                    placeholder="Smith" value="{{ old('last_name') }}" required>
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="form-group">
-                                                <label>Alamat Email <span class="text-danger">*</span></label>
-                                                <input class="form-control" type="email" placeholder=" "
+                                                <label for="email" class="form-label">Alamat Email <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="email" placeholder="youremail@email.com"
                                                     id="email" name="email" value="{{ old('email') }}" required>
                                             </div>
                                         </div>
@@ -59,7 +59,7 @@
                                             <div class="form-group">
                                                 <label for="phone" class="form-label">No. Telp</label>
                                                 <input class="form-control" type="text" name="phone_number"
-                                                    placeholder=" ">
+                                                    placeholder="81212341234">
                                             </div>
                                         </div>
                                         <div class="col-lg-6">

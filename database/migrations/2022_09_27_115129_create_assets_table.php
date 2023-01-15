@@ -24,11 +24,11 @@ return new class extends Migration
             $table->string('special_targets', 255)->nullable();
             $table->json('links');
             $table->integer('market_cap_rank')->nullable();
-            $table->bigInteger('market_cap', false, true);
-            $table->bigInteger('total_volume', false, true);
-            $table->bigInteger('market_cap_24h', false, true)->nullable();
-            $table->bigInteger('total_supply', false, true)->nullable();
-            $table->bigInteger('circulating_supply', false, true);
+            $table->bigInteger('market_cap', false, false);
+            $table->bigInteger('total_volume', false, false);
+            $table->bigInteger('market_cap_24h', false, false)->nullable();
+            $table->bigInteger('total_supply', false, false)->nullable();
+            $table->bigInteger('circulating_supply', false, false);
             $table->decimal('current_price', 19, 8, true);
             $table->string('thumb', 255);
             $table->timestamps();

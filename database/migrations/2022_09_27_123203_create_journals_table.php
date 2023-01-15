@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('pnl', 19, 2, true)->default(0);
+            $table->decimal('pnl', 19, 2, false)->default(0);
             $table->decimal('balances', 19, 8, true)->default(0);
             $table->integer('risk', false, true)->nullable();
             $table->bigInteger('count_of_trades')->default(0);

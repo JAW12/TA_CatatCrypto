@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('price', 19, 8, true)->nullable();
             $table->decimal('amount', 19, 8, false);
             $table->decimal('fee', 19, 8, true)->default(0);
-            $table->decimal('total', 19, 8, true)->nullable();
+            $table->decimal('total', 19, 8, false)->nullable();
             $table->text('description')->nullable();
             $table->integer('status')->comment('0 - pending, 1 - filled');
             $table->integer('integrated')->comment('0 - manual, 1 - integrated');

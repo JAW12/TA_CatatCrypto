@@ -18,8 +18,10 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->text('name');
             $table->text('description')->nullable();
+            $table->decimal('balance', 19, 2, false)->nullable();
+            $table->string('balance_symbol', 255)->nullable();
             $table->decimal('pnl', 19, 2, false)->nullable();
-            $table->decimal('amount_of_assets', 19, 2, true)->nullable();
+            $table->decimal('amount_of_assets', 19, 2, false)->nullable();
             $table->string('binance_api_key', 64)->nullable();
             $table->string('binance_secret_key', 64)->nullable();
             $table->timestamps();
