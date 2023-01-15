@@ -97,8 +97,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Long:</strong></td>
-                                        <td id="long_side"><strong>2 <span id="pnl_long_side">+$0 (WR
-                                                    100%)</span></strong></td>
+                                        <td id="long_side"><strong>2 <span id="pnl_long_side" class="ms-2">+$0 (WR 100%)</span></strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -106,8 +105,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Short:</strong></td>
-                                        <td id="short_side"><strong>2 <span id="pnl_short_side">+$0 (WR
-                                                    100%)</span></strong></td>
+                                        <td id="short_side"><strong>2 <span id="pnl_short_side" class="ms-2">+$0 (WR 100%)</span></strong></td>
                                     </tr>
                                 </table>
                             </div>
