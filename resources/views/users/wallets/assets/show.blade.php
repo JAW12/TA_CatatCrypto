@@ -504,30 +504,37 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header d-md-flex justify-content-between">
-                        <div class="header-title d-inline-flex align-items-center">
-                            <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
-                            <h4 class="card-title ms-3 mt-2">
-                                {{ $asset->name }}
-                                <span id="change">
-                                    <span class="h6 @if($asset_wallet->pnl > 0) text-success @elseif($asset_wallet->pnl < 0) text-danger @endif">{{(float)$asset_wallet->pnl}}$ ({{(float)$asset_wallet->pnl_percentage}}%)</span>
-                                </span>
-                                <a href="{{ route('user.wallet.asset.detail.info', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}""
-                                    class="btn btn-light btn-sm">Lihat Info Koin</a>
-                            </h4>
-                        </div>
-                        <div class="d-grid @if($wallet->binance_api_key == null) gap-3 @else gap-2 @endif d-md-flex justify-content-md-end mt-3 mt-md-0">
-                            <div>
-                                @if($wallet->binance_api_key == null)
-                                <form action="{{route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" method="post" class="d-inline">
-                                    @csrf
-                                    @method('delete')
-                                    <button id="btnHapus" type="submit" class="btn btn-danger">Hapus Aset Ini</button>
-                                </form>
-                                @endif
-                                <button type="button" class="btn btn-dark">Lihat Laporan</button>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#tambahTransaksiModal">+ Tambah Transaksi</button>
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="header-title col-sm-12 col-md-5 d-inline-flex align-items-center">
+                                <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
+                                <h4 class="card-title ms-3 mt-2">
+                                    {{ $asset->name }}
+                                    <span id="change">
+                                        <span class="h6 @if($asset_wallet->pnl > 0) text-success @elseif($asset_wallet->pnl < 0) text-danger @endif">{{(float)$asset_wallet->pnl}}$ ({{(float)$asset_wallet->pnl_percentage}}%)</span>
+                                    </span>
+                                    <a href="{{ route('user.wallet.asset.detail.info', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}""
+                                        class="btn btn-light btn-sm">Lihat Info Koin</a>
+                                </h4>
+                            </div>
+                            <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0">
+                                <div class="row g-2">
+                                    <div class="col-sm-12 col-md-4">
+                                        @if($wallet->binance_api_key == null)
+                                        <form action="{{route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" method="post" class="w-100">
+                                            @csrf
+                                            @method('delete')
+                                            <button id="btnHapus" type="submit" class="btn btn-danger w-100">Hapus Aset Ini</button>
+                                        </form>
+                                        @endif
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
+                                        <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
+                                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal">+ Tambah Transaksi</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

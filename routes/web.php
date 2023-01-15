@@ -82,6 +82,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
         Route::group(['prefix' => '{journal}'], function(){
             Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();
+            Route::post('', [JournalController::class, 'update'])->name('user.journal.update')->withTrashed();
+            Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
+            Route::post('/aktifkan', [JournalController::class, 'restore'])->name('user.journal.restore')->withTrashed();
 
         });
     });

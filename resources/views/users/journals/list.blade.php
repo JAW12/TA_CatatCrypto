@@ -6,19 +6,27 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header d-md-flex justify-content-between">
-                        <div class="header-title">
-                            <h4 class="card-title">Daftar Jurnal</h4>
-                            @if ($data->max_journals >= 0)
-                                <h6 class="text-muted"><small>{{ $data->journals->count()}} / {{$data->max_journals}}
-                                    Jurnal, Tersedia {{ $data->max_journals - $data->journals->count() }} Jurnal yang bisa ditambahkan</small></h6>
-                            @endif
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
-                            <button type="button" class="btn btn-dark">Lihat Laporan Metrik</button>
-                            <button type="button" class="btn btn-primary"
-                                @if ($data->max_journals > 0 and $data->journals->count() >= $data->max_journals) disabled @endif data-bs-toggle="modal"
-                                data-bs-target="#tambahJurnalModal">+ Tambah Jurnal</button>
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="header-title col-sm-12 col-md-7">
+                                <h4 class="card-title">Daftar Jurnal</h4>
+                                @if ($data->max_journals >= 0)
+                                    <h6 class="text-muted"><small>{{ $data->journals->count()}} / {{$data->max_journals}}
+                                        Jurnal, Tersedia {{ $data->max_journals - $data->journals->count() }} Jurnal yang bisa ditambahkan</small></h6>
+                                @endif
+                            </div>
+                            <div class="col-sm-12 col-md-5 mt-3 mt-md-0">
+                                <div class="row g-2">
+                                    <div class="col-sm-12 col-md-6">
+                                        <button type="button" class="btn btn-dark w-100">Lihat Laporan Metrik</button>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6">
+                                        <button type="button" class="btn btn-primary w-100"
+                                            @if ($data->max_journals > 0 and $data->journals->count() >= $data->max_journals) disabled @endif data-bs-toggle="modal"
+                                            data-bs-target="#tambahJurnalModal">+ Tambah Jurnal</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">

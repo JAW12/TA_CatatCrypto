@@ -163,8 +163,7 @@
                             $(e.target).closest('form').submit() // Post the surrounding form
                         }
                     })
-                }
-                else{
+                } else {
                     $(e.target).closest('form').submit() // Post the surrounding form
                 }
             });
@@ -188,8 +187,8 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-md-flex justify-content-between">
-                            <div class="header-title">
+                        <div class="row">
+                            <div class="header-title col-sm-12 col-md-6">
                                 <h4 class="card-title">{{ $wallet->name }}
                                     @if ($wallet->deleted_at == '')
                                         <span class="badge rounded-pill bg-primary">Aktif</span>
@@ -220,39 +219,38 @@
                                             </svg>
                                         </a>
                                     @endif
+
+                                    <h6 class="text-muted"><small>Total Saldo: ${{ (float) $wallet->balance }}</small>
+                                    </h6>
                                 </h4>
                             </div>
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
-                                @if ($wallet->deleted_at == '')
-                                    <form action="{{ route('user.wallet.delete', $wallet->id) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button type="submit" id="delete-wallet"
-                                            class="btn btn-secondary">Nonaktifkan</button>
-                                    </form>
-                                @elseif($wallet->deleted_at != '')
-                                    <form action="{{ route('user.wallet.restore', $wallet->id) }}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success">Aktifkan</button>
-                                    </form>
-                                @endif
-                                <button type="button" class="btn btn-dark">Lihat Laporan</button>
+                            <div class="col-sm-12 col-md-6 mt-3 mt-md-0">
+                                <div class="row g-2">
+                                    @if ($wallet->deleted_at == '')
+                                        <form action="{{ route('user.wallet.delete', $wallet->id) }}" method="post"
+                                            class="col-sm-12 col-md-4">
+                                            @csrf
+                                            @method('delete')
+                                            <button type="submit" id="delete-wallet"
+                                                class="btn btn-secondary w-100">Nonaktifkan</button>
+                                        </form>
+                                    @elseif($wallet->deleted_at != '')
+                                        <form action="{{ route('user.wallet.restore', $wallet->id) }}" method="post"
+                                            class="col-sm-12 col-md-4">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success w-100">Aktifkan</button>
+                                        </form>
+                                    @endif
+                                    <div class="col-sm-12 col-md-4">
+                                        <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
+                                        <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"
+                                            class="btn btn-primary @if ($wallet->deleted_at != '') disabled @endif w-100">+
+                                            Tambah Aset</a>
+                                    </div>
+                                </div>
 
-                                <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"
-                                    class="btn btn-primary @if ($wallet->deleted_at != '') disabled @endif">+ Tambah
-                                    Aset</a>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col">
-                                <table class="text-dark">
-                                    <tr>
-                                        <td><strong>Total Saldo:</strong></td>
-                                        <td id="balance">
-                                            <strong>{{ (float) $wallet->balance }} </strong></td>
-                                    </tr>
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -294,7 +292,8 @@
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
                                         <td id="amount_of_assets">
-                                            <strong>${{ (float) $wallet->amount_of_assets }}</strong></td>
+                                            <strong>${{ (float) $wallet->amount_of_assets }}</strong>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -330,8 +329,10 @@
                                 <input type="text" class="form-control" name="name" value="{{ $wallet->name }}">
                             </div>
                             <div class="form-group form-group-alt mb-2">
-                                <label for="balance" class="form-label text-dark">Saldo Dompet (Diisi apabila tidak ada Integrasi Binance)</label>
-                                <input type="text" class="form-control" name="balance" placeholder="0" value={{$wallet->balance}}>
+                                <label for="balance" class="form-label text-dark">Saldo Dompet (Diisi apabila tidak ada
+                                    Integrasi Binance)</label>
+                                <input type="text" class="form-control" name="balance" placeholder="0"
+                                    value={{ $wallet->balance }}>
                             </div>
                             <div class="form-group row gx-2 gy-0">
                                 <label for="binance_api_key" class="form-label text-dark">Integrasi Binance

@@ -56,7 +56,7 @@ class JournalController extends Controller
      */
     public function show(Journal $journal)
     {
-        //
+        return view('users.journals.show', compact('journal'));
     }
 
     /**
@@ -79,17 +79,31 @@ class JournalController extends Controller
      */
     public function update(UpdateJournalRequest $request, Journal $journal)
     {
-        //
+        $success = $journal->update($request->all());
+        if ($success) {
+            return redirect()->back()->withSuccess('Jurnal berhasil diubah');
+        } else {
+            return redirect()->back()->withError('Jurnal gagal diubah');
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Journal  $journal
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Journal $journal)
     {
-        //
+        $delete = $journal->delete();
+        if ($delete) {
+            return redirect()->back()->withSuccess('Jurnal berhasil dinonaktifkan');
+        } else {
+            return redirect()->back()->withError('Jurnal gagal dinonaktifkan');
+        }
+    }
+
+    public function restore(Journal $journal)
+    {
+        $restore = $journal->restore();
+        if ($restore) {
+            return redirect()->back()->withSuccess('Jurnal berhasil diaktifkan');
+        } else {
+            return redirect()->back()->withError('Jurnal gagal diaktifkan');
+        }
     }
 }

@@ -6,21 +6,25 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header d-md-flex justify-content-between">
-                        <div class="header-title">
-                            <h4 class="card-title">Daftar Dompet</h4>
-                            @if ($data->max_wallets >= 0)
-                                {{-- <h6 class="text-muted"><small>Tersisa {{ $data->max_wallets - $data->wallets->count() }}
-                                        Dompet</small></h6> --}}
-                                <h6 class="text-muted"><small>{{ $data->wallets->count()}} / {{$data->max_wallets}}
-                                    Dompet, Tersedia {{ $data->max_wallets - $data->wallets->count() }} Dompet yang bisa ditambahkan</small></h6>
-                            @endif
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mt-md-0">
-                            <button type="button" class="btn btn-dark">Lihat Laporan</button>
-                            <button type="button" class="btn btn-primary"
-                                @if ($data->max_wallets > 0 and $data->wallets->count() >= $data->max_wallets) disabled @endif data-bs-toggle="modal"
-                                data-bs-target="#tambahDompetModal">+ Tambah Dompet</button>
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="header-title col-sm-12 col-md-7">
+                                <h4 class="card-title">Daftar Dompet</h4>
+                                @if ($data->max_wallets >= 0)
+                                    <h6 class="text-muted"><small>{{ $data->wallets->count()}} / {{$data->max_wallets}}
+                                        Dompet, Tersedia {{ $data->max_wallets - $data->wallets->count() }} Dompet yang bisa ditambahkan</small></h6>
+                                @endif
+                            </div>
+                            <div class="col-sm-12 col-md-5 justify-content-md-end mt-3 mt-md-0 row g-2">
+                                <div class="col-sm-12 col-md-6">
+                                    <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                </div>
+                                <div class="col-sm-12 col-md-6">
+                                <button type="button" class="btn btn-primary w-100"
+                                    @if ($data->max_wallets > 0 and $data->wallets->count() >= $data->max_wallets) disabled @endif data-bs-toggle="modal"
+                                    data-bs-target="#tambahDompetModal">+ Tambah Dompet</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
