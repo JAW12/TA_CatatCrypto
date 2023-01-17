@@ -172,7 +172,7 @@
                                 </div>
                             </form>
                             <div class="col-sm-12 col-md-3 d-flex justify-content-end">
-                                <a href="" class="btn btn-primary @if ($journal->deleted_at != '') disabled @endif w-100">+ Tambah Catatan</a>
+                                <a href="{{route('user.journal.trade.add', ['journal' => $journal->id])}}" class="btn btn-primary @if ($journal->deleted_at != '') disabled @endif w-100">+ Tambah Catatan</a>
                             </div>
                         </div>
                         <h6><strong>Pending</strong></h6>

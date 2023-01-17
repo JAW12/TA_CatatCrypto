@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\TradeController;
 use App\Http\Controllers\UserController;
 use App\Models\AssetTransaction;
 
@@ -80,11 +81,13 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         Route::get('', [JournalController::class, 'index'])->name('user.journal');
         Route::post('/tambah', [JournalController::class, 'store'])->name('user.journal.add');
         Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
+
         Route::group(['prefix' => '{journal}'], function(){
             Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();
             Route::post('', [JournalController::class, 'update'])->name('user.journal.update')->withTrashed();
             Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
             Route::post('/aktifkan', [JournalController::class, 'restore'])->name('user.journal.restore')->withTrashed();
+            Route::get('/tambah', [TradeController::class, 'add'])->name('user.journal.trade.add');
 
         });
     });
