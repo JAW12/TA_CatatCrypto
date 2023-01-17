@@ -33,7 +33,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
-                                        <td><strong>${{(float)$data->wallets->sum('amount_of_assets')}}</strong></td>
+                                        <td><strong>${{ number_format((float)$data->wallets->sum('amount_of_assets'), 2, '.', ',')}}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -45,7 +45,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td class="@if($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif"><strong>@if($data->wallets->sum('pnl') < 0)-@endif${{abs((float)$data->wallets->sum('pnl'))}}</strong></td>
+                                        <td class="@if($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif"><strong>@if($data->wallets->sum('pnl') < 0)-@endif${{number_format(abs((float)$data->wallets->sum('pnl')), 2, '.', ',')}}</strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -85,9 +85,9 @@
                                                     <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                 @endif
                                             </td>
-                                            <td>${{ (float) $wallet->balance }}</td>
-                                            <td>${{ (float) $wallet->amount_of_assets }}</td>
-                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ abs((float) $wallet->pnl) }}</td>
+                                            <td>${{ number_format((float) $wallet->balance, 2, '.', ',') }}</td>
+                                            <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}</td>
+                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

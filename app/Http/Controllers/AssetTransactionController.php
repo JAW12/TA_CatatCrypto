@@ -88,7 +88,7 @@ class AssetTransactionController extends Controller
                         $params['side'] = 'SELL';
                     }
                     $type = "POST";
-                    $response = Binance::call(true, "SPOT", $url, $params, $type);
+                    $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
 
                     // $orderId = $response['orderId'];
                     // print_r($orderId);
@@ -99,7 +99,7 @@ class AssetTransactionController extends Controller
                         'orderId' => $response['orderId'],
                     ];
                     $type = 'GET';
-                    $response = Binance::call(true, "SPOT", $url, $params, $type);
+                    $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
                     if($response['status'] == 'FILLED'){
                         $url = "/api/v3/myTrades";
                         $params = [
@@ -107,7 +107,7 @@ class AssetTransactionController extends Controller
                             'orderId' => $response['orderId'],
                         ];
                         $type = 'GET';
-                        $response = Binance::call(true, "SPOT", $url, $params, $type);
+                        $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
 
                         if(count($response) > 0){
                             $asset_transaction->update([
@@ -177,7 +177,7 @@ class AssetTransactionController extends Controller
                 'orderId' => $asset_transaction->order_id,
             ];
             $type = "DELETE";
-            $response = Binance::call(true, "SPOT", $url, $params, $type);
+            $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
             if($response['status'] == 'CANCELED'){
                 $delete = $asset_transaction->delete();
                 if ($asset_transaction) {

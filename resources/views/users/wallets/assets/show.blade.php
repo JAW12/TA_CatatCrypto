@@ -103,37 +103,71 @@
                     if (transactions != null) {
                         $ctr = 1;
                         transactions.forEach(transaction => {
-                            let type = "Beli";
-                            let price = "-";
-                            let amount = "";
-                            let total = "";
+                            let typeTd = "Beli";
+                            let priceTd = "-";
+                            let amountTd = "";
+                            let totalTd = "";
+
+                            let priceString = '';
+                            if (transaction.price > 0 && transaction.price < 1) {
+                                priceString = `${parseFloat(transaction.price)}`;
+                            } else {
+                                priceString =
+                                    `${parseFloat(transaction.price).toLocaleString('en-US')}`;
+                            }
+
+                            let amountString = '';
+                            if (transaction.amount > 0 && transaction.amount < 1) {
+                                amountString = `${parseFloat(transaction.amount)}`;
+                            } else {
+                                amountString =
+                                    `${parseFloat(transaction.amount).toLocaleString('en-US')}`;
+                            }
+
+                            let totalString = '';
+                            if (transaction.total > 0 && transaction.total < 1) {
+                                totalString = `${parseFloat(transaction.total)}`;
+                            } else {
+                                totalString =
+                                    `${parseFloat(transaction.total).toLocaleString('en-US')}`;
+                            }
+
+
                             if (transaction.type == 0) {
-                                type = "Beli";
-                                price = "$".concat(parseFloat(transaction.price));
-                                amount = "+".concat(parseFloat(transaction.amount)).concat(' ').concat(
+                                typeTd = "Beli";
+                                priceTd = "$".concat(priceString);
+                                amountTd = "+".concat(amountString).concat(' ').concat(
                                     symbol);
-                                total = "+".concat(parseFloat(transaction.total)).concat('$');
+                                totalTd = "+".concat(totalString).concat('$');
                             } else if (transaction.type == 1) {
-                                price = "$".concat(parseFloat(transaction.price));
-                                type = "Jual";
-                                amount = parseFloat(transaction.amount).toString().concat(' ').concat(
+                                typeTd = "Jual";
+                                priceTd = "$".concat(priceString);
+                                amountTd = amountString.toString().concat(' ').concat(
                                     symbol);
-                                total = parseFloat(transaction.total).toString().concat('$');
+                                totalTd = totalString.toString().concat('$');
                             } else if (transaction.type == 2) {
-                                type = "Transfer Keluar";
-                                amount = parseFloat(transaction.amount).toString().concat(' ').concat(
+                                typeTd = "Transfer Keluar";
+                                amountTd = amountString.toString().concat(' ').concat(
                                     symbol);
-                                total = parseFloat(transaction.total).toString().concat('$');
+                                totalTd = totalString.toString().concat('$');
                             } else if (transaction.type == 3) {
-                                type = "Transfer Masuk";
-                                amount = "+".concat(parseFloat(transaction.amount)).concat(' ').concat(
+                                typeTd = "Transfer Masuk";
+                                amountTd = "+".concat(amountString).concat(' ').concat(
                                     symbol);
-                                total = "+".concat(parseFloat(transaction.total)).concat('$');
+                                totalTd = "+".concat(totalString).concat('$');
+                            }
+
+                            let feeString = '';
+                            if (transaction.fee > 0 && transaction.fee < 1) {
+                                feeString = `${parseFloat(transaction.fee)}`;
+                            } else {
+                                feeString =
+                                    `${parseFloat(transaction.fee).toLocaleString('en-US')}`;
                             }
 
                             let fee = '-';
                             if (transaction.fee > 0) {
-                                fee = "$" + parseFloat(transaction.fee).toString();
+                                fee = "$" + feeString;
                             }
 
                             let status = '';
@@ -194,10 +228,10 @@
                             }
                             let tr = document.createElement('tr');
                             tr.innerHTML = `<td>${$ctr++}</td>
-                                    <td>${type}</td>
-                                    <td>${price}</td>
+                                    <td>${typeTd}</td>
+                                    <td>${priceTd}</td>
                                     <td>${transaction.time}</td>
-                                    <td>${amount}<br>${total}</td>
+                                    <td>${amountTd}<br>${totalTd}</td>
                                     <td>${fee}</td>
                                     <td>${status}</td>
                                     <td>${aksi}</td>`;
@@ -211,7 +245,12 @@
 
                     let change = '';
                     if (data.pnl > 0) {
-                        change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        if(data.pnl > 999){
+                            change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2).toLocaleString('en-US')}%)</span>`;
+                        }
+                        else{
+                            change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        }
                     } else if (data.pnl < 0) {
                         change = `<span class="h6 text-danger">${parseFloat(data.pnl).toFixed(2)}$ (${-parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                     } else {
@@ -219,13 +258,41 @@
                     }
                     $("#change").html(change);
 
-                    $("#amount").html(`<strong>${parseFloat(data.amount)} ${symbol}</strong>`);
+                    let amountString = '';
+                    if (data.amount > 0 && data.amount < 1) {
+                        amountString = `${parseFloat(data.amount)}`;
+                    } else {
+                        amountString =
+                            `${parseFloat(data.amount).toLocaleString('en-US')}`;
+                    }
+                    $("#amount").html(`<strong>${amountString} ${symbol}</strong>`);
 
-                    $("#total").html(`<small>$ ${parseFloat(data.total)}</small>`);
+                    let totalString = '';
+                    if (data.total > 0 && data.total < 1) {
+                        totalString = `${parseFloat(data.total)}`;
+                    } else {
+                        totalString =
+                            `${parseFloat(data.total).toLocaleString('en-US')}`;
+                    }
+                    $("#total").html(`<small>$ ${totalString}</small>`);
 
-                    $("#average_price").html(`<strong>$ ${parseFloat(data.average_price)}</strong>`);
+                    let averagePriceString = '';
+                    if (data.average_price > 0 && data.average_price < 1) {
+                        averagePriceString = `${parseFloat(data.average_price)}`;
+                    } else {
+                        averagePriceString =
+                            `${parseFloat(data.average_price).toLocaleString('en-US')}`;
+                    }
+                    $("#average_price").html(`<strong>$ ${averagePriceString}</strong>`);
 
-                    $("#current_price").html(`<strong>$ ${parseFloat(current_price)}</strong>`);
+                    let currentPriceString = '';
+                    if (current_price > 0 && current_price < 1) {
+                        currentPriceString = `${parseFloat(current_price)}`;
+                    } else {
+                        currentPriceString =
+                            `${parseFloat(current_price).toLocaleString('en-US')}`;
+                    }
+                    $("#current_price").html(`<strong>$ ${currentPriceString}</strong>`);
 
                     $("#table-container").html(table);
                     let tables = $('[data-toggle="data-table"]').DataTable({

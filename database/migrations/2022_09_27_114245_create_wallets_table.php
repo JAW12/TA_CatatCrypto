@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('amount_of_assets', 19, 2, false)->nullable();
             $table->string('binance_api_key', 64)->nullable();
             $table->string('binance_secret_key', 64)->nullable();
+            $table->boolean('demo')->default(0);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');

@@ -47,11 +47,28 @@ class WalletController extends Controller
     public function store(StoreWalletRequest $request)
     {
         if (Auth::user()->max_wallets == 0 or Auth::user()->wallets->count() < Auth::user()->max_wallets) {
-            if($request['binance_api_key'] == null and $request['balance'] == null){
+            if ($request['binance_api_key'] == null and $request['balance'] == null) {
                 return redirect()->back()->withError('Dompet gagal ditambahkan');
-            }
-            else if($request['binance_api_key'] != null){
+            } else if ($request['binance_api_key'] != null) {
                 $request['balance'] = 0;
+
+                Binance::auth($request['binance_api_key'], $request['binance_secret_key']);
+                $url = "/sapi/v1/account/status";
+                $params = [];
+                $type = "GET";
+                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
+
+                if (array_key_exists("msg", $account_status)) {
+                    if (str_contains($account_status['msg'], 'Invalid')) {
+                        $request['demo'] = true;
+                    }
+                    else{
+                        $request['demo'] = false;
+                    }
+                }
+                else{
+                    $request['demo'] = false;
+                }
             }
             $wallet = Auth::user()->wallets()->create($request->all());
             if ($wallet) {
@@ -99,35 +116,85 @@ class WalletController extends Controller
         if ($wallet->binance_api_key != null) {
             // print_r("<pre>");
             Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
-            $url = "/api/v3/account";
-            $params = [];
-            $type = "GET";
-            $account_info = Binance::call(true, "SPOT", $url, $params, $type);
-            // print_r("Assets Balance <br>");
-            $assets = [];
-            if ($account_info != null) {
-                foreach ($account_info['balances'] as $balance) {
-                    if($balance['asset'] == 'USDT'){
-                        $wallet->balance = $balance['free'] + $balance['locked'];
-                    }
-                    else{
-                        $asset = Asset::where('symbol', $balance['asset'])->first();
-                        // print_r($balance);
-                        if ($asset != null) {
-                            $asset_wallet = $wallet->assets()->where('asset_id', $asset->id)->first();
-                            if($asset_wallet == null){
-                                AssetWallet::create([
-                                    'wallet_id' => $wallet->id,
-                                    'asset_id' => $asset->id,
-                                    'amount' => $balance['free'] + $balance['locked']
+
+            if ($wallet->demo == true) {
+                $url = "/api/v3/account";
+                $params = [];
+                $type = "GET";
+                $account_info = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+
+                // print_r("Assets Balance <br>");
+                if ($account_info != null) {
+                    if (array_key_exists("balances", $account_info)) {
+                        foreach ($account_info['balances'] as $balance) {
+                            if ($balance['asset'] == 'USDT') {
+                                $wallet->update([
+                                    'balance' => $balance['free'] + $balance['locked']
                                 ]);
+                            } else {
+                                $asset = Asset::where('symbol', $balance['asset'])->first();
+                                // print_r($balance);
+                                if ($asset != null) {
+                                    $asset_wallet = $wallet->assets()->where('asset_id', $asset->id)->first();
+                                    if ($asset_wallet == null) {
+                                        AssetWallet::create([
+                                            'wallet_id' => $wallet->id,
+                                            'asset_id' => $asset->id,
+                                            'amount' => $balance['free'] + $balance['locked']
+                                        ]);
+                                    } else {
+                                        $asset_wallet->pivot->update([
+                                            'amount' => $balance['free'] + $balance['locked']
+                                        ]);
+                                    }
+                                }
                             }
-                            // $assets[$asset->id] = ['amount' => $balance['free'] + $balance['locked']];
-                            // print_r($asset['name'] . ' : ' . $balance['free'] . ' + ' . $balance['locked'] . ' = ' .  $balance['free'] + $balance['locked'] . "<br>");
+                        }
+                    } else if (array_key_exists("msg", $account_info)) {
+                        if (str_contains($account_info['msg'], 'API-key')) {
+                            return response()->json(['error' => 'Invalid'], 404);
+                        }
+                    }
+                }
+            } else {
+                $url = "/sapi/v3/asset/getUserAsset";
+                $params = [];
+                $type = "POST";
+                $user_assets = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+                if ($user_assets != null) {
+                    if (array_key_exists("msg", $user_assets)) {
+                        if (str_contains($user_assets['msg'], 'API-key')) {
+                            return response()->json(['error' => 'Invalid'], 404);
+                        }
+                    } else {
+                        foreach ($user_assets as $user_asset) {
+                            if ($user_asset['asset'] == 'USDT') {
+                                $wallet->update([
+                                    'balance' => $user_asset['free'] + $user_asset['locked']
+                                ]);
+                            } else {
+                                $asset = Asset::where('symbol', $user_asset['asset'])->first();
+                                // print_r($balance);
+                                if ($asset != null) {
+                                    $asset_wallet = $wallet->assets()->where('asset_id', $asset->id)->first();
+                                    if ($asset_wallet == null) {
+                                        AssetWallet::create([
+                                            'wallet_id' => $wallet->id,
+                                            'asset_id' => $asset->id,
+                                            'amount' => $user_asset['free'] + $user_asset['locked']
+                                        ]);
+                                    } else {
+                                        $asset_wallet->pivot->update([
+                                            'amount' => $user_asset['free'] + $user_asset['locked']
+                                        ]);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+
 
             // $wallet->assets()->sync($assets);
 
@@ -141,7 +208,7 @@ class WalletController extends Controller
                     'symbol' => $asset->binance_symbol,
                 ];
                 $type = "GET";
-                $all_orders = Binance::call(true, "SPOT", $url, $params, $type);
+                $all_orders = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
                 if ($all_orders != null) {
                     if (array_key_exists('code', $all_orders) != 1) {
                         foreach ($all_orders as $k_order => $order) {
@@ -196,7 +263,7 @@ class WalletController extends Controller
                                     'orderId' => $order['orderId']
                                 ];
                                 $type_trades = "GET";
-                                $myTrades = Binance::call(true, "SPOT", $url_trades, $params_trades, $type_trades)[0];
+                                $myTrades = Binance::call($wallet->demo, "SPOT", $url_trades, $params_trades, $type_trades)[0];
                                 // print_r($myTrades);
                                 // print_r("<br>");
                                 if ($asset_wallet != null) {
@@ -242,11 +309,10 @@ class WalletController extends Controller
 
                 // Hitung Average Price
                 // dd($asset_wallet->transactions);
-                $sumAmount = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('amount');
-                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('amount');
-                $sumTotal = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('total');
-                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('total');
-                if ($sumTotal > 0 and $sumAmountBought > 0) {
+                $sumAmount = $asset_wallet->amount;
+                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('amount');
+                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('total');
+                if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                     $average_price = $sumTotalBought / $sumAmountBought;
                 } else {
                     $average_price = $asset->current_price;
@@ -269,7 +335,6 @@ class WalletController extends Controller
                 }
                 $asset->pivot->update([
                     'average_price' => $average_price,
-                    'amount' => $sumAmount,
                     'total' => $totalAverage,
                     'pnl' => $pnl,
                     'pnl_percentage' => $pnlPercentage,
@@ -285,9 +350,8 @@ class WalletController extends Controller
                 // Hitung Average Price
                 $sumAmount = $asset_wallet->transactions()->where('status', 1)->sum('amount');
                 $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('amount');
-                $sumTotal = $asset_wallet->transactions()->where('status', 1)->sum('total');
                 $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('total');
-                if ($sumTotal > 0 and $sumAmountBought > 0) {
+                if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                     $average_price = $sumTotalBought / $sumAmountBought;
                 } else {
                     $average_price = $asset->current_price;
@@ -309,8 +373,8 @@ class WalletController extends Controller
                     }
                 }
                 $asset->pivot->update([
-                    'average_price' => $average_price,
                     'amount' => $sumAmount,
+                    'average_price' => $average_price,
                     'total' => $totalAverage,
                     'pnl' => $pnl,
                     'pnl_percentage' => $pnlPercentage,
@@ -339,21 +403,20 @@ class WalletController extends Controller
      */
     public function update(UpdateWalletRequest $request, Wallet $wallet)
     {
-        if($wallet->binance_api_key != null){
-            if($request->binance_api_key == '' or $request->binance_api_key == null){
-                Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
+        if ($wallet->binance_api_key != null) {
+            if ($request->binance_api_key == '' or $request->binance_api_key == null) {
                 foreach ($wallet->assets as $asset) {
                     $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
                     $detaches = [];
-                    foreach($asset_wallet->transactions as $transaction){
-                        if($transaction->status == 0 and $transaction->integrated == 1){
+                    foreach ($asset_wallet->transactions as $transaction) {
+                        if ($transaction->status == 0 and $transaction->integrated == 1) {
                             $url = "/api/v3/order";
                             $params = [
                                 'symbol' => $asset->binance_symbol,
                                 'orderId' => $transaction->order_id,
                             ];
                             $type = "DELETE";
-                            $delete_order = Binance::call(true, "SPOT", $url, $params, $type);
+                            $delete_order = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
 
                             $detaches[] = $transaction;
                         }
@@ -365,7 +428,52 @@ class WalletController extends Controller
                     }
                 }
             }
+            else if($request->binance_api_key != $wallet->binance_api_key){
+                Binance::auth($request->binance_api_key, $request->binance_secret_key);
+                $url = "/sapi/v1/account/status";
+                $params = [];
+                $type = "GET";
+                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
+
+                if (array_key_exists("msg", $account_status)) {
+                    if (str_contains($account_status['msg'], 'Invalid')) {
+                        $request['demo'] = true;
+                    }
+                    else{
+                        $request['demo'] = false;
+                    }
+                }
+                else{
+                    $request['demo'] = false;
+                }
+
+                $wallet->assets()->detach();
+            }
         }
+        else{
+            if ($request->binance_api_key != '') {
+                Binance::auth($request->binance_api_key, $request->binance_secret_key);
+                $url = "/sapi/v1/account/status";
+                $params = [];
+                $type = "GET";
+                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
+
+                if (array_key_exists("msg", $account_status)) {
+                    if (str_contains($account_status['msg'], 'Invalid')) {
+                        $request['demo'] = true;
+                    }
+                    else{
+                        $request['demo'] = false;
+                    }
+                }
+                else{
+                    $request['demo'] = false;
+                }
+
+                $wallet->assets()->detach();
+            }
+        }
+
 
         $success = $wallet->update($request->all());
         if ($success) {

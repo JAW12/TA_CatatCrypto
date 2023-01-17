@@ -49,10 +49,6 @@ class AssetController extends Controller
         // // else
         // //     echo "Oops! Error creating json file...";
 
-
-
-        // // Binance::auth("WC7uqJLrRXlXsCTCz5WnKnZjHwY2STx7BIR1O79mZdP2C1IZzHkpBn9FYRen0yPN", "oPGTu1IIqZOZfKBYhkmSoC9wQNKIieOs8GkX46nVoL0c5x6kRAW7p71IggO5CcHK");
-        // Binance::auth("PZUNzc5VCksFZBtPb4FkAbFHDdkPfjVR0bBc7hvkVNwzFFN9WJxqkisMaAWSxsZ0", "097zZtFSo8n11hivLexqjqVMOnSqFjzFf6kEgI8peimFFh8EOkL4ZcQTih6AP3Mw");
         // $url = "/sapi/v1/asset/assetDetail";
         // $params = [];
         // $type = "GET";
@@ -160,6 +156,12 @@ class AssetController extends Controller
 
     public function index(Wallet $wallet)
     {
+        if($wallet->deleted_at != ''){
+            return redirect()->back()->withError('Anda tidak punya akses ke halaman ini');
+        }
+        else if($wallet->demo == true){
+            return redirect()->back()->withError('Dompet ini bersifat demo, sehingga tidak bisa menambahkan aset selain yang sudah tertera');
+        }
         return view('users.wallets.assets.list', compact('wallet'));
     }
 

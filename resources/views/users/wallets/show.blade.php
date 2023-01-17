@@ -9,7 +9,7 @@
                 success: function(data) {
                     console.log(data);
                     let assets = data.assets;
-                    let balance = "<?php echo $wallet->balance; ?>";
+                    let balance = data.balance;
 
                     let table = document.createElement('table');
                     table.setAttribute("id", "wallets-list-table");
@@ -52,22 +52,62 @@
                                     `<td class="text-secondary">$${parseFloat(asset.pivot.pnl).toFixed(2)}<br><small>${parseFloat(asset.pivot.pnl_percentage).toFixed(2)}%</small></td>`;
                             }
 
+                            let avgPriceString = '';
+                            if (asset.pivot.average_price > 0 && asset.pivot.average_price < 1) {
+                                avgPriceString = `<td>$${parseFloat(asset.pivot.average_price)}</td>`;
+                            } else {
+                                avgPriceString =
+                                    `<td>$${parseFloat(asset.pivot.average_price).toLocaleString('en-US')}</td>`;
+                            }
+
+                            let currentPriceString = '';
+                            if (asset.current_price > 0 && asset.current_price < 1) {
+                                currentPriceString = `<td>$${parseFloat(asset.current_price)}</td>`;
+                            } else {
+                                currentPriceString =
+                                    `<td>$${parseFloat(asset.current_price).toLocaleString('en-US')}</td>`;
+                            }
+
+                            let AmountnTotalString = '';
+                            let amountString = '';
+                            if (asset.pivot.amount > 0 && asset.pivot.amount < 1) {
+                                amountString = `${parseFloat(asset.pivot.amount)}`;
+                            } else {
+                                amountString =
+                                    `${parseFloat(asset.pivot.amount).toLocaleString('en-US')}`;
+                            }
+                            let totalString = '';
+                            if (asset.pivot.total > 0 && asset.pivot.total < 1) {
+                                totalString = `${parseFloat(asset.pivot.total)}`;
+                            } else {
+                                totalString =
+                                `${parseFloat(asset.pivot.total).toLocaleString('en-US')}`;
+                            }
+
+                            AmountnTotalString = `<td>${amountString}<br><small class="text-muted">$
+                                ${totalString}</small></td>`;
+
                             tr.innerHTML = `<td>
                         <img src="${asset.thumb}" alt="logo_crypto" class="img-thumbnail">
                         <span class="ms-2">${asset.name}</span>
                     </td>
-                    <td>$${parseFloat(asset.pivot.average_price)}</td>
-                    <td>$${parseFloat(asset.current_price)}</td>
-                    <td>${parseFloat(asset.pivot.amount)}<br><small class="text-muted">$${parseFloat(asset.pivot.total)}</small></td>
+                    ${avgPriceString}
+                    ${currentPriceString}
+                    ${AmountnTotalString}
                     ${pnlString}`;
+
                             tbody.append(tr);
                         });
                     }
 
                     let total_pnl = '';
                     if (data.pnl > 0) {
-                        total_pnl =
-                            `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                        if(data.pnl > 999){
+                            total_pnl = `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2).toLocaleString('en-US')}</strong></span>`;
+                        }
+                        else{
+                            total_pnl = `<span class="h6 text-success"><strong>$${parseFloat(data.pnl).toFixed(2)}</strong></span>`;
+                        }
                     } else if (data.pnl < 0) {
                         total_pnl =
                             `<span class="h6 text-danger"><strong>-$${Math.abs(parseFloat(data.pnl).toFixed(2))}</strong></span>`;
@@ -77,9 +117,23 @@
                     }
                     $("#total_pnl").html(total_pnl);
 
-                    $("#amount_of_assets").html(`<strong>$${parseFloat(data.amount_of_assets)}</strong>`);
+                    let amountAssetString = '';
+                    if (data.amount_of_assets > 0 && data.amount_of_assets < 1) {
+                        amountAssetString = `${parseFloat(data.amount_of_assets)}`;
+                    } else {
+                        amountAssetString =
+                            `${parseFloat(data.amount_of_assets).toLocaleString('en-US')}`;
+                    }
+                    $("#amount_of_assets").html(`<strong>$${amountAssetString}</strong>`);
 
-                    $("#balance").html(`<strong>$${parseFloat(balance)}</strong>`);
+                    let balanceString = '';
+                    if (balance > 0 && balance < 1) {
+                        balanceString = `${parseFloat(balance)}`;
+                    } else {
+                        balanceString =
+                            `${parseFloat(balance).toLocaleString('en-US')}`;
+                    }
+                    $("#balance").html(`<small>Total Saldo: $${balanceString}</small>`);
 
                     table.append(thead);
                     table.append(tbody);
@@ -112,12 +166,29 @@
                     $("#table-container").html(table);
                     datatableInit();
                     loaderInit();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops!!!',
-                        text: 'Load gagal',
-                        confirmButtonColor: "#3a57e8"
-                    });
+                    let errors = request.responseJSON;
+                    console.log(errors.error);
+                    if (errors.error == "Invalid") {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!!!',
+                            text: 'Load gagal, Pastikan API-Key / IP Address / Permission benar!',
+                            confirmButtonColor: "#3a57e8"
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!!!',
+                            text: 'Load gagal',
+                            confirmButtonColor: "#3a57e8"
+                        });
+                    }
+
+                    $("#total_pnl").html("");
+
+                    $("#amount_of_assets").html("");
+
+                    $("#balance").html("<small>Total Saldo: </small>");
                 }
             });
 
@@ -220,7 +291,8 @@
                                         </a>
                                     @endif
 
-                                    <h6 class="text-muted"><small>Total Saldo: ${{ (float) $wallet->balance }}</small>
+                                    <h6 class="text-muted" id="balance"><small>Total Saldo:
+                                            ${{ (float) $wallet->balance }}</small>
                                     </h6>
                                 </h4>
                             </div>
@@ -246,7 +318,7 @@
                                     </div>
                                     <div class="col-sm-12 col-md-4">
                                         <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"
-                                            class="btn btn-primary @if ($wallet->deleted_at != '') disabled @endif w-100">+
+                                            class="btn btn-primary @if ($wallet->deleted_at != '' or $wallet->demo == 1) disabled @endif w-100">+
                                             Tambah Aset</a>
                                     </div>
                                 </div>

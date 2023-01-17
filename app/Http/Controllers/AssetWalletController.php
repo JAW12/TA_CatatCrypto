@@ -30,7 +30,12 @@ class AssetWalletController extends Controller
     public function show(Wallet $wallet, Asset $asset)
     {
         $asset_wallet = AssetWallet::where('asset_id', $asset->id)->where('wallet_id', $wallet->id)->first();
-        return view('users.wallets.assets.show', compact('wallet', 'asset', 'asset_wallet'));
+        if($asset_wallet == null){
+            return abort(404);
+        }
+        else{
+            return view('users.wallets.assets.show', compact('wallet', 'asset', 'asset_wallet'));
+        }
     }
 
 
@@ -46,12 +51,57 @@ class AssetWalletController extends Controller
             Binance::auth($wallet->binance_api_key, $wallet->binance_secret_key);
             $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
 
+            if ($wallet->demo == true) {
+                $url = "/api/v3/account";
+                $params = [];
+                $type = "GET";
+                $account_info = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+
+                if ($account_info != null) {
+                    if (array_key_exists("balances", $account_info)) {
+                        foreach ($account_info['balances'] as $balance) {
+                            if ($balance['asset'] == $asset->symbol) {
+                                $asset_wallet->update([
+                                    'amount' => $balance['free'] + $balance['locked']
+                                ]);
+                            }
+                        }
+                    } else if (array_key_exists("msg", $account_info)) {
+                        if (str_contains($account_info['msg'], 'API-key')) {
+                            return response()->json(['error' => 'Invalid'], 404);
+                        }
+                    }
+                }
+            }
+            else{
+                $url = "/sapi/v3/asset/getUserAsset";
+                $params = [];
+                $type = "POST";
+                $user_assets = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+                if ($user_assets != null) {
+                    if (array_key_exists("msg", $user_assets)) {
+                        if (str_contains($user_assets['msg'], 'API-key')) {
+                            return response()->json(['error' => 'Invalid'], 404);
+                        }
+                    }
+                    else{
+                        foreach ($user_assets as $user_asset) {
+                            if ($user_asset['asset'] == $asset->symbol) {
+                                $asset_wallet->update([
+                                    'amount' => $user_asset['free'] + $user_asset['locked']
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
             $url = "/api/v3/allOrders";
             $params = [
                 'symbol' => $asset->binance_symbol,
             ];
             $type = "GET";
-            $all_orders = Binance::call(true, "SPOT", $url, $params, $type);
+            $all_orders = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
             if ($all_orders != null) {
                 if (array_key_exists('code', $all_orders) != 1) {
                     foreach ($all_orders as $k_order => $order) {
@@ -72,7 +122,7 @@ class AssetWalletController extends Controller
                             if ($asset_wallet != null) {
                                 try {
                                     $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
-                                    if($asset_transaction == null){
+                                    if ($asset_transaction == null) {
                                         $asset_wallet->transactions()->create([
                                             'order_id' => $order['orderId'],
                                             'type' => $type,
@@ -83,8 +133,7 @@ class AssetWalletController extends Controller
                                             'integrated' => 1,
                                             'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
                                         ]);
-                                    }
-                                    else{
+                                    } else {
                                         $asset_transaction->update([
                                             'order_id' => $order['orderId'],
                                             'type' => $type,
@@ -96,7 +145,6 @@ class AssetWalletController extends Controller
                                             'time' => date('Y-m-d H:i:s', $order['time'] / 1000)
                                         ]);
                                     }
-
                                 } catch (\Throwable $th) {
                                     //throw $th;
                                 }
@@ -110,13 +158,13 @@ class AssetWalletController extends Controller
                                 'orderId' => $order['orderId']
                             ];
                             $type_trades = "GET";
-                            $myTrades = Binance::call(true, "SPOT", $url_trades, $params_trades, $type_trades)[0];
+                            $myTrades = Binance::call($wallet->demo, "SPOT", $url_trades, $params_trades, $type_trades)[0];
                             // print_r($myTrades);
                             // print_r("<br>");
                             if ($asset_wallet != null) {
                                 try {
                                     $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
-                                    if($asset_transaction == null){
+                                    if ($asset_transaction == null) {
                                         $asset_wallet->transactions()->create([
                                             'trade_id' => $myTrades['id'],
                                             'order_id' => $order['orderId'],
@@ -129,8 +177,7 @@ class AssetWalletController extends Controller
                                             'integrated' => 1,
                                             'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
                                         ]);
-                                    }
-                                    else{
+                                    } else {
                                         $asset_transaction->update([
                                             'trade_id' => $myTrades['id'],
                                             'order_id' => $order['orderId'],
@@ -156,19 +203,16 @@ class AssetWalletController extends Controller
             }
 
             // Hitung Average Price
-            $sumAmount = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('amount');
-            $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('amount');
-            $sumTotal = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->sum('total');
-            $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->where('trade_id', '<>', 913836)->whereRaw('type = 0 or type = 4')->sum('total');
+            $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('amount');
+            $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('total');
 
-            if ($sumTotal > 0 and $sumAmountBought > 0) {
+            if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                 $average_price = $sumTotalBought / $sumAmountBought;
             } else {
                 $average_price = $asset->current_price;
             }
             $asset_wallet->update([
                 'average_price' => $average_price,
-                'amount' => $sumAmount,
             ]);
 
             // Hitung PNL
@@ -202,9 +246,8 @@ class AssetWalletController extends Controller
             $sumAmount = $asset_wallet->transactions()->where('status', 1)->sum('amount');
             $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('amount');
             // print_r($sumAmountBought);
-            $sumTotal = $asset_wallet->transactions()->where('status', 1)->sum('total');
             $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 4')->sum('total');
-            if ($sumTotal > 0 and $sumAmountBought > 0) {
+            if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                 $average_price = $sumTotalBought / $sumAmountBought;
             } else {
                 $average_price = $asset->current_price;
@@ -241,12 +284,13 @@ class AssetWalletController extends Controller
         }
     }
 
-    public function destroy(Wallet $wallet, Asset $asset){
-        foreach($wallet->assets as $ass){
+    public function destroy(Wallet $wallet, Asset $asset)
+    {
+        foreach ($wallet->assets as $ass) {
             $ass_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $ass->id)->first();
-            if($ass_wallet != null){
-                foreach($ass_wallet->transactions as $trans){
-                    if($trans->type == 0 or $trans->type == 1){
+            if ($ass_wallet != null) {
+                foreach ($ass_wallet->transactions as $trans) {
+                    if ($trans->type == 0 or $trans->type == 1) {
                         $wallet->balance = $wallet->balance + $trans->total;
                         $wallet->save();
                     }
