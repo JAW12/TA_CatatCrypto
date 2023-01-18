@@ -166,9 +166,6 @@ class AssetController extends Controller
     }
 
     public function autocomplete(Wallet $wallet, Request $request){
-        // $data = Asset::select("name", "coin_gecko_id")
-        // ->where('name', 'LIKE', '%'. $request->get('query'). '%')
-        // ->get();
         $data = [];
         if($wallet->binance_api_key == null){
             $data = DB::table('assets')

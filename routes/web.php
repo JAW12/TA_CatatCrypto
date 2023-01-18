@@ -88,6 +88,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
             Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
             Route::post('/aktifkan', [JournalController::class, 'restore'])->name('user.journal.restore')->withTrashed();
             Route::get('/tambah', [TradeController::class, 'add'])->name('user.journal.trade.add');
+            Route::get('/autocomplete', [TradeController::class, 'autocomplete'])->name('user.journal.asset.autocomplete');
 
         });
     });
