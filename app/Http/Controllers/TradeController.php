@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
+use App\Models\Timeframe;
 use App\Models\Trade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +11,8 @@ use Illuminate\Support\Facades\DB;
 class TradeController extends Controller
 {
     public function add(Journal $journal){
-        return view('users.journals.trades.add', compact('journal'));
+        $timeframes = Timeframe::all();
+        return view('users.journals.trades.add', compact('journal', 'timeframes'));
     }
 
     public function show(Journal $journal, Trade $trade){
