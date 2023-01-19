@@ -88,6 +88,7 @@
                 },
                 select: function(event, ui) {
                     // console.log(ui.item)
+                    $('#asset_id').val(ui.item.value);
                     $('#asset').val(ui.item.label);
                     $("#asset").attr("style",
                         `background-image: url('${ui.item.thumb}'); background-position: 3% 50%; padding-left: 3em; background-size: 2em; background-repeat: no-repeat; border-radius: 8px;`
@@ -111,16 +112,17 @@
             };
 
         $("#open_price").keyup(function() {
-            var open_price = $("#open_price").val();
+            let open_price = $("#open_price").val();
             let avgPriceString = '';
-            if (open_price != null) {
-                if (open_price > 0 && open_price < 1) {
-                    avgPriceString = parseFloat(open_price);
-                } else {
-                    avgPriceString = parseFloat(open_price).toLocaleString('en-US');
-                }
-            }
-            $("#average_price").text(avgPriceString);
+            // if (open_price != null) {
+            //     if (open_price > 0 && open_price < 1) {
+            //         avgPriceString = parseFloat(open_price);
+            //     } else {
+            //         avgPriceString = parseFloat(open_price).toLocaleString('en-US');
+            //     }
+            // }
+            // $("#average_price").text(avgPriceString);
+
             calculateInitialMargin();
             calculateRisk();
             calculateProfit();
@@ -129,28 +131,28 @@
         });
 
         $("#open_quantity").keyup(function() {
-            var qty = $("#open_quantity").val();
-            let quantityString = '';
-            if (qty != null) {
-                if (qty > 0 && qty < 1) {
-                    quantityString = parseFloat(qty);
-                } else {
-                    quantityString = parseFloat(qty).toLocaleString('en-US');
-                }
-            }
-            $("#quantity_remaining").text(quantityString);
+            let qty = $("#open_quantity").val();
+            // let quantityString = '';
+            // if (qty != null) {
+            //     if (qty > 0 && qty < 1) {
+            //         quantityString = parseFloat(qty);
+            //     } else {
+            //         quantityString = parseFloat(qty).toLocaleString('en-US');
+            //     }
+            // }
+            // $("#quantity_remaining").text(quantityString);
             calculateInitialMargin();
             calculateProfit();
             calculateLoss();
             calculateRR();
         });
 
-        $("#lev").keyup(function() {
-            var lev = $("#lev").val();
-            if (lev != null) {
-                lev = parseInt(lev);
+        $("#leverage").keyup(function() {
+            let leverage = $("#leverage").val();
+            if (leverage != null) {
+                leverage = parseInt(leverage);
             }
-            $("#lev").text(lev);
+            $("#leverage").text(leverage);
             calculateInitialMargin();
             calculateProfit();
             calculateLoss();
@@ -158,11 +160,11 @@
         });
 
         function calculateInitialMargin() {
-            var lev = $("#lev").val();
-            var open_price = $("#open_price").val();
-            var qty = $("#open_quantity").val();
+            let leverage = $("#leverage").val();
+            let open_price = $("#open_price").val();
+            let qty = $("#open_quantity").val();
 
-            let initial_margin = qty * open_price / lev;
+            let initial_margin = qty * open_price / leverage;
             let initialMarginString = '';
             if (initial_margin != null) {
                 if (initial_margin > 0 && initial_margin < 1) {
@@ -171,16 +173,21 @@
                     initialMarginString = parseFloat(initial_margin).toLocaleString('en-US');
                 }
             }
+            $("#input_initial_margin").val(initial_margin);
             $("#initial_margin").attr("value", initial_margin);
             $("#initial_margin").text(initialMarginString);
         }
 
         function calculateRisk(){
-            var open_price = $("#open_price").val();
-            var sl1 = $("#sl1").val();
+            let open_price = $("#open_price").val();
+            let average_price = $("#input_average_price").val();
+            if(average_price != ""){
+                open_price == average_price;
+            }
+            let sl1 = $("#sl1").val();
             let direction = $("#type").val();
-            if(risk > 0 && lev != "" && open_price != "" && sl1 != "" && direction != ""){
-                var right_direction = false;
+            if(risk > 0 && leverage != "" && open_price != "" && sl1 != "" && direction != ""){
+                let right_direction = false;
                 if(direction == "1" && parseFloat(open_price) > parseFloat(sl1)){
                     right_direction = true;
                 }
@@ -189,7 +196,7 @@
                 }
                 if(right_direction == true){
                     let max_loss = risk / 100 * balances;
-                    let quantity = max_loss / Math.abs(sl1 - open_price);
+                    let quantity = Math.floor(max_loss / Math.abs(sl1 - open_price));
                     $("#openQuantityInline").html(`Disarankan <strong>${quantity}</strong> sesuai risk ${risk}%`);
                     $("#openQuantityInline").fadeIn();
                 }
@@ -205,7 +212,7 @@
         $("#add_tp").click(function() {
             let ctr_tp = $('.tp_container').length + 1;
             let container = $("#tp_container");
-            let new_tp = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container" no="${ctr_tp}">
+            let new_tp = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
                             <div class="col-sm-12 col-md-2">
                                 <span class="txt">TP ${ctr_tp}</span>
                                 <a href="#" value="${ctr_tp}" class="text-dark delete_tp" id="delete_tp${ctr_tp}"><svg
@@ -215,10 +222,12 @@
                                             d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                     </svg></a>
                             </div>
-                            <div class="col-sm-12 col-md-3"><input type="number" name="tp[]"
+                            <div class="col-sm-12 col-md-3"><input type="number" step="any" name="tp[]"
                                     id="tp${ctr_tp}" no="${ctr_tp}" class="form-control input_tp"></div>
                             <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
                                     class="text-success pnl_tp" id="pnl_tp${ctr_tp}">$0 (0%)</span></div>
+                                    <input type="hidden" name="tp_pnl[]" class="tp_pnl" id="tp_pnl${ctr_tp}">
+                                    <input type="hidden" name="tp_roe[]" class="tp_roe" id="tp_roe${ctr_tp}">
                         </div>`;
             container.append(new_tp);
         });
@@ -226,7 +235,7 @@
         $("#add_sl").click(function() {
             let ctr_sl = $('.sl_container').length + 1;
             let container = $("#sl_container");
-            let new_sl = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center sl_container" no="${ctr_sl}">
+            let new_sl = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center sl_container">
                             <div class="col-sm-12 col-md-2">
                                 <span class="txt">SL ${ctr_sl}</span>
                                 <a href="#" value="${ctr_sl}" class="text-dark delete_sl" id="delete_sl${ctr_sl}"><svg
@@ -236,10 +245,12 @@
                                             d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                     </svg></a>
                             </div>
-                            <div class="col-sm-12 col-md-3"><input type="number" name="sl[]"
+                            <div class="col-sm-12 col-md-3"><input type="number" step="any" name="sl[]"
                                     id="sl${ctr_sl}" no="${ctr_sl}" class="form-control input_sl"></div>
                             <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                     class="text-danger pnl_sl" id="pnl_sl${ctr_sl}">$0 (0%)</span></div>
+                                    <input type="hidden" name="sl_pnl[]" class="sl_pnl" id="sl_pnl${ctr_sl}">
+                                    <input type="hidden" name="sl_roe[]" class="sl_roe" id="sl_roe${ctr_sl}">
                         </div>`;
             container.append(new_sl);
         });
@@ -247,7 +258,15 @@
         function calculateProfit(){
             let initial_margin = $("#initial_margin").attr("value");
             let qty = $("#open_quantity").val();
+            let qty_remaining = $("#input_quantity_remaining").val();
+            if(qty_remaining != ""){
+                qty = qty_remaining;
+            }
             let open_price = $("#open_price").val();
+            let average_price = $("#input_average_price").val();
+            if(average_price != ""){
+                open_price == average_price;
+            }
 
             let input_tp = $(".input_tp");
             input_tp.each(function(){
@@ -262,16 +281,18 @@
                     else if(direction == "0" && parseFloat(tp_price) < parseFloat(open_price)){
                         profit = Math.abs((tp_price - open_price) * qty);
                     }
-                    let profit_percentage = profit / initial_margin * 100;
+                    let profit_percentage = (profit / initial_margin * 100);
 
                     let profitString = '';
                     if (profit > 0 && profit < 1) {
-                        profitString = parseFloat(profit);
+                        profitString = parseFloat(profit).toFixed(2);
                     } else {
-                        profitString = parseFloat(profit).toLocaleString('en-US');
+                        profitString = parseFloat(profit).toFixed(2).toLocaleString('en-US');
                     }
 
-                    $(`#pnl_tp${no}`).html(`$${profitString} (${profit_percentage}%)`);
+                    $(`#pnl_tp${no}`).html(`$${profitString} (${profit_percentage.toFixed(2)}%)`);
+                    $(`#tp_pnl${no}`).val(profit);
+                    $(`#tp_roe${no}`).val(profit_percentage);
                     $(this).attr("pnl", profit);
                     $(this).attr("pnl_percentage", profit_percentage);
                 }
@@ -281,8 +302,15 @@
         function calculateLoss(){
             let initial_margin = $("#initial_margin").attr("value");
             let qty = $("#open_quantity").val();
+            let qty_remaining = $("#input_quantity_remaining").val();
+            if(qty_remaining != ""){
+                qty = qty_remaining;
+            }
             let open_price = $("#open_price").val();
-
+            let average_price = $("#input_average_price").val();
+            if(average_price != ""){
+                open_price == average_price;
+            }
             let input_sl = $(".input_sl");
             input_sl.each(function(){
                 let no = $(this).attr("no");
@@ -296,17 +324,18 @@
                     else if(direction == "0" && parseFloat(sl_price) > parseFloat(open_price)){
                         loss = Math.abs((open_price - sl_price) * qty);
                     }
-                    let loss_percentage = loss / initial_margin * 100;
+                    let loss_percentage = (loss / initial_margin * 100);
 
                     let lossString = '';
                     if (loss > 0 && loss < 1) {
-                        lossString = parseFloat(loss);
+                        lossString = parseFloat(loss).toFixed(2);
                     } else {
-                        lossString = parseFloat(loss).toLocaleString('en-US');
+                        lossString = parseFloat(loss).toFixed(2).toLocaleString('en-US');
                     }
 
-                    $(`#pnl_sl${no}`).html(`$${lossString} (${loss_percentage}%)`);
-
+                    $(`#pnl_sl${no}`).html(`$${lossString} (${loss_percentage.toFixed(2)}%)`);
+                    $(`#sl_pnl${no}`).val(loss);
+                    $(`#sl_roe${no}`).val(loss_percentage);
                     $(this).attr("pnl", loss);
                     $(this).attr("pnl_percentage", loss_percentage);
                 }
@@ -321,7 +350,7 @@
             let sl1_pnl = sl1.attr("pnl");
 
             if(tp1_pnl != "" && sl1_pnl != ""){
-                let rr = parseFloat(tp1_pnl) / parseFloat(sl1_pnl);
+                let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl)).toFixed(2);
                 $("#rr_expected").html(rr);
             }
         }
@@ -338,7 +367,10 @@
                     $(this).find('.delete_tp').attr('value', value);
                     $(this).find('.delete_tp').attr('id', `delete_tp${value}`);
                     $(this).find('.input_tp').attr('id', `tp${value}`);
+                    $(this).find('.input_tp').attr('no', value);
                     $(this).find('.pnl_tp').attr('id', `pnl_tp${value}`);
+                    $(this).find('.tp_pnl').attr('id', `tp_pnl${value}`);
+                    $(this).find('.tp_roe').attr('id', `tp_roe${value}`);
                     value++;
                 })
                 parent.remove();
@@ -355,7 +387,10 @@
                     $(this).find('.delete_sl').attr('value', value);
                     $(this).find('.delete_sl').attr('id', `delete_sl${value}`);
                     $(this).find('.input_sl').attr('id', `sl${value}`);
+                    $(this).find('.input_sl').attr('no', value);
                     $(this).find('.pnl_sl').attr('id', `pnl_sl${value}`);
+                    $(this).find('.sl_pnl').attr('id', `sl_pnl${value}`);
+                    $(this).find('.sl_roe').attr('id', `sl_roe${value}`);
                     value++;
                 })
                 parent.remove();
@@ -401,7 +436,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form action="" method="post" class="row g-0">
+                        <form  method="post" class="row g-0">
                             @csrf
                             <div class="col-12 mb-3">
                                 <h6 class="text-muted"><strong>Informasi Koin</strong></h6>
@@ -413,6 +448,7 @@
                                     </div>
                                     <div class="col-9">
                                         <div class="ui-widget">
+                                            <input type="hidden" name="asset_id" id="asset_id" class="form-control" />
                                             <input type="text" name="asset" id="asset" class="form-control" />
                                         </div>
                                     </div>
@@ -431,14 +467,14 @@
                             </div>
                             <div class="col-sm-12 col-md-6 row g-0">
                                 <div class="col-sm-12 col-md-5 form-group row gx-3 align-items-center">
-                                    <div class="col-4"><label for="lev" class="text-dark">Leverage</label></div>
-                                    <div class="col-8"><input type="number" name="lev" id="lev"
+                                    <div class="col-4"><label for="leverage" class="text-dark">Leverage</label></div>
+                                    <div class="col-8"><input type="number" step="1" name="leverage" id="leverage"
                                             class="form-control"></div>
                                 </div>
                                 <div class="col-sm-12 col-md-7 form-group row gx-3 align-items-center">
                                     <div class="col-4"><label for="open_price" class="text-dark">Harga Entri</label>
                                     </div>
-                                    <div class="col-8"><input type="number" name="open_price" id="open_price"
+                                    <div class="col-8"><input type="number" step="any" name="open_price" id="open_price"
                                             class="form-control"></div>
                                 </div>
                             </div>
@@ -449,7 +485,7 @@
                                             <label for="open_quantity" class="text-dark">Jumlah</label>
                                         </div>
                                         <div class="col-8">
-                                            <input type="number" name="open_quantity" id="open_quantity"
+                                            <input type="number" step="any" name="open_quantity" id="open_quantity"
                                                 class="form-control">
                                         </div>
                                     </div>
@@ -462,6 +498,7 @@
                             <div class="col-sm-12 col-md-6 row g-0">
                                 <div class="col-sm-12 col-md-5 form-group row gx-3 align-items-center">
                                     <div class="col-12 text-dark">Margin Awal: $<span id="initial_margin"></span></div>
+                                    <input type="hidden" name="initial_margin" id="input_initial_margin">
                                 </div>
                                 <div class="col-sm-12 col-md-7 form-group row gx-3 align-items-center">
                                     <div class="col-4"><label for="open_time" class="text-dark">Waktu Entri</label>
@@ -473,14 +510,16 @@
                             <div class="col-sm-12 col-md-6 row g-0">
                                 <div class="col-sm-12 col-md-12 text-dark">
                                     <div class="ps-1 mb-3">
-                                        Harga Entri Rata-Rata: $<span id="average_price"></span>
+                                        Harga Entri Rata-Rata: $<span id="average_price">0</span>
+                                        <input type="hidden" name="average_price" id="input_average_price">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-6 row g-0">
                                 <div class="col-sm-12 col-md-12 text-dark">
                                     <div class="ps-2 mb-3">
-                                        Sisa Jumlah: <span id="quantity_remaining"></span>
+                                        Sisa Jumlah: <span id="quantity_remaining">0</span>
+                                        <input type="hidden" name="quantity_remaining" id="input_quantity_remaining">
                                     </div>
                                 </div>
                             </div>
@@ -501,10 +540,12 @@
                                         <div class="col-sm-12 col-md-2">
                                             <span class="txt">TP 1</span>
                                         </div>
-                                        <div class="col-sm-12 col-md-3"><input type="number" name="tp[]"
+                                        <div class="col-sm-12 col-md-3"><input type="number" step="any" name="tp[]"
                                                 id="tp1" no="1" class="form-control input_tp"></div>
                                         <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
                                                 class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span></div>
+                                        <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
+                                        <input type="hidden" name="tp_roe[]" id="tp_roe1">
                                     </div>
                                 </div>
                             </div>
@@ -521,15 +562,18 @@
                                         <div class="col-sm-12 col-md-2">
                                             <span class="txt">SL 1</span>
                                         </div>
-                                        <div class="col-sm-12 col-md-3"><input type="number" name="sl[]"
+                                        <div class="col-sm-12 col-md-3"><input type="number" step="any"  name="sl[]"
                                                 id="sl1" no="1"  class="form-control input_sl"></div>
                                         <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                                 class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
+                                        <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
+                                        <input type="hidden" name="sl_roe[]" id="sl_roe1">
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-3 mt-md-0 col-12 text-dark">
                                 Risk Ratio Terdekat: <span id="rr_expected">0</span>
+                                <input type="hidden" name="rr_expected" id="input_rr_expected">
                             </div>
                             <div class="col-12 mb-3">
                                 <hr />
@@ -684,15 +728,17 @@
                                 <hr />
                             </div>
                             <div class="col-12 mb-3 row gx-4 gy-4 mt-0 ps-2 pe-0 pe-md-2">
-                                <div class="col-sm-12 col-md-7 row g-0">
-                                    <div
-                                        class="col-12 d-flex align-items-start justify-content-between text-dark mb-3">
-                                        <h6 class="text-muted"><strong>Transaksi</strong></h6>
-                                        <button type="button" class="btn btn-sm btn-primary">+ Tambah
-                                            Transaksi</button>
+                                <div class="col-sm-12 col-md-7">
+                                    <div>
+                                        <div class="d-flex align-items-start justify-content-between text-dark mb-3">
+                                            <h6 class="text-muted"><strong>Transaksi</strong></h6>
+                                            <button type="button" class="btn btn-sm btn-primary">+ Tambah
+                                                Transaksi</button>
+                                        </div>
                                     </div>
-                                    <div class="col-12 table-responsive">
-                                        <table id="transactions-list-table" class="table table-striped table-hover"
+                                    <div>
+                                        <div class="table-responsive">
+                                            <table id="transactions-list-table" class="table table-striped table-hover"
                                             role="grid" data-toggle="data-table">
                                             <thead>
                                                 <tr class="light">
@@ -707,6 +753,8 @@
                                             <tbody>
                                             </tbody>
                                         </table>
+                                        </div>
+
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-5 mt-0">

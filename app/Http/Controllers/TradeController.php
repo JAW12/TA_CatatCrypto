@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class TradeController extends Controller
 {
     public function add(Journal $journal){
-        return view('users.journals.trades.index', compact('journal'));
+        return view('users.journals.trades.add', compact('journal'));
     }
 
     public function show(Journal $journal, Trade $trade){
@@ -27,5 +27,9 @@ class TradeController extends Controller
             ->get();
 
         return response()->json($data);
+    }
+
+    public function store(Journal $journal, Request $request){
+        dd($request->all());
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('timeframes', function (Blueprint $table) {
             $table->id();
-            $table->string('timeframe');
+            $table->string('name');
             $table->timestamps();
         });
     }

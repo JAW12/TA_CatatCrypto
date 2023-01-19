@@ -20,4 +20,20 @@ class Trade extends Model
     public function asset(){
         return $this->belongsTo(Asset::class);
     }
+
+    public function timeframes(){
+        return $this->belongsToMany(Timeframe::class, 'timeframe_trade', 'trade_id', 'timeframe_id');
+    }
+
+    public function strategies(){
+        return $this->belongsToMany(Strategy::class, 'strategy_trade', 'trade_id', 'strategy_id');
+    }
+
+    public function targets(){
+        return $this->hasMany(TradeTarget::class, 'trade_id', 'id');
+    }
+
+    public function transactions(){
+        return $this->hasMany(TradeTransaction::class, 'trade_id', 'id');
+    }
 }
