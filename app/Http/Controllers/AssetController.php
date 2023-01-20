@@ -55,7 +55,7 @@ class AssetController extends Controller
         // $response = Binance::call(false, "SPOT", $url, $params, $type);
         // // print_r($response);
 
-        $client = new CoinGeckoClient();
+        // $client = new CoinGeckoClient();
 
         // $bool = false;
         // $counter = 1;
@@ -112,40 +112,40 @@ class AssetController extends Controller
         //     $asset->save();
         // }
 
-        $assets = Asset::orderBy('id', 'asc')->get();
-        $counter = 0;
-        $last = "";
-        $last_id = "";
-        $bool = false;
-        foreach ($assets as $key => $asset) {
-            if($asset['id'] == '402'){
-                $bool = true;
-                // print_r($bool);
-            }
-            if($bool == true){
-                if($counter < 15){
-                    $counter++;
-                    $data = $client->coins()->getCoin($asset['coin_gecko_id']);
-                    try {
-                        $asset->update([
-                            'thumb' => $data['image']['small'],
-                        ]);
-                        print_r($counter);
-                        print_r("<br>");
-                    } catch (\Throwable $th) {
-                        print_r($th);
-                    }
-                    $last = $asset['coin_gecko_id'];
-                    $last_id = $asset['id'];
-                }
-            }
-        }
-        print_r("<br>");
-        print_r($last);
-        print_r("<br>");
-        print_r($last_id);
-        print_r("<br>");
-        print_r(now());
+        // $assets = Asset::orderBy('id', 'asc')->get();
+        // $counter = 0;
+        // $last = "";
+        // $last_id = "";
+        // $bool = false;
+        // foreach ($assets as $key => $asset) {
+        //     if($asset['id'] == '402'){
+        //         $bool = true;
+        //         // print_r($bool);
+        //     }
+        //     if($bool == true){
+        //         if($counter < 15){
+        //             $counter++;
+        //             $data = $client->coins()->getCoin($asset['coin_gecko_id']);
+        //             try {
+        //                 $asset->update([
+        //                     'thumb' => $data['image']['small'],
+        //                 ]);
+        //                 print_r($counter);
+        //                 print_r("<br>");
+        //             } catch (\Throwable $th) {
+        //                 print_r($th);
+        //             }
+        //             $last = $asset['coin_gecko_id'];
+        //             $last_id = $asset['id'];
+        //         }
+        //     }
+        // }
+        // print_r("<br>");
+        // print_r($last);
+        // print_r("<br>");
+        // print_r($last_id);
+        // print_r("<br>");
+        // print_r(now());
     }
 
     /**

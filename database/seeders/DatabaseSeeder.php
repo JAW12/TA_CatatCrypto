@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AssetTableSeeder::class,
             TimeframeTableSeeder::class,
             CategoryTableSeeder::class,
+            StrategyTableSeeder::class,
         ]);
         // \App\Models\User::factory(40)->create()->each(function($user) {
         //     $user->assignRole($user->user_type);

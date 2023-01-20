@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable();
             $table->foreignId('category_id')->nullable();
             $table->string('name');
-            $table->text('description');
-            $table->text('url_picture');
+            $table->text('description')->nullable();
+            $table->text('url_picture')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
