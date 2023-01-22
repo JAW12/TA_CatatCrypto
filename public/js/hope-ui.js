@@ -416,7 +416,7 @@ document.querySelector('#top').addEventListener('click', (e) => {
 -----------------------------------------------------------------------*/
 document.addEventListener('DOMContentLoaded', (event) => {
   resizePlugins()
-  datatableInit()
+//   datatableInit()
 //   loaderInit()
 });
 

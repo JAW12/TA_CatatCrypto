@@ -30,10 +30,10 @@ return new class extends Migration
             $table->decimal('quantity_remaining', 19, 8)->unsigned()->default(0);
 
 
-            $table->decimal('rr_expected', 5, 2, false)->nullbale();
+            $table->decimal('rr_expected', 5, 2, false)->nullable();
             $table->decimal('real_rr', 5, 2, false)->nullable();
 
-            $table->dateTime('close_time')->nullbale();
+            $table->dateTime('close_time')->nullable();
             $table->decimal('close_price', 19, 8, true)->default(0);
             $table->integer('diff_days')->nullable();
             $table->integer('diff_hours')->nullable();

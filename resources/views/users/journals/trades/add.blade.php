@@ -53,22 +53,37 @@
         .img-wrap .img-delete:hover {
             filter: brightness(85%);
         }
+
+        .select2 {
+            width: 100% !important;
+        }
     </style>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css"> --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 @endpush
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"
+        integrity="sha512-42PE0rd+wZ2hNXftlM78BSehIGzezNeQuzihiBCvUEB3CVxHvsShF86wBWwQORNxNINlBPuq7rG4WWhNiTVHFg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/id.min.js"
+        integrity="sha512-he8U4ic6kf3kustvJfiERUpojM8barHoz0WYpAUDWQVn61efpm3aVAD8RWL8OloaDDzMZ1gZiubF9OSdYBqHfQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.6.0/autoNumeric.min.js"
-    integrity="sha512-6j+LxzZ7EO1Kr7H5yfJ8VYCVZufCBMNFhSMMzb2JRhlwQ/Ri7Zv8VfJ7YI//cg9H5uXT2lQpb14YMvqUAdGlcg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        integrity="sha512-6j+LxzZ7EO1Kr7H5yfJ8VYCVZufCBMNFhSMMzb2JRhlwQ/Ri7Zv8VfJ7YI//cg9H5uXT2lQpb14YMvqUAdGlcg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+    {{-- <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script> --}}
     <script>
         var risk = "<?php echo $journal->risk; ?>";
         var balances = "<?php echo $journal->balances; ?>";
+        var transaction_table = null;
+        var transactions = [];
+
         $("#asset").autocomplete({
                 source: function(request, response) {
                     $.ajax({
@@ -114,8 +129,7 @@
                     .appendTo(ul);
             };
 
-
-            $("#open_price").keyup(function() {
+        $("#open_price").keyup(function() {
             let open_price = $("#open_price").val();
             let avgPriceString = '';
             // if (open_price != null) {
@@ -184,10 +198,10 @@
 
         function calculateRisk() {
             let open_price = $("#open_price").val();
-            let average_price = $("#input_average_price").val();
-            if (average_price != "") {
-                open_price == average_price;
-            }
+            // let average_price = $("#input_average_price").val();
+            // if (average_price != "") {
+            //     open_price == average_price;
+            // }
             let sl1 = $("#sl1").val();
             let direction = $("#type").val();
             if (risk > 0 && leverage != "" && open_price != "" && sl1 != "" && direction != "") {
@@ -199,7 +213,7 @@
                 }
                 if (right_direction == true) {
                     let max_loss = risk / 100 * balances;
-                    let quantity = Math.floor(max_loss / Math.abs(sl1 - open_price));
+                    let quantity = Math.round(max_loss / Math.abs(sl1 - open_price));
                     $("#openQuantityInline").html(`Disarankan <strong>${quantity}</strong> sesuai risk ${risk}%`);
                     $("#openQuantityInline").fadeIn();
                 } else {
@@ -216,7 +230,7 @@
             let new_tp = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
                             <div class="col-sm-12 col-md-2">
                                 <span class="txt">TP ${ctr_tp}</span>
-                                <a href="#" value="${ctr_tp}" class="text-dark delete_tp" id="delete_tp${ctr_tp}"><svg
+                                <a href="javascript:void(0);" value="${ctr_tp}" class="text-dark delete_tp" id="delete_tp${ctr_tp}"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                         fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                         <path
@@ -239,7 +253,7 @@
             let new_sl = `<div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center sl_container">
                             <div class="col-sm-12 col-md-2">
                                 <span class="txt">SL ${ctr_sl}</span>
-                                <a href="#" value="${ctr_sl}" class="text-dark delete_sl" id="delete_sl${ctr_sl}"><svg
+                                <a href="javascript:void(0);" value="${ctr_sl}" class="text-dark delete_sl" id="delete_sl${ctr_sl}"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                         fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                         <path
@@ -259,15 +273,15 @@
         function calculateProfit() {
             let initial_margin = $("#initial_margin").attr("value");
             let qty = $("#open_quantity").val();
-            let qty_remaining = $("#input_quantity_remaining").val();
-            if (qty_remaining != "") {
-                qty = qty_remaining;
-            }
+            // let qty_remaining = $("#input_quantity_remaining").val();
+            // if (qty_remaining != "") {
+            //     qty = qty_remaining;
+            // }
             let open_price = $("#open_price").val();
-            let average_price = $("#input_average_price").val();
-            if (average_price != "") {
-                open_price == average_price;
-            }
+            // let average_price = $("#input_average_price").val();
+            // if (average_price != "") {
+            //     open_price == average_price;
+            // }
 
             let input_tp = $(".input_tp");
             input_tp.each(function() {
@@ -302,15 +316,15 @@
         function calculateLoss() {
             let initial_margin = $("#initial_margin").attr("value");
             let qty = $("#open_quantity").val();
-            let qty_remaining = $("#input_quantity_remaining").val();
-            if (qty_remaining != "") {
-                qty = qty_remaining;
-            }
+            // let qty_remaining = $("#input_quantity_remaining").val();
+            // if (qty_remaining != "") {
+            //     qty = qty_remaining;
+            // }
             let open_price = $("#open_price").val();
-            let average_price = $("#input_average_price").val();
-            if (average_price != "") {
-                open_price == average_price;
-            }
+            // let average_price = $("#input_average_price").val();
+            // if (average_price != "") {
+            //     open_price == average_price;
+            // }
             let input_sl = $(".input_sl");
             input_sl.each(function() {
                 let no = $(this).attr("no");
@@ -349,10 +363,54 @@
             let sl1_pnl = sl1.attr("pnl");
 
             if (tp1_pnl != "" && sl1_pnl != "") {
-                let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl)).toFixed(2);
-                $("#rr_expected").html(rr);
+                let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl));
+                $("#rr_expected").html(rr.toFixed(2));
+                $("#input_rr_expected").val(rr);
             }
         }
+
+        // loadTransaction();
+
+        // function loadTransaction() {
+        //     if (!$.fn.dataTable.isDataTable('#transactions-list-table')) {
+        //         transaction_table = $('#transactions-list-table').DataTable({
+        //             "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+        //             "language": {
+        //                 "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+        //                 "destroy": true,
+        //             },
+        //             columnDefs: [{
+        //                 targets: -1,
+        //                 data: null,
+        //                 defaultContent: '<button type="button" class="btn btn-primary">Click</button>',
+        //             }, ],
+        //         });
+
+        //     }
+        //     if (transaction_table != null) {
+        //         transaction_table.clear();
+        //         let ctr = 1;
+        //         transactions.forEach(element => {
+        //             let profitString = '';
+        //             if (element.pnl > 0 && element.pnl < 1) {
+        //                 profitString = parseFloat(element.pnl).toFixed(2);
+        //             } else {
+        //                 profitString = parseFloat(element.pnl).toFixed(2).toLocaleString('en-US');
+        //             }
+
+        //             if(element.pnl > 0){
+        //                 transaction_table.rows.add($(
+        //                     `<tr><td>${ctr++}</td><td>${element.type == '0' ? 'Entri' : element.type == '1' ? 'Tutup' : '-'}</td><td>${element.price}</td><td>${element.quantity}</td><td>${moment(element.time).format("DD MMMM YYYY HH:mm:ss")}</td><td>${element.fee == '' ? '-' : element.fee}</td><td class="text-success">${profitString}</td><td></td></tr>`
+        //                 )).draw(false);
+        //             }
+        //             else if(element.pnl < 0){
+        //                 transaction_table.rows.add($(
+        //                     `<tr><td>${ctr++}</td><td>${element.type == '0' ? 'Entri' : element.type == '1' ? 'Tutup' : '-'}</td><td>${element.price}</td><td>${element.quantity}</td><td>${moment(element.time).format("DD MMMM YYYY HH:mm:ss")}</td><td>${element.fee == '' ? '-' : element.fee}</td><td class="text-danger">${profitString}</td><td></td></tr>`
+        //                 )).draw(false);
+        //             }
+        //         });
+        //     }
+        // }
 
         $(function() {
             $(document).on('click', '.delete_tp', function() {
@@ -420,11 +478,11 @@
                 calculateRR();
             });
 
-            $(document).on('keypress keyup', '.tv_input', function (e) {
+            $(document).on('keypress keyup', '.tv_input', function(e) {
                 if (e.key === 'Enter' || e.keyCode === 13 || e.which == 13) {
                     e.preventDefault();
                     let this_input = $(this);
-                    if(this_input.val() != ""){
+                    if (this_input.val() != "") {
                         let img_input_container = this_input.closest('.img-input');
                         let img_wrap_container = $(img_input_container).prev();
                         let img = img_wrap_container.find('img');
@@ -435,12 +493,12 @@
                 }
             });
 
-            $(document).on('change', '.img_input', function(e){
+            $(document).on('change', '.img_input', function(e) {
                 let this_input = $(this);
-                if(this_input.length > 0){
+                if (this_input.length > 0) {
                     this_input = this_input[0];
                 }
-                if(this_input.files.length > 0){
+                if (this_input.files.length > 0) {
                     let img_input_container = this_input.closest('.img-input');
                     let img_wrap_container = $(img_input_container).prev();
                     let img = img_wrap_container.find('img');
@@ -451,9 +509,7 @@
                 }
             });
 
-
-
-            $(document).on('click', '.img-delete', function(){
+            $(document).on('click', '.strategy-delete', function() {
                 let this_input = $(this);
                 let img_wrap_container = this_input.closest('.img-wrap');
                 let img = img_wrap_container.find('img');
@@ -463,29 +519,41 @@
                 let empty_image = '{{ URL::asset('/images/no-image.webp') }}'
                 img_input.val("");
                 tv_input.val("");
-                img_wrap_container.fadeOut(function(){
+                img_wrap_container.fadeOut(function() {
                     img.attr("src", empty_image);
                 });
                 img_input_container.fadeIn();
-                // console.log(img_input);
-                // console.log("wrap_container : ", img_wrap_container);
-                // console.log("input_container : ", img_input_container);
-                // console.log("input : ", img_input);
+            });
+
+            $(document).on('click', '.screenshot-delete', function() {
+                let this_input = $(this);
+                let img_wrap_container = this_input.closest('.img-wrap');
+                let img = img_wrap_container.find('img');
+                let img_input_container = img_wrap_container.next();
+                let img_input = img_input_container.find('.img_input');
+                let empty_image = '{{ URL::asset('/images/no-image.webp') }}'
+                img_input.val("");
+                img_wrap_container.fadeOut(function() {
+                    img.attr("src", empty_image);
+                });
+                img_input_container.fadeIn();
             });
 
             $('#timeframe').select2();
-            $('#strategy').select2();
-            $('#indicator').select2();
-            $('#pattern').select2();
+            $('#entry_strategy').select2();
+            $('#fibonacci_strategy').select2();
+            $('#candlestick_strategy').select2();
+            $('#chart_strategy').select2();
+            $('#indicator_strategy').select2();
 
-            $('#timeframe').on('select2:select', function (e) {
+            $('#timeframe').on('select2:select', function(e) {
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
                 let html = `<div class="col mt-0 mb-3 text-dark" id="${data.text}_container">
                                     <strong>${data.text}</strong>
                                     <div class="img-wrap" style="display: none">
-                                        <a href="javascript:void(0);" class="img-delete text-danger"><svg
+                                        <a href="javascript:void(0);" class="img-delete text-danger strategy-delete"><svg
                                                 xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                                 fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                                 <path
@@ -503,20 +571,80 @@
                                             placeholder="Isi URL Trading View Disini..">
                                     </div>
                                 </div>`;
-                if(container.find(`#${data.text}_container`).length == 0){
+                if (container.find(`#${data.text}_container`).length == 0) {
                     container.append(html);
                 }
             });
 
-            $('#timeframe').on('select2:unselect', function (e) {
+            $('#timeframe').on('select2:unselect', function(e) {
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
-                if(container.find(`#${data.text}_container`).length > 0){
+                if (container.find(`#${data.text}_container`).length > 0) {
                     let child_container = container.find(`#${data.text}_container`);
                     child_container.remove();
                 }
             });
+
+            // $(document).on('click', '#transaction_submit', function(e) {
+            //     e.preventDefault();
+            //     let transaction_price = $("#transaction_price").val();
+            //     let transaction_quantity = $("#transaction_quantity").val();
+            //     let transaction_fee = $("#transaction_fee").val();
+            //     let transaction_type = $("#transaction_type").val();
+            //     let transaction_time = $("#transaction_time").val();
+            //     let transaction_pnl = 0;
+
+            //     let open_price = $("#open_price").val();
+            //     let average_price = $("#input_average_price").val();
+            //     if (average_price != "") {
+            //         open_price == average_price;
+            //     }
+
+            //     let direction = $("#type").val();
+            //     if (direction == "1" && parseFloat(transaction_price) > parseFloat(open_price)) {
+            //         transaction_pnl = Math.abs((open_price - tp_price) * qty);
+            //     } else if (direction == "0" && parseFloat(tp_price) < parseFloat(open_price)) {
+            //         transaction_pnl = Math.abs((tp_price - open_price) * qty);
+            //     }
+
+            //     if (transaction_time == '') {
+            //         transaction_time = new Date();
+            //     }
+
+            //     if (transaction_price == '' || transaction_quantity == '') {
+            //         $('#tambahTransaksiModal').modal('hide');
+            //         Swal.fire({
+            //             icon: 'error',
+            //             title: 'Oops!!!',
+            //             text: 'Tambah transaksi gagal',
+            //             confirmButtonColor: "#3a57e8"
+            //         });
+            //         return false;
+            //     }
+
+            //     let new_transaction = [];
+            //     new_transaction['price'] = transaction_price;
+            //     new_transaction['quantity'] = transaction_quantity;
+            //     new_transaction['fee'] = transaction_fee;
+            //     new_transaction['type'] = transaction_type;
+            //     new_transaction['time'] = transaction_time;
+            //     new_transaction['pnl'] = transaction_pnl;
+
+            //     transactions.push(new_transaction);
+
+            //     $('#tambahTransaksiModal').modal('hide');
+            //     $('#transaction_form').trigger('reset');
+
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'Berhasil',
+            //         text: 'Tambah transaksi berhasil',
+            //         confirmButtonColor: "#3a57e8"
+            //     });
+
+            //     loadTransaction();
+            // });
         });
     </script>
 @endpush
@@ -532,235 +660,285 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post" class="row g-0" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data">
                             @csrf
-                            <div class="col-12 mb-3">
+                            <div class="mb-3">
                                 <h6 class="text-muted"><strong>Informasi Koin</strong></h6>
                             </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-6 form-group row gx-3 align-items-center">
-                                    <div class="col-3">
-                                        <label for="asset" class="text-dark">Koin</label>
-                                    </div>
-                                    <div class="col-9">
-                                        <div class="ui-widget">
-                                            <input type="hidden" name="asset_id" id="asset_id" class="form-control" />
-                                            <input type="text" name="asset" id="asset" class="form-control" />
+                            <div class="row">
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="form-group row gx-1">
+                                        <label for="asset" class="col-2 col-form-label text-dark">Koin</label>
+                                        <div class="col-10">
+                                            <div class="ui-widget">
+                                                <input type="hidden" name="asset_id" id="asset_id"
+                                                    class="form-control" />
+                                                <input type="text" name="asset" id="asset"
+                                                    class="form-control" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 form-group row gx-3 align-items-center">
-                                    <div class="col-2">
-                                        <label for="type" class="text-dark">Tipe</label>
-                                    </div>
-                                    <div class="col-10">
-                                        <select name="type" id="type" class="form-control">
-                                            <option value="1">LONG</option>
-                                            <option value="0">SHORT</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-5 form-group row gx-3 align-items-center">
-                                    <div class="col-4"><label for="leverage" class="text-dark">Leverage</label></div>
-                                    <div class="col-8"><input type="number" step="1" name="leverage"
-                                            id="leverage" class="form-control"></div>
-                                </div>
-                                <div class="col-sm-12 col-md-7 form-group row gx-3 align-items-center">
-                                    <div class="col-4"><label for="open_price" class="text-dark">Harga Entri</label>
-                                    </div>
-                                    <div class="col-8"><input type="number" step="any" name="open_price"
-                                            id="open_price" class="form-control"></div>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-12 form-group row align-items-center">
-                                    <div class="col-sm-12 col-md-5 row gx-2 align-items-center">
-                                        <div class="col-4">
-                                            <label for="open_quantity" class="text-dark">Jumlah</label>
+                                <div class="col-sm-12 col-md-3">
+                                    <div class="form-group row gx-1">
+                                        <label for="type" class="col-3 col-form-label text-dark">Tipe</label>
+                                        <div class="col-9">
+                                            <select name="type" id="type" class="form-control">
+                                                <option value="1">LONG</option>
+                                                <option value="0">SHORT</option>
+                                            </select>
                                         </div>
-                                        <div class="col-8">
-                                            <input type="number" step="any" name="open_quantity" id="open_quantity"
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group row gx-1">
+                                        <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
+                                        <div class="col-6">
+                                            <input type="number" step="1" name="leverage" id="leverage"
                                                 class="form-control">
                                         </div>
                                     </div>
-
-                                    <div class="col-sm-12 col-md-7">
-                                        <span id="openQuantityInline" class="form-text" style="display: none;"></span>
-                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-5 form-group row gx-3 align-items-center">
-                                    <div class="col-12 text-dark">Margin Awal: $<span id="initial_margin"></span></div>
-                                    <input type="hidden" name="initial_margin" id="input_initial_margin">
-                                </div>
-                                <div class="col-sm-12 col-md-7 form-group row gx-3 align-items-center">
-                                    <div class="col-4"><label for="open_time" class="text-dark">Waktu Entri</label>
-                                    </div>
-                                    <div class="col-8"><input type="datetime-local" name="open_time" id="open_time"
-                                            class="form-control"></div>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-12 text-dark">
-                                    <div class="ps-1 mb-3">
-                                        Harga Entri Rata-Rata: $<span id="average_price">0</span>
-                                        <input type="hidden" name="average_price" id="input_average_price">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0">
-                                <div class="col-sm-12 col-md-12 text-dark">
-                                    <div class="ps-2 mb-3">
-                                        Sisa Jumlah: <span id="quantity_remaining">0</span>
-                                        <input type="hidden" name="quantity_remaining"
-                                            id="input_quantity_remaining">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <hr />
-                            </div>
-                            <div class="col-12 mb-3">
-                                <h6 class="text-muted"><strong>Informasi TP & SL</strong></h6>
-                            </div>
-                            <div class="col-sm-12 col-md-6 row g-0 pe-3 justify-content-start align-items-start">
-                                <div
-                                    class="col-sm-12 col-md-12 d-flex align-items-center justify-content-between text-dark mb-3">
-                                    <span>Harga TP</span>
-                                    <button id="add_tp" type="button" class="btn btn-sm btn-primary">+ Tambah
-                                        Harga TP</button>
-                                </div>
-                                <div id="tp_container" class="col-12 h-100">
-                                    <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
-                                        <div class="col-sm-12 col-md-2">
-                                            <span class="txt">TP 1</span>
+                                <div class="col-sm-12 col-md-4">
+                                    <div class="form-group row gx-1">
+                                        <label for="open_price" class="col-4 col-form-label text-dark">Harga
+                                            Entri</label>
+                                        <div class="col-8">
+                                            <input type="number" step="any" name="open_price" id="open_price"
+                                                class="form-control">
                                         </div>
-                                        <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                name="tp[]" id="tp1" no="1"
-                                                class="form-control input_tp"></div>
-                                        <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
-                                                class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span></div>
-                                        <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
-                                        <input type="hidden" name="tp_roe[]" id="tp_roe1">
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                class="col-sm-12 col-md-6 row g-0 ps-0 ps-md-2 pe-3 pe-md-4 justify-content-start align-items-start">
-                                <div
-                                    class="col-sm-12 col-md-12 d-flex align-items-center justify-content-between text-dark mb-3">
-                                    <span>Harga SL</span>
-                                    <button type="button" id="add_sl" class="btn btn-sm btn-primary">+ Tambah
-                                        Harga SL</button>
-                                </div>
-                                <div id="sl_container" class="col-12 h-100">
-                                    <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
-                                        no="1">
-                                        <div class="col-sm-12 col-md-2">
-                                            <span class="txt">SL 1</span>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group row gx-1">
+                                        <label for="open_quantity"
+                                            class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
+                                        <div class="col-9 col-md-5">
+                                            <input type="number" step="any" name="open_quantity" id="open_quantity"
+                                                class="form-control">
                                         </div>
-                                        <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                name="sl[]" id="sl1" no="1"
-                                                class="form-control input_sl"></div>
-                                        <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
-                                                class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
-                                        <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
-                                        <input type="hidden" name="sl_roe[]" id="sl_roe1">
+                                        <span id="openQuantityInline"
+                                            class="col-12 col-md-5 col-form-label form-text text-center"
+                                            style="display: none;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group row gx-1">
+                                        <div class="col-12 col-form-label text-dark">Margin Awal: $<span
+                                                id="initial_margin"></span></div>
+                                        <input type="hidden" name="initial_margin" id="input_initial_margin">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-4">
+                                    <div class="form-group row gx-1">
+                                        <label for="open_time" class="col-4 col-form-label text-dark">Waktu
+                                            Entri</label>
+                                        <div class="col-8">
+                                            <input type="datetime-local" name="open_time" id="open_time"
+                                                class="form-control">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-3 mt-md-0 col-12 text-dark">
+                            {{-- <div class="row">
+                                <div class="col-sm-12 col-md-3">
+                                    Harga Entri Rata-Rata: $<span id="average_price">0</span>
+                                    <input type="hidden" name="average_price" id="input_average_price">
+                                </div>
+                                <div class="col-sm-12 col-md-3">
+                                    Sisa Jumlah: <span id="quantity_remaining">0</span>
+                                    <input type="hidden" name="quantity_remaining" id="input_quantity_remaining">
+                                </div>
+                            </div> --}}
+                            <hr />
+                            <h6 class="text-muted mb-3"><strong>Informasi TP & SL</strong></h6>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span>Harga TP</span>
+                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary">+ Tambah
+                                            Harga TP</button>
+                                    </div>
+                                    <div id="tp_container" class="h-100">
+                                        <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
+                                            <div class="col-sm-12 col-md-2">
+                                                <span class="txt">TP 1</span>
+                                            </div>
+                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                    name="tp[]" id="tp1" no="1"
+                                                    class="form-control input_tp"></div>
+                                            <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
+                                                    class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span></div>
+                                            <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
+                                            <input type="hidden" name="tp_roe[]" id="tp_roe1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span>Harga SL</span>
+                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary">+ Tambah
+                                            Harga SL</button>
+                                    </div>
+                                    <div id="sl_container" class="h-100">
+                                        <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
+                                            no="1">
+                                            <div class="col-sm-12 col-md-2">
+                                                <span class="txt">SL 1</span>
+                                            </div>
+                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                    name="sl[]" id="sl1" no="1"
+                                                    class="form-control input_sl"></div>
+                                            <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
+                                                    class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
+                                            <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
+                                            <input type="hidden" name="sl_roe[]" id="sl_roe1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
                                 Risk Ratio Terdekat: <span id="rr_expected">0</span>
                                 <input type="hidden" name="rr_expected" id="input_rr_expected">
                             </div>
-                            <div class="col-12 mb-3">
-                                <hr />
-                            </div>
-                            <div class="col-12 mb-3">
-                                <h6 class="text-muted"><strong>Analisa dan Strategi yang Digunakan</strong></h6>
-                            </div>
-                            <div class="col-12 row g-0">
-                                <div class="col-sm-12 col-md-3 form-group row gx-0 align-items-center">
-                                    <div class="col-4"><label for="timeframe" class="text-dark">Timeframe</label>
+                            <hr />
+                            <h6 class="text-muted mb-3"><strong>Analisa dan Strategi yang Digunakan</strong></h6>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-4">
+                                    <div class="form-group row gx-1">
+                                        <label for="timeframe"
+                                            class="col-4 col-md-3 col-form-label text-dark">Timeframe</label>
+                                        <div class="col-8 col-md-9">
+                                            <select name="timeframe[]" id="timeframe" class="form-control"
+                                                multiple="multiple">
+                                                @foreach ($timeframes as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-8">
-                                        <select name="timeframe[]" id="timeframe" class="form-control" multiple="multiple">
-                                            @foreach($timeframes as $key => $value)
-                                                <option value="{{$value->id}}">{{$value->name}}</option>
-                                            @endforeach
-                                        </select>
+                                </div>
+                                <div class="col-sm-12 col-md-8">
+                                    <div class="form-group row gx-1">
+                                        <label for="entry_strategy"
+                                            class="col-4 col-md-2 col-form-label text-dark">Strategi Entry</label>
+                                        <div class="col-8 col-md-10">
+                                            <select name="entry_strategy[]" id="entry_strategy" class="form-control"
+                                                multiple="multiple">
+                                                @foreach ($entry_strategies as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-9 form-group row gx-2 align-items-center">
-                                    <div class="col-2 text-center"><label for="strategy" class="text-dark">Strategi
-                                            Entry</label></div>
-                                    <div class="col-10"><select name="strategy" id="strategy" class="form-control" multiple="multiple"></select></div>
-                                </div>
                             </div>
-                            <div class="col-12 row g-0">
-                                <div class="col-12 form-group row gx-0 align-items-center pe-0 pe-md-2">
-                                    <div class="col-1"><label for="pattern" class="text-dark">Pattern</label></div>
-                                    <div class="col-11"><select name="pattern" id="pattern" class="form-control" multiple="multiple"></select></div>
-                                </div>
-                            </div>
-                            <div class="col-12 row g-0">
-                                <div class="col-12 form-group row gx-0 align-items-center pe-0 pe-md-2">
-                                    <div class="col-1"><label for="indicator" class="text-dark">Indikator</label>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group row gx-1">
+                                        <label for="fibonacci_strategy"
+                                            class="col-4 col-md-2 col-form-label text-dark">Fibonacci</label>
+                                        <div class="col-8 col-md-10">
+                                            <select name="fibonacci_strategy[]" id="fibonacci_strategy"
+                                                class="form-control" multiple="multiple">
+                                                @foreach ($fibonacci_strategies as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div class="col-11"><select name="indicator" id="indicator" class="form-control" multiple="multiple"></select></div>
+                                </div>
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group row gx-1">
+                                        <label for="candlestick_strategy"
+                                            class="col-4 col-md-2 col-form-label text-dark text-start text-md-end">Candlestick</label>
+                                        <div class="col-8 col-md-10">
+                                            <select name="candlestick_strategy[]" id="candlestick_strategy"
+                                                class="form-control" multiple="multiple">
+                                                @foreach ($candlestick_strategies as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-12 row row-cols-1 row-cols-md-2 row-cols-lg-4 mt-0 ps-0 pe-0"
-                                id="strategy_screenshot"></div>
-                            <div class="col-12 row g-0">
-                                <div class="col-12 form-group align-items-center pe-0 pe-md-2">
-                                    <label for="notes" class="text-dark">Catatan</label>
-                                    <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group row gx-1">
+                                        <label for="chart_strategy"
+                                            class="col-3 col-md-2 col-form-label text-dark">Chart</label>
+                                        <div class="col-9 col-md-10">
+                                            <select name="chart_strategy[]" id="chart_strategy" class="form-control"
+                                                multiple="multiple">
+                                                @foreach ($chart_strategies as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-6">
+                                    <div class="form-group row gx-1">
+                                        <label for="indicator_strategy"
+                                            class="col-3 col-md-2 col-form-label text-dark text-start text-md-end">Indikator</label>
+                                        <div class="col-9 col-md-10">
+                                            <select name="indicator_strategy[]" id="indicator_strategy"
+                                                class="form-control" multiple="multiple">
+                                                @foreach ($indicator_strategies as $key => $value)
+                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <hr />
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4" id="strategy_screenshot">
                             </div>
-                            <div class="col-12 mb-3 row gx-4 gy-4 mt-0 ps-2 pe-0 pe-md-2">
+                            <div class="form-group">
+                                <label for="notes" class="text-dark">Catatan</label>
+                                <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
+                            </div>
+                            <hr />
+                            {{-- <div class="row gy-3 gy-md-0">
                                 <div class="col-sm-12 col-md-7">
                                     <div>
                                         <div class="d-flex align-items-start justify-content-between text-dark mb-3">
                                             <h6 class="text-muted"><strong>Transaksi</strong></h6>
-                                            <button type="button" class="btn btn-sm btn-primary">+ Tambah
+                                            <button type="button" class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal">+ Tambah
                                                 Transaksi</button>
                                         </div>
                                     </div>
-                                    <div>
-                                        <div class="table-responsive">
-                                            <table id="transactions-list-table"
-                                                class="table table-striped table-hover" role="grid"
-                                                data-toggle="data-table">
-                                                <thead>
-                                                    <tr class="light">
-                                                        <th>Tipe</th>
-                                                        <th>Harga</th>
-                                                        <th>Kuantitas</th>
-                                                        <th>Waktu</th>
-                                                        <th>Keuntungan</th>
-                                                        <th>Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
+                                    <div id="table-container" class="table-responsive">
+                                        <table id="transactions-list-table" class="table table-striped table-hover"
+                                            role="grid" data-toggle="data-table">
+                                            <thead>
+                                                <tr class="light">
+                                                    <th>#</th>
+                                                    <th>Tipe</th>
+                                                    <th>Harga</th>
+                                                    <th>Kuantitas</th>
+                                                    <th>Waktu</th>
+                                                    <th>Biaya Tambahan</th>
+                                                    <th>Keuntungan</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-5 mt-0">
+                                <div class="col-sm-12 col-md-5">
                                     <h6 class="text-muted mb-2"><strong>Arsip Screenshot</strong></h6>
                                     <div class="row row-cols-1 row-cols-md-2 gx-3 ps-0 pe-0" id="pnl_screenshot">
                                         <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap d-block">
-                                                <a href="" class="delete text-danger"><svg
+                                            <div class="img-wrap" style="display:none">
+                                                <a href="javascript:void(0);"
+                                                    class="img-delete text-danger screenshot-delete"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="18"
                                                         height="18" fill="currentColor" class="bi bi-trash-fill"
                                                         viewBox="0 0 16 16">
@@ -770,17 +948,18 @@
                                                 <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
                                                     alt="">
                                             </div>
-                                            <div class="img-input d-none">
+                                            <div class="img-input" style="display:block">
                                                 <div class="input-group py-2">
-                                                    <input type="file" name="img_1" id="img_1"
+                                                    <input type="file" name="img[]" id="img_1"
                                                         class="img_input">
                                                     <label for="img_1">Pilih gambar...</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap d-block">
-                                                <a href="" class="delete text-danger"><svg
+                                            <div class="img-wrap" style="display:none">
+                                                <a href="javascript:void(0);"
+                                                    class="img-delete text-danger screenshot-delete"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="18"
                                                         height="18" fill="currentColor" class="bi bi-trash-fill"
                                                         viewBox="0 0 16 16">
@@ -790,17 +969,18 @@
                                                 <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
                                                     alt="">
                                             </div>
-                                            <div class="img-input d-none">
+                                            <div class="img-input" style="display:block">
                                                 <div class="input-group py-2">
-                                                    <input type="file" name="img_1" id="img_1"
+                                                    <input type="file" name="img[]" id="img_2"
                                                         class="img_input">
-                                                    <label for="img_1">Pilih gambar...</label>
+                                                    <label for="img_2">Pilih gambar...</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap d-none">
-                                                <a href="" class="delete text-danger"><svg
+                                            <div class="img-wrap" style="display:none">
+                                                <a href="javascript:void(0);"
+                                                    class="img-delete text-danger screenshot-delete"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="18"
                                                         height="18" fill="currentColor" class="bi bi-trash-fill"
                                                         viewBox="0 0 16 16">
@@ -810,17 +990,18 @@
                                                 <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
                                                     alt="">
                                             </div>
-                                            <div class="img-input d-block">
+                                            <div class="img-input" style="display:block">
                                                 <div class="input-group py-2">
-                                                    <input type="file" name="img_1" id="img_1"
+                                                    <input type="file" name="img[]" id="img_3"
                                                         class="img_input">
-                                                    <label for="img_1">Pilih gambar...</label>
+                                                    <label for="img_3">Pilih gambar...</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap d-none">
-                                                <a href="" class="delete text-danger"><svg
+                                            <div class="img-wrap" style="display:none">
+                                                <a href="javascript:void(0);"
+                                                    class="img-delete text-danger screenshot-delete"><svg
                                                         xmlns="http://www.w3.org/2000/svg" width="18"
                                                         height="18" fill="currentColor" class="bi bi-trash-fill"
                                                         viewBox="0 0 16 16">
@@ -830,24 +1011,80 @@
                                                 <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
                                                     alt="">
                                             </div>
-                                            <div class="img-input d-block">
+                                            <div class="img-input" style="display:block">
                                                 <div class="input-group py-2">
-                                                    <input type="file" name="img_1" id="img_1"
+                                                    <input type="file" name="img[]" id="img_4"
                                                         class="img_input">
-                                                    <label for="img_1">Pilih gambar...</label>
+                                                    <label for="img_4">Pilih gambar...</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <hr />
-                            </div>
-                            <div class="col-12 d-flex justify-content-end">
+                            <hr /> --}}
+                            <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary">Simpan</button>
                             </div>
                         </form>
+                        {{-- <div class="modal fade" id="tambahTransaksiModal" tabindex="-1"
+                            aria-labelledby="tambahTransaksiLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="tambahTransaksiTitle">Tambah Transaksi</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="" id="transaction_form">
+                                            <div class="form-group form-group-alt mb-2">
+                                                <label for="transaction_price"
+                                                    class="form-label text-dark">Harga</label>
+                                                <input type="text" class="form-control" name="transaction_price"
+                                                    id="transaction_price">
+                                            </div>
+                                            <div class="form-group form-group-alt mb-2">
+                                                <label for="transaction_quantity"
+                                                    class="form-label text-dark">Kuantitas</label>
+                                                <input type="text" name="transaction_quantity"
+                                                    class="form-control" aria-label="Jumlah Koin"
+                                                    aria-describedby="basic-addon2" id="transaction_quantity">
+                                            </div>
+                                            <div class="form-group form-group-alt row gx-2 gy-0">
+                                                <div class="col-sm-12 col-md-6">
+                                                    <label for="transaction_fee" class="form-label text-dark">Biaya
+                                                        Tambahan</label>
+                                                    <input type="text" class="form-control" name="transaction_fee"
+                                                        id="transaction_fee">
+                                                </div>
+                                                <div class="col-sm-12 col-md-6">
+                                                    <label for="transaction_type"
+                                                        class="form-label text-dark">Tipe</label>
+                                                    <select name="transaction_type" id="transaction_type"
+                                                        class="form-control">
+                                                        <option value="0">Entri</option>
+                                                        <option value="1">Tutup</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group form-group-alt">
+                                                <label for="transaction_time"
+                                                    class="form-label text-dark">Waktu</label>
+                                                <input type="datetime-local" id="transaction_time"
+                                                    name="transaction_time" class="form-control">
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <button type="reset" class="btn btn-danger"
+                                                    id="transaction_reset">Reset</button>
+                                                <button type="submit" id="transaction_submit"
+                                                    class="btn btn-primary">Kumpul</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

@@ -22,7 +22,7 @@ class Trade extends Model
     }
 
     public function timeframes(){
-        return $this->belongsToMany(Timeframe::class, 'timeframe_trade', 'trade_id', 'timeframe_id');
+        return $this->belongsToMany(Timeframe::class, 'timeframe_trade', 'trade_id', 'timeframe_id')->withPivot('picture_type', 'url_picture');
     }
 
     public function strategies(){

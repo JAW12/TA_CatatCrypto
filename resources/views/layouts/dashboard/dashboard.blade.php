@@ -19,6 +19,13 @@
     });
 </script>
 @endif
+@if(in_array("datatable", $options))
+<script>
+    $(function(){
+        datatableInit();
+    });
+</script>
+@endif
 </body>
 
 </html>

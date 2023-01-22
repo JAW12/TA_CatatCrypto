@@ -240,7 +240,6 @@
                         });
                         table.append(thead);
                         table.append(tbody);
-
                     }
 
                     let change = '';
@@ -349,7 +348,12 @@
                     table.append(tbody);
 
                     $("#table-container").html(table);
-                    datatableInit();
+                    let tables = $('[data-toggle="data-table"]').DataTable({
+                        "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                        "language": {
+                        "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                        },
+                    });
                     loaderInit();
                     Swal.fire({
                         icon: 'error',

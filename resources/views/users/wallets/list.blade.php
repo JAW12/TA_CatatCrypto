@@ -1,7 +1,7 @@
 @push('scripts')
 @endpush
 
-<x-app-layout :options="['loading']">
+<x-app-layout :options="['loading', 'datatable']">
     <div>
         <div class="row">
             <div class="col-sm-12">
