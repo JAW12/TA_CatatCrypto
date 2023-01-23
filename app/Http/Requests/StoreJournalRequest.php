@@ -25,6 +25,7 @@ class StoreJournalRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3',
+            'balances' => 'required|gt:0',
         ];
     }
 }

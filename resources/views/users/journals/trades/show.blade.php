@@ -81,8 +81,6 @@
     <script>
         var risk = "<?php echo $journal->risk; ?>";
         var balances = "<?php echo $journal->balances; ?>";
-        var transaction_table = null;
-        var transactions = [];
 
         $("#asset").autocomplete({
                 source: function(request, response) {
@@ -131,7 +129,6 @@
 
         $("#open_price").keyup(function() {
             let open_price = $("#open_price").val();
-
             calculateInitialMargin();
             calculateRisk();
             calculateProfit();
@@ -141,15 +138,6 @@
 
         $("#open_quantity").keyup(function() {
             let qty = $("#open_quantity").val();
-            // let quantityString = '';
-            // if (qty != null) {
-            //     if (qty > 0 && qty < 1) {
-            //         quantityString = parseFloat(qty);
-            //     } else {
-            //         quantityString = parseFloat(qty).toLocaleString('en-US');
-            //     }
-            // }
-            // $("#quantity_remaining").text(quantityString);
             calculateInitialMargin();
             calculateProfit();
             calculateLoss();
@@ -183,15 +171,20 @@
                 }
             }
             $("#input_initial_margin").val(initial_margin);
+            $("#initial_margin").attr("value", initial_margin);
             $("#initial_margin").text(initialMarginString);
         }
 
         function calculateRisk() {
             let open_price = $("#open_price").val();
-            // let average_price = $("#input_average_price").val();
-            // if (average_price != "") {
-            //     open_price == average_price;
-            // }
+            let input_average_price = $("#input_average_price");
+            console.log(input_average_price);
+            if (input_average_price != null) {
+                let average_price = $("#input_average_price").val();
+                if (average_price != "") {
+                    open_price == average_price;
+                }
+            }
             let sl1 = $("#sl1").val();
             let direction = $("#type").val();
             if (risk > 0 && leverage != "" && open_price != "" && sl1 != "" && direction != "") {
@@ -263,10 +256,6 @@
         function calculateProfit() {
             let initial_margin = $("#input_initial_margin").val();
             let qty = $("#open_quantity").val();
-            // let qty_remaining = $("#input_quantity_remaining").val();
-            // if (qty_remaining != "") {
-            //     qty = qty_remaining;
-            // }
             let open_price = $("#open_price").val();
             // let average_price = $("#input_average_price").val();
             // if (average_price != "") {
@@ -286,7 +275,6 @@
                         profit = Math.abs((tp_price - open_price) * qty);
                     }
                     let profit_percentage = (profit / initial_margin * 100);
-
                     let profitString = '';
                     if (profit > 0 && profit < 1) {
                         profitString = parseFloat(profit).toFixed(2);
@@ -351,49 +339,6 @@
                 $("#input_rr_expected").val(rr);
             }
         }
-
-        // loadTransaction();
-
-        // function loadTransaction() {
-        //     if (!$.fn.dataTable.isDataTable('#transactions-list-table')) {
-        //         transaction_table = $('#transactions-list-table').DataTable({
-        //             "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
-        //             "language": {
-        //                 "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
-        //                 "destroy": true,
-        //             },
-        //             columnDefs: [{
-        //                 targets: -1,
-        //                 data: null,
-        //                 defaultContent: '<button type="button" class="btn btn-primary">Click</button>',
-        //             }, ],
-        //         });
-
-        //     }
-        //     if (transaction_table != null) {
-        //         transaction_table.clear();
-        //         let ctr = 1;
-        //         transactions.forEach(element => {
-        //             let profitString = '';
-        //             if (element.pnl > 0 && element.pnl < 1) {
-        //                 profitString = parseFloat(element.pnl).toFixed(2);
-        //             } else {
-        //                 profitString = parseFloat(element.pnl).toFixed(2).toLocaleString('en-US');
-        //             }
-
-        //             if(element.pnl > 0){
-        //                 transaction_table.rows.add($(
-        //                     `<tr><td>${ctr++}</td><td>${element.type == '0' ? 'Entri' : element.type == '1' ? 'Tutup' : '-'}</td><td>${element.price}</td><td>${element.quantity}</td><td>${moment(element.time).format("DD MMMM YYYY HH:mm:ss")}</td><td>${element.fee == '' ? '-' : element.fee}</td><td class="text-success">${profitString}</td><td></td></tr>`
-        //                 )).draw(false);
-        //             }
-        //             else if(element.pnl < 0){
-        //                 transaction_table.rows.add($(
-        //                     `<tr><td>${ctr++}</td><td>${element.type == '0' ? 'Entri' : element.type == '1' ? 'Tutup' : '-'}</td><td>${element.price}</td><td>${element.quantity}</td><td>${moment(element.time).format("DD MMMM YYYY HH:mm:ss")}</td><td>${element.fee == '' ? '-' : element.fee}</td><td class="text-danger">${profitString}</td><td></td></tr>`
-        //                 )).draw(false);
-        //             }
-        //         });
-        //     }
-        // }
 
         $(function() {
             $(document).on('click', '.delete_tp', function() {
@@ -514,8 +459,10 @@
                 let img = img_wrap_container.find('img');
                 let img_input_container = img_wrap_container.next();
                 let img_input = img_input_container.find('.img_input');
+                let hidden_img_input = img_input_container.find('.hidden_img_input');
                 let empty_image = '{{ URL::asset('/images/no-image.webp') }}'
                 img_input.val("");
+                hidden_img_input.val("http://127.0.0.1:8000/storage/uploads");
                 img_wrap_container.fadeOut(function() {
                     img.attr("src", empty_image);
                 });
@@ -568,66 +515,6 @@
                     child_container.remove();
                 }
             });
-
-            // $(document).on('click', '#transaction_submit', function(e) {
-            //     e.preventDefault();
-            //     let transaction_price = $("#transaction_price").val();
-            //     let transaction_quantity = $("#transaction_quantity").val();
-            //     let transaction_fee = $("#transaction_fee").val();
-            //     let transaction_type = $("#transaction_type").val();
-            //     let transaction_time = $("#transaction_time").val();
-            //     let transaction_pnl = 0;
-
-            //     let open_price = $("#open_price").val();
-            //     let average_price = $("#input_average_price").val();
-            //     if (average_price != "") {
-            //         open_price == average_price;
-            //     }
-
-            //     let direction = $("#type").val();
-            //     if (direction == "1" && parseFloat(transaction_price) > parseFloat(open_price)) {
-            //         transaction_pnl = Math.abs((open_price - tp_price) * qty);
-            //     } else if (direction == "0" && parseFloat(tp_price) < parseFloat(open_price)) {
-            //         transaction_pnl = Math.abs((tp_price - open_price) * qty);
-            //     }
-
-            //     if (transaction_time == '') {
-            //         transaction_time = new Date();
-            //     }
-
-            //     if (transaction_price == '' || transaction_quantity == '') {
-            //         $('#tambahTransaksiModal').modal('hide');
-            //         Swal.fire({
-            //             icon: 'error',
-            //             title: 'Oops!!!',
-            //             text: 'Tambah transaksi gagal',
-            //             confirmButtonColor: "#3a57e8"
-            //         });
-            //         return false;
-            //     }
-
-            //     let new_transaction = [];
-            //     new_transaction['price'] = transaction_price;
-            //     new_transaction['quantity'] = transaction_quantity;
-            //     new_transaction['fee'] = transaction_fee;
-            //     new_transaction['type'] = transaction_type;
-            //     new_transaction['time'] = transaction_time;
-            //     new_transaction['pnl'] = transaction_pnl;
-
-            //     transactions.push(new_transaction);
-
-            //     $('#tambahTransaksiModal').modal('hide');
-            //     $('#transaction_form').trigger('reset');
-
-            //     Swal.fire({
-            //         icon: 'success',
-            //         title: 'Berhasil',
-            //         text: 'Tambah transaksi berhasil',
-            //         confirmButtonColor: "#3a57e8"
-            //     });
-
-            //     loadTransaction();
-            // });
         });
     </script>
 @endpush
@@ -639,7 +526,16 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-title">
-                            <h4 class="card-title">Tambah Catatan</h4>
+                            <h4 class="card-title d-flex align-items-center">
+                                <span class="me-2">Detail Catatan</span>
+                                @if ($trade->status == 0)
+                                    <span class="badge bg-secondary rounded-pill">Pending</span>
+                                @elseif($trade->status == 1)
+                                    <span class="badge bg-primary rounded-pill">Aktif</span>
+                                @elseif($trade->status == 2)
+                                    <span class="badge bg-primary rounded-pill">Selesai</span>
+                                @endif
+                            </h4>
                         </div>
                     </div>
                     <div class="card-body">
@@ -655,9 +551,12 @@
                                         <div class="col-10">
                                             <div class="ui-widget">
                                                 <input type="hidden" name="asset_id" id="asset_id"
-                                                    class="form-control" />
-                                                <input type="text" name="asset" id="asset"
-                                                    class="form-control" />
+                                                    class="form-control" value="{{ $trade->asset->id }}"
+                                                    @if ($trade->status != 0) readonly="readonly" @endif />
+                                                <input type="text" name="asset" id="asset" class="form-control"
+                                                    value="{{ $trade->asset->name }} ({{ $trade->asset->symbol }})"
+                                                    style="background-image: url('{{ $trade->asset->thumb }}'); background-position: 3% 50%; padding-left: 3em; background-size: 2em; background-repeat: no-repeat; border-radius: 8px;"
+                                                    @if ($trade->status != 0) readonly="readonly" @endif />
                                             </div>
                                         </div>
                                     </div>
@@ -666,9 +565,12 @@
                                     <div class="form-group row gx-1">
                                         <label for="type" class="col-3 col-form-label text-dark">Tipe</label>
                                         <div class="col-9">
-                                            <select name="type" id="type" class="form-control">
-                                                <option value="1">LONG</option>
-                                                <option value="0">SHORT</option>
+                                            <select name="type" id="type" class="form-control"
+                                                @if ($trade->status != 0) readonly="readonly" @endif>
+                                                <option value="1"
+                                                    @if ($trade->type == 1) selected @endif>LONG</option>
+                                                <option value="0"
+                                                    @if ($trade->type == 0) selected @endif>SHORT</option>
                                             </select>
                                         </div>
                                     </div>
@@ -678,7 +580,8 @@
                                         <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
                                         <div class="col-6">
                                             <input type="number" step="1" name="leverage" id="leverage"
-                                                class="form-control">
+                                                class="form-control" value="{{ $trade->leverage }}"
+                                                @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                     </div>
                                 </div>
@@ -688,7 +591,8 @@
                                             Entri</label>
                                         <div class="col-8">
                                             <input type="number" step="any" name="open_price" id="open_price"
-                                                class="form-control">
+                                                class="form-control" value="{{ (float) $trade->open_price }}"
+                                                @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                     </div>
                                 </div>
@@ -700,7 +604,8 @@
                                             class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
                                         <div class="col-9 col-md-5">
                                             <input type="number" step="any" name="open_quantity" id="open_quantity"
-                                                class="form-control">
+                                                class="form-control" value="{{ (float) $trade->open_quantity }}"
+                                                @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                         <span id="openQuantityInline"
                                             class="col-12 col-md-5 col-form-label form-text text-center"
@@ -710,21 +615,29 @@
                                 <div class="col-sm-12 col-md-6">
                                     <div class="form-group row gx-1">
                                         <div class="col-12 col-form-label text-dark">Margin Awal: $<span
-                                                id="initial_margin"></span></div>
-                                        <input type="hidden" name="initial_margin" id="input_initial_margin">
+                                                id="initial_margin">{{ (float) $trade->open_margin }}</span></div>
+                                        <input type="hidden" name="initial_margin" id="input_initial_margin"
+                                            value="{{ (float) $trade->open_margin }}"
+                                            @if ($trade->status != 0) readonly="readonly" @endif>
                                     </div>
                                 </div>
                             </div>
-                            {{-- <div class="row">
-                                <div class="col-sm-12 col-md-3">
-                                    Harga Entri Rata-Rata: $<span id="average_price">0</span>
-                                    <input type="hidden" name="average_price" id="input_average_price">
+                            @if ($trade->status != 0)
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6">
+                                        Harga Entri Rata-Rata: $<span
+                                            id="average_price">{{ (float) $trade->average_price }}</span>
+                                        <input type="hidden" name="average_price" id="input_average_price"
+                                            value="{{ $trade->average_price }}">
+                                    </div>
+                                    <div class="col-sm-12 col-md-6">
+                                        Sisa Jumlah: <span
+                                            id="quantity_remaining">{{ (float) $trade->quantity_remaining }}</span>
+                                        <input type="hidden" name="quantity_remaining" id="input_quantity_remaining"
+                                            value="{{ $trade->quantity_remaining }}">
+                                    </div>
                                 </div>
-                                <div class="col-sm-12 col-md-3">
-                                    Sisa Jumlah: <span id="quantity_remaining">0</span>
-                                    <input type="hidden" name="quantity_remaining" id="input_quantity_remaining">
-                                </div>
-                            </div> --}}
+                            @endif
                             <hr />
                             <h6 class="text-muted mb-3"><strong>Informasi TP & SL</strong></h6>
                             <div class="row">
@@ -735,18 +648,39 @@
                                             Harga TP</button>
                                     </div>
                                     <div id="tp_container" class="h-100">
-                                        <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
-                                            <div class="col-sm-12 col-md-2">
-                                                <span class="txt">TP 1</span>
+                                        @foreach ($trade->targets->where('type', 1) as $target)
+                                            <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
+                                                <div class="col-sm-12 col-md-2">
+                                                    <span class="txt">TP {{ $loop->iteration }}</span>
+                                                    @if ($loop->iteration > 1 and $trade->status < 2)
+                                                        <a href="javascript:void(0);" value="{{ $loop->iteration }}"
+                                                            class="text-dark delete_tp"
+                                                            id="delete_tp{{ $loop->iteration }}"><svg
+                                                                xmlns="http://www.w3.org/2000/svg" width="18"
+                                                                height="18" fill="currentColor"
+                                                                class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                                            </svg></a>
+                                                    @endif
+                                                </div>
+                                                <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                        name="tp[]" id="tp{{ $loop->iteration }}"
+                                                        no="{{ $loop->iteration }}" class="form-control input_tp"
+                                                        value="{{ (float) $target->price }}"></div>
+                                                <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
+                                                        class="text-success pnl_tp"
+                                                        id="pnl_tp{{ $loop->iteration }}">${{ number_format((float) $target->pnl, 2) }}
+                                                        ({{ number_format((float) $target->roe, 2) }}%)
+                                                    </span></div>
+                                                <input type="hidden" class="tp_pnl" name="tp_pnl[]"
+                                                    id="tp_pnl{{ $loop->iteration }}"
+                                                    value="{{ (float) $target->pnl }}">
+                                                <input type="hidden" class="tp_roe" name="tp_roe[]"
+                                                    id="tp_roe{{ $loop->iteration }}"
+                                                    value="{{ (float) $target->roe }}">
                                             </div>
-                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                    name="tp[]" id="tp1" no="1"
-                                                    class="form-control input_tp"></div>
-                                            <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
-                                                    class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span></div>
-                                            <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
-                                            <input type="hidden" name="tp_roe[]" id="tp_roe1">
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
@@ -756,25 +690,47 @@
                                             Harga SL</button>
                                     </div>
                                     <div id="sl_container" class="h-100">
-                                        <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
-                                            no="1">
-                                            <div class="col-sm-12 col-md-2">
-                                                <span class="txt">SL 1</span>
+                                        @foreach ($trade->targets->where('type', 0) as $target)
+                                            <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
+                                                no="1">
+                                                <div class="col-sm-12 col-md-2">
+                                                    <span class="txt">SL {{ $loop->iteration }}</span>
+                                                    @if ($loop->iteration > 1 and $trade->status < 2)
+                                                        <a href="javascript:void(0);" value="{{ $loop->iteration }}"
+                                                            class="text-dark delete_sl"
+                                                            id="delete_sl{{ $loop->iteration }}"><svg
+                                                                xmlns="http://www.w3.org/2000/svg" width="18"
+                                                                height="18" fill="currentColor"
+                                                                class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                                            </svg></a>
+                                                    @endif
+                                                </div>
+                                                <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                        name="sl[]" id="sl{{ $loop->iteration }}"
+                                                        no="{{ $loop->iteration }}" class="form-control input_sl"
+                                                        value="{{ (float) $target->price }}"></div>
+                                                <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
+                                                        class="text-danger pnl_sl"
+                                                        id="pnl_sl1">${{ number_format((float) $target->pnl, 2) }}
+                                                        ({{ number_format((float) $target->roe, 2) }}%)
+                                                    </span></div>
+                                                <input type="hidden" class="sl_pnl" name="sl_pnl[]"
+                                                    id="sl_pnl{{ $loop->iteration }}"
+                                                    value="{{ (float) $target->pnl }}">
+                                                <input type="hidden" class="sl_roe" name="sl_roe[]"
+                                                    id="sl_roe{{ $loop->iteration }}"
+                                                    value="{{ (float) $target->roe }}">
                                             </div>
-                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                    name="sl[]" id="sl1" no="1"
-                                                    class="form-control input_sl"></div>
-                                            <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
-                                                    class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
-                                            <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
-                                            <input type="hidden" name="sl_roe[]" id="sl_roe1">
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                Risk Ratio Terdekat: <span id="rr_expected">0</span>
-                                <input type="hidden" name="rr_expected" id="input_rr_expected">
+                                Risk Ratio Terdekat: <span id="rr_expected">{{ $trade->rr_expected }}</span>
+                                <input type="hidden" name="rr_expected" id="input_rr_expected"
+                                    value="{{ $trade->rr_expected }}">
                             </div>
                             <hr />
                             <h6 class="text-muted mb-3"><strong>Analisa dan Strategi yang Digunakan</strong></h6>
@@ -787,7 +743,9 @@
                                             <select name="timeframe[]" id="timeframe" class="form-control"
                                                 multiple="multiple">
                                                 @foreach ($timeframes as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->timeframes->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -801,7 +759,9 @@
                                             <select name="entry_strategy[]" id="entry_strategy" class="form-control"
                                                 multiple="multiple">
                                                 @foreach ($entry_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->strategies->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -817,7 +777,9 @@
                                             <select name="fibonacci_strategy[]" id="fibonacci_strategy"
                                                 class="form-control" multiple="multiple">
                                                 @foreach ($fibonacci_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->strategies->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -831,7 +793,9 @@
                                             <select name="candlestick_strategy[]" id="candlestick_strategy"
                                                 class="form-control" multiple="multiple">
                                                 @foreach ($candlestick_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->strategies->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -847,7 +811,9 @@
                                             <select name="chart_strategy[]" id="chart_strategy" class="form-control"
                                                 multiple="multiple">
                                                 @foreach ($chart_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->strategies->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -861,7 +827,9 @@
                                             <select name="indicator_strategy[]" id="indicator_strategy"
                                                 class="form-control" multiple="multiple">
                                                 @foreach ($indicator_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    <option value="{{ $value->id }}"
+                                                        @if ($trade->strategies->find($value->id) != null) selected @endif>
+                                                        {{ $value->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -869,138 +837,211 @@
                                 </div>
                             </div>
                             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4" id="strategy_screenshot">
+                                @foreach ($trade->timeframes as $timeframe)
+                                    <div class="col mt-0 mb-3 text-dark" id="{{ $timeframe->name }}_container"
+                                        style="order: {{ $timeframe->id }}">
+                                        <strong>{{ $timeframe->name }}</strong>
+                                        <div class="img-wrap" style="display: block">
+                                            <a href="javascript:void(0);"
+                                                class="img-delete text-danger strategy-delete"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                                </svg></a>
+                                            @if ($timeframe->pivot->picture_type == 0)
+                                                <img src="{{ $timeframe->pivot->url_picture }}" class="img-fluid"
+                                                    alt="">
+                                            @elseif($timeframe->pivot->picture_type == 1)
+                                                <img src="{{ asset('storage/uploads/' . $timeframe->pivot->url_picture) }}"
+                                                    class="img-fluid" alt="">
+                                            @endif
+                                        </div>
+                                        <div class="img-input" style="display: none">
+                                            <div class="input-group py-2">
+                                                <input type="file" name="ss[]" id="img_{{ $timeframe->name }}"
+                                                    tf="{{ $timeframe->name }}" class="img_input"
+                                                    @if ($timeframe->pivot->picture_type == 1) value="{{ URL::asset('storage/uploads/' . $timeframe->pivot->url_picture) }}" @endif>
+                                                <label for="img_{{ $timeframe->name }}">Pilih gambar...</label> /
+                                            </div>
+                                            <input type="url" name="tv[]" id="img_{{ $timeframe->name }}"
+                                                class="form-control tv_input"
+                                                placeholder="Isi URL Trading View Disini.."
+                                                @if ($timeframe->pivot->picture_type == 0) value="{{ $timeframe->pivot->url_picture }}" @endif>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                             <div class="form-group">
                                 <label for="notes" class="text-dark">Catatan</label>
                                 <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
                             </div>
                             <hr />
-                            {{-- <div class="row gy-3 gy-md-0">
-                                <div class="col-sm-12 col-md-7">
-                                    <div>
-                                        <div class="d-flex align-items-start justify-content-between text-dark mb-3">
-                                            <h6 class="text-muted"><strong>Transaksi</strong></h6>
-                                            <button type="button" class="btn btn-sm btn-primary"
-                                                data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal">+ Tambah
-                                                Transaksi</button>
-                                        </div>
+                            <div>
+                                <div class="d-flex align-items-start justify-content-between text-dark mb-3">
+                                    <h6 class="text-muted"><strong>Transaksi</strong></h6>
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#tambahTransaksiModal">+ Tambah
+                                        Transaksi</button>
+                                </div>
+                            </div>
+                            <div id="table-container" class="table-responsive">
+                                <table id="transactions-list-table" class="table table-striped table-hover"
+                                    role="grid" data-toggle="data-table">
+                                    <thead>
+                                        <tr class="light">
+                                            <th>#</th>
+                                            <th>Tipe</th>
+                                            <th>Harga</th>
+                                            <th>Kuantitas</th>
+                                            <th>Waktu</th>
+                                            <th>Biaya Tambahan</th>
+                                            <th>Keuntungan</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($trade->transactions as $transaction)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    @if ($transaction->type == 0)
+                                                        Entri
+                                                    @elseif($transaction->type == 1)
+                                                        Tutup
+                                                    @endif
+                                                </td>
+                                                <td>${{ number_format((float) $transaction->price, 2) }}</td>
+                                                @if ($transaction->type == 0)
+                                                    <td>+{{ number_format((float) $transaction->quantity, 2) }}</td>
+                                                @elseif($transaction->type == 1)
+                                                    <td>{{ number_format((float) $transaction->quantity, 2) }}</td>
+                                                @endif
+                                                <td>{{ $transaction->time }}</td>
+                                                <td>{{ $transaction->fee == '' ? '-' : '$' . (float) $transaction->fee }}
+                                                </td>
+                                                @if ($transaction->pnl > 0)
+                                                    <td class="text-success">
+                                                        ${{ number_format((float) $transaction->pnl, 2) }}</td>
+                                                @elseif($transaction->pnl < 0)
+                                                    <td class="text-danger">
+                                                        -${{ abs(number_format((float) $transaction->pnl, 2)) }}</td>
+                                                @else
+                                                    <td>-</td>
+                                                @endif
+                                                <td></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <hr />
+                            <h6 class="text-muted mb-2"><strong>Arsip Screenshot</strong></h6>
+                            <div class="row row-cols-1 row-cols-md-2 gx-3 ps-0 pe-0" id="pnl_screenshot">
+                                <div class="col mt-0 mb-3 text-dark">
+                                    <div class="img-wrap"
+                                        style="@if ($trade->screenshot_url_1 == '') display:none @endif">
+                                        <a href="javascript:void(0);"
+                                            class="img-delete text-danger screenshot-delete"><svg
+                                                xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                            </svg></a>
+                                        <img src="@if ($trade->screenshot_url_1 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_1)}} @endif"
+                                            class="img-fluid" alt="">
                                     </div>
-                                    <div id="table-container" class="table-responsive">
-                                        <table id="transactions-list-table" class="table table-striped table-hover"
-                                            role="grid" data-toggle="data-table">
-                                            <thead>
-                                                <tr class="light">
-                                                    <th>#</th>
-                                                    <th>Tipe</th>
-                                                    <th>Harga</th>
-                                                    <th>Kuantitas</th>
-                                                    <th>Waktu</th>
-                                                    <th>Biaya Tambahan</th>
-                                                    <th>Keuntungan</th>
-                                                    <th>Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
+                                    <div class="img-input"
+                                        style="@if ($trade->screenshot_url_1 != '') display:none @endif">
+                                        <div class="input-group py-2">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_1) }}">
+                                            <input type="file" name="img[]" id="img_1" class="img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_1) }}">
+                                            <label for="img_1">Pilih gambar...</label>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-5">
-                                    <h6 class="text-muted mb-2"><strong>Arsip Screenshot</strong></h6>
-                                    <div class="row row-cols-1 row-cols-md-2 gx-3 ps-0 pe-0" id="pnl_screenshot">
-                                        <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap" style="display:none">
-                                                <a href="javascript:void(0);"
-                                                    class="img-delete text-danger screenshot-delete"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="18"
-                                                        height="18" fill="currentColor" class="bi bi-trash-fill"
-                                                        viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                                                    </svg></a>
-                                                <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                                    alt="">
-                                            </div>
-                                            <div class="img-input" style="display:block">
-                                                <div class="input-group py-2">
-                                                    <input type="file" name="img[]" id="img_1"
-                                                        class="img_input">
-                                                    <label for="img_1">Pilih gambar...</label>
-                                                </div>
-                                            </div>
+                                <div class="col mt-0 mb-3 text-dark">
+                                    <div class="img-wrap"
+                                        style="@if ($trade->screenshot_url_2 == '') display:none @endif">
+                                        <a href="javascript:void(0);"
+                                            class="img-delete text-danger screenshot-delete"><svg
+                                                xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                            </svg></a>
+                                        <img src="@if ($trade->screenshot_url_2 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_2)}} @endif"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                    <div class="img-input"
+                                        style="@if ($trade->screenshot_url_2 != '') display:none @endif">
+                                        <div class="input-group py-2">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_2) }}">
+                                            <input type="file" name="img[]" id="img_2" class="img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_2) }}">
+                                            <label for="img_2">Pilih gambar...</label>
                                         </div>
-                                        <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap" style="display:none">
-                                                <a href="javascript:void(0);"
-                                                    class="img-delete text-danger screenshot-delete"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="18"
-                                                        height="18" fill="currentColor" class="bi bi-trash-fill"
-                                                        viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                                                    </svg></a>
-                                                <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                                    alt="">
-                                            </div>
-                                            <div class="img-input" style="display:block">
-                                                <div class="input-group py-2">
-                                                    <input type="file" name="img[]" id="img_2"
-                                                        class="img_input">
-                                                    <label for="img_2">Pilih gambar...</label>
-                                                </div>
-                                            </div>
+                                    </div>
+                                </div>
+                                <div class="col mt-0 mb-3 text-dark">
+                                    <div class="img-wrap"
+                                        style="@if ($trade->screenshot_url_3 == '') display:none @endif">
+                                        <a href="javascript:void(0);"
+                                            class="img-delete text-danger screenshot-delete"><svg
+                                                xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                            </svg></a>
+                                        <img src="@if ($trade->screenshot_url_3 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_3)}} @endif"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                    <div class="img-input"
+                                        style="@if ($trade->screenshot_url_3 != '') display:none @endif">
+                                        <div class="input-group py-2">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_3) }}">
+                                            <input type="file" name="img[]" id="img_3" class="img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_3) }}">
+                                            <label for="img_3">Pilih gambar...</label>
                                         </div>
-                                        <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap" style="display:none">
-                                                <a href="javascript:void(0);"
-                                                    class="img-delete text-danger screenshot-delete"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="18"
-                                                        height="18" fill="currentColor" class="bi bi-trash-fill"
-                                                        viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                                                    </svg></a>
-                                                <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                                    alt="">
-                                            </div>
-                                            <div class="img-input" style="display:block">
-                                                <div class="input-group py-2">
-                                                    <input type="file" name="img[]" id="img_3"
-                                                        class="img_input">
-                                                    <label for="img_3">Pilih gambar...</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col mt-0 mb-3 text-dark">
-                                            <div class="img-wrap" style="display:none">
-                                                <a href="javascript:void(0);"
-                                                    class="img-delete text-danger screenshot-delete"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="18"
-                                                        height="18" fill="currentColor" class="bi bi-trash-fill"
-                                                        viewBox="0 0 16 16">
-                                                        <path
-                                                            d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
-                                                    </svg></a>
-                                                <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                                    alt="">
-                                            </div>
-                                            <div class="img-input" style="display:block">
-                                                <div class="input-group py-2">
-                                                    <input type="file" name="img[]" id="img_4"
-                                                        class="img_input">
-                                                    <label for="img_4">Pilih gambar...</label>
-                                                </div>
-                                            </div>
+                                    </div>
+                                </div>
+                                <div class="col mt-0 mb-3 text-dark">
+                                    <div class="img-wrap"
+                                        style="@if ($trade->screenshot_url_4 == '') display:none @endif">
+                                        <a href="javascript:void(0);"
+                                            class="img-delete text-danger screenshot-delete"><svg
+                                                xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                            </svg></a>
+                                        <img src="@if ($trade->screenshot_url_4 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_4)}} @endif"
+                                            class="img-fluid" alt="">
+                                    </div>
+                                    <div class="img-input"
+                                        style="@if ($trade->screenshot_url_4 != '') display:none @endif">
+                                        <div class="input-group py-2">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_4) }}">
+                                            <input type="file" name="img[]" id="img_4" class="img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_4) }}">
+                                            <label for="img_4">Pilih gambar...</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <hr /> --}}
+                            <hr />
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <button type="submit" class="btn btn-primary rounded-pill"><svg
+                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-save me-1" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z" />
+                                    </svg> Simpan Perubahan</button>
                             </div>
                         </form>
-                        {{-- <div class="modal fade" id="tambahTransaksiModal" tabindex="-1"
+                        <div class="modal fade" id="tambahTransaksiModal" tabindex="-1"
                             aria-labelledby="tambahTransaksiLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -1010,7 +1051,10 @@
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="" id="transaction_form">
+                                        <form
+                                            action="{{ route('user.journal.trade.transactions.store', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
+                                            id="transaction_form" method="POST">
+                                            @csrf
                                             <div class="form-group form-group-alt mb-2">
                                                 <label for="transaction_price"
                                                     class="form-label text-dark">Harga</label>
@@ -1057,7 +1101,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
             </div>

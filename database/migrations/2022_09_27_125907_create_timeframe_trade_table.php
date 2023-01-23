@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('timeframe_id');
             $table->foreignId('trade_id');
-            $table->int('picture_type')->comment('0 - tv, 1 - ss');
+            $table->integer('picture_type')->comment('0 - tv, 1 - ss');
             $table->text('url_picture');
             $table->timestamps();
 

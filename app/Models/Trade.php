@@ -22,11 +22,11 @@ class Trade extends Model
     }
 
     public function timeframes(){
-        return $this->belongsToMany(Timeframe::class, 'timeframe_trade', 'trade_id', 'timeframe_id')->withPivot('picture_type', 'url_picture');
+        return $this->belongsToMany(Timeframe::class, 'timeframe_trade', 'trade_id', 'timeframe_id')->withPivot('picture_type', 'url_picture')->withTimestamps()->orderBy('timeframe_id');
     }
 
     public function strategies(){
-        return $this->belongsToMany(Strategy::class, 'strategy_trade', 'trade_id', 'strategy_id');
+        return $this->belongsToMany(Strategy::class, 'strategy_trade', 'trade_id', 'strategy_id')->withTimestamps();
     }
 
     public function targets(){

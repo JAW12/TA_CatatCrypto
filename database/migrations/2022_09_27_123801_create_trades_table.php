@@ -23,11 +23,11 @@ return new class extends Migration
             $table->decimal('open_price', 19, 8, true)->default(0);
             $table->decimal('open_quantity', 19, 8)->unsigned()->default(0);
             $table->decimal('open_margin', 19, 8)->unsigned()->default(0);
-            $table->dateTime('open_time');
+            $table->dateTime('open_time')->nullable();
 
             $table->decimal('average_price', 19, 8, true)->default(0);
-            $table->decimal('margin', 19, 8)->unsigned()->default(0);
-            $table->decimal('quantity_remaining', 19, 8)->unsigned()->default(0);
+            $table->decimal('margin', 19, 8, false)->default(0);
+            $table->decimal('quantity_remaining', 19, 8, false)->default(0);
 
 
             $table->decimal('rr_expected', 5, 2, false)->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->decimal('pnl', 19, 2, false)->default(0);
             $table->decimal('total_fees', 19, 2, false)->default(0);
             $table->decimal('nett_pnl', 19, 2, false)->default(0);
-            $table->decimal('roe', 19, 8, true)->default(0);
+            $table->decimal('roe', 19, 8, false)->default(0);
             $table->integer('wl')->comment('0 - loss, 1 - win')->nullable();
             $table->string('closed_at')->nullable();
 

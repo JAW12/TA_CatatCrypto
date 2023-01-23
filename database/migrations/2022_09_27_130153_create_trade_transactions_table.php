@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('type')->comment('0 - entry, 1 - close');
             $table->decimal('price', 19, 8, true);
             $table->decimal('quantity', 19, 8, false);
+            $table->decimal('total', 19, 8, false);
             $table->decimal('fee', 19, 8, true)->nullable();
             $table->decimal('pnl', 19, 2, false)->default(0);
             $table->dateTime('time')->nullable();
