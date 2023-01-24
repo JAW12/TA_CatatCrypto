@@ -94,8 +94,10 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
             Route::group(['prefix' => '/catatan/{trade}'], function(){
                 Route::get('', [TradeController::class, 'show'])->name('user.journal.trade.edit')->withTrashed();
                 Route::post('', [TradeController::class, 'update'])->name('user.journal.trade.update')->withTrashed();
-                Route::post('/tambah', [TradeController::class, 'store_transaction'])->name('user.journal.trade.transactions.store');
+                Route::post('/tambah', [TradeController::class, 'store_transaction'])->name('user.journal.trade.transaction.store');
                 Route::delete('/hapus', [TradeController::class, 'destroy'])->name('user.journal.trade.delete');
+
+                Route::get('/transaksi/{trade_transaction}', [TradeController::class, 'destroy_transaction'])->name('user.journal.trade.transaction.delete');
             });
         });
     });

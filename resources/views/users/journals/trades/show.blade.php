@@ -340,6 +340,12 @@
             }
         }
 
+        function datetimeLocal(datetime) {
+            const dt = new Date(datetime);
+            dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+            return dt.toISOString().slice(0, 16);
+        }
+
         $(function() {
             $(document).on('click', '.delete_tp', function() {
                 let value = $(this).attr("value");
@@ -515,6 +521,43 @@
                     child_container.remove();
                 }
             });
+
+            let transactions_table = $("#transactions-list-table").DataTable({
+                "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                    "destroy": true,
+                }
+            });
+
+            $('#tambahTransaksiModal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget);
+                var recipient = button.data('transaction-id');
+
+                var modal = $(this);
+                if (recipient != null) {
+                    console.log(recipient);
+                    var dt = Date.parse(recipient.time);
+                    console.log("Date Time : ", dt);
+
+                    modal.find('.modal-title').text('Ubah Transaksi');
+                    $("#transaction_id").val(recipient.id);
+                    $("#transaction_price").val(recipient.price);
+                    $("#transaction_quantity").val(Math.abs(recipient.quantity));
+                    $("#transaction_fee").val(recipient.fee);
+                    $("#transaction_type").val(recipient.type.toString()).change();
+                    $("#transaction_time").val(datetimeLocal(dt));
+
+                } else {
+                    modal.find('.modal-title').text('Tambah Transaksi');
+                    $("#transaction_id").val(null);
+                    $("#transaction_price").val(null);
+                    $("#transaction_quantity").val(null);
+                    $("#transaction_fee").val(null);
+                    $("#transaction_type").val("0").change();
+                    $("#transaction_time").val(null);
+                }
+            });
         });
     </script>
 @endpush
@@ -533,7 +576,12 @@
                                 @elseif($trade->status == 1)
                                     <span class="badge bg-primary rounded-pill">Aktif</span>
                                 @elseif($trade->status == 2)
-                                    <span class="badge bg-primary rounded-pill">Selesai</span>
+                                    <span class="badge bg-primary rounded-pill ms-2">Selesai</span>
+                                    @if($trade->wl == 1)
+                                    <span class="badge bg-success rounded-pill ms-2">Win (Menang)</span>
+                                    @elseif($trade->wl == -1)
+                                    <span class="badge bg-danger rounded-pill ms-2">Loss (Kalah)</span>
+                                    @endif
                                 @endif
                             </h4>
                         </div>
@@ -579,7 +627,7 @@
                                     <div class="form-group row gx-1">
                                         <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
                                         <div class="col-6">
-                                            <input type="number" step="1" name="leverage" id="leverage"
+                                            <input type="number" min="1" step="1" name="leverage" id="leverage"
                                                 class="form-control" value="{{ $trade->leverage }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
@@ -590,7 +638,7 @@
                                         <label for="open_price" class="col-4 col-form-label text-dark">Harga
                                             Entri</label>
                                         <div class="col-8">
-                                            <input type="number" step="any" name="open_price" id="open_price"
+                                            <input type="number" min="0" step="any" name="open_price" id="open_price"
                                                 class="form-control" value="{{ (float) $trade->open_price }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
@@ -603,7 +651,7 @@
                                         <label for="open_quantity"
                                             class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
                                         <div class="col-9 col-md-5">
-                                            <input type="number" step="any" name="open_quantity" id="open_quantity"
+                                            <input type="number" min="0" step="any" name="open_quantity" id="open_quantity"
                                                 class="form-control" value="{{ (float) $trade->open_quantity }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
@@ -644,7 +692,7 @@
                                 <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <span>Harga TP</span>
-                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary">+ Tambah
+                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary" @if($trade->status == 2) disabled @endif>+ Tambah
                                             Harga TP</button>
                                     </div>
                                     <div id="tp_container" class="h-100">
@@ -667,7 +715,7 @@
                                                 <div class="col-sm-12 col-md-3"><input type="number" step="any"
                                                         name="tp[]" id="tp{{ $loop->iteration }}"
                                                         no="{{ $loop->iteration }}" class="form-control input_tp"
-                                                        value="{{ (float) $target->price }}"></div>
+                                                        value="{{ (float) $target->price }}" @if ($trade->status == 2) readonly="readonly" @endif></div>
                                                 <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
                                                         class="text-success pnl_tp"
                                                         id="pnl_tp{{ $loop->iteration }}">${{ number_format((float) $target->pnl, 2) }}
@@ -686,7 +734,7 @@
                                 <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <span>Harga SL</span>
-                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary">+ Tambah
+                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary" @if($trade->status == 2) disabled @endif>+ Tambah
                                             Harga SL</button>
                                     </div>
                                     <div id="sl_container" class="h-100">
@@ -710,7 +758,7 @@
                                                 <div class="col-sm-12 col-md-3"><input type="number" step="any"
                                                         name="sl[]" id="sl{{ $loop->iteration }}"
                                                         no="{{ $loop->iteration }}" class="form-control input_sl"
-                                                        value="{{ (float) $target->price }}"></div>
+                                                        value="{{ (float) $target->price }}" @if ($trade->status == 2) readonly="readonly" @endif></div>
                                                 <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                                         class="text-danger pnl_sl"
                                                         id="pnl_sl1">${{ number_format((float) $target->pnl, 2) }}
@@ -885,7 +933,7 @@
                                         Transaksi</button>
                                 </div>
                             </div>
-                            <div id="table-container" class="table-responsive">
+                            <div id="table-container" class="table-responsive mb-3">
                                 <table id="transactions-list-table" class="table table-striped table-hover"
                                     role="grid" data-toggle="data-table">
                                     <thead>
@@ -929,12 +977,108 @@
                                                 @else
                                                     <td>-</td>
                                                 @endif
-                                                <td></td>
+                                                <td>
+                                                    <div class="flex align-items-center list-asset-transaction-action">
+                                                        <button type="button" class="btn btn-sm btn-icon btn-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal" data-transaction-id="{{json_encode($transaction)}}">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24"
+                                                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path d="M15.1655 4.60254L19.7315 9.16854"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </button>
+                                                        <a href="{{route('user.journal.trade.transaction.delete', ['journal' => $journal->id, 'trade' => $trade->id, 'trade_transaction' => $transaction->id])}}" class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                            data-toggle="tooltip" data-placement="top"
+                                                            title="" data-original-title="Delete">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    stroke="currentColor">
+                                                                    <path
+                                                                        d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path d="M20.708 6.23975H3.75"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path
+                                                                        d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
+                            @if ($trade->status != 0)
+                                <div class="row mb-2">
+                                    <div class="col-sm-12 col-md-4">
+                                        Total Keuntungan:
+                                        @if ($trade->pnl > 0)
+                                        <span id="total_pnl" class="text-success ms-2"> ${{ number_format((float) $trade->pnl, 2) }}</span>
+                                        @elseif($trade->pnl < 0)
+                                        <span id="total_pnl" class="text-danger ms-2"> -${{ abs(number_format((float) $trade->pnl, 2)) }}</span>
+                                        @else
+                                        <span>-</span>
+                                        @endif
+                                    </span>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
+                                        Total Biaya Tambahan:
+                                        @if ($trade->total_fees > 0)
+                                        <span id="total_fees" class="ms-2"> ${{ number_format((float) $trade->total_fees, 2) }}</span>
+                                        @else
+                                        <span>-</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
+                                        Keuntungan Bersih:
+                                        @if ($trade->nett_pnl > 0)
+                                        <span id="nett_pnl" class="text-success ms-2"> ${{ number_format((float) $trade->nett_pnl, 2) }} ({{number_format((float) $trade->roe, 2)}}%)</span>
+                                        @elseif($trade->nett_pnl < 0)
+                                        <span id="nett_pnl" class="text-danger ms-2"> -${{ abs(number_format((float) $trade->nett_pnl, 2))}} (-{{abs(number_format((float) $trade->roe, 2))}}%)</span>
+                                        @else
+                                        <span>-</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if ($trade->status == 2)
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-4">
+                                        Durasi: {{$trade->diff_days > 0 ? $trade->diff_days . ' hari ' : ''}}  {{$trade->diff_hours > 0 ? $trade->diff_hours . ' jam ' : ''}} {{$trade->diff_minutes > 0 ? $trade->diff_minutes . ' menit ' : ''}} {{$trade->diff_seconds > 0 ? $trade->diff_seconds . ' detik ' : ''}}
+                                    </span>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
+                                        Risk Ratio Ril: {{$trade->real_rr}}
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
+                                        Tutup Memenuhi: @if(str_contains($trade->closed_at, 'TP')) <span class="text-success ms-2">{{$trade->closed_at}}</span> @elseif(str_contains($trade->closed_at, 'SL')) <span class="text-danger ms-2">{{$trade->closed_at}}</span> @else - @endif
+                                    </div>
+                                </div>
+                                @endif
+                            @endif
                             <hr />
                             <h6 class="text-muted mb-2"><strong>Arsip Screenshot</strong></h6>
                             <div class="row row-cols-1 row-cols-md-2 gx-3 ps-0 pe-0" id="pnl_screenshot">
@@ -1052,9 +1196,10 @@
                                     </div>
                                     <div class="modal-body">
                                         <form
-                                            action="{{ route('user.journal.trade.transactions.store', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
+                                            action="{{ route('user.journal.trade.transaction.store', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
                                             id="transaction_form" method="POST">
                                             @csrf
+                                            <input type="hidden" name="transaction_id" id="transaction_id">
                                             <div class="form-group form-group-alt mb-2">
                                                 <label for="transaction_price"
                                                     class="form-label text-dark">Harga</label>
@@ -1080,7 +1225,7 @@
                                                         class="form-label text-dark">Tipe</label>
                                                     <select name="transaction_type" id="transaction_type"
                                                         class="form-control">
-                                                        <option value="0">Entri</option>
+                                                        <option value="0" selected>Entri</option>
                                                         <option value="1">Tutup</option>
                                                     </select>
                                                 </div>

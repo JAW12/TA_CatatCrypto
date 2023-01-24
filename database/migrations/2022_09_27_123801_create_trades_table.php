@@ -43,7 +43,7 @@ return new class extends Migration
             $table->decimal('total_fees', 19, 2, false)->default(0);
             $table->decimal('nett_pnl', 19, 2, false)->default(0);
             $table->decimal('roe', 19, 8, false)->default(0);
-            $table->integer('wl')->comment('0 - loss, 1 - win')->nullable();
+            $table->integer('wl')->comment('-1 - loss, 0 - neutral, 1 - win')->nullable();
             $table->string('closed_at')->nullable();
 
             $table->text('notes')->nullable();

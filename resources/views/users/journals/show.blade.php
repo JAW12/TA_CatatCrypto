@@ -26,6 +26,20 @@
                     "destroy": true,
                 }
             });
+            let aktif_table = $("#aktif-table").DataTable({
+                "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                    "destroy": true,
+                }
+            });
+            let selesai_table = $("#selesai-table").DataTable({
+                "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                    "destroy": true,
+                }
+            });
         });
     </script>
 @endpush
@@ -288,7 +302,7 @@
                                                     <td>-</td>
                                                     <td>-</td>
                                                 @endif
-                                                <td>{{ $trade->rr_expected }}</td>
+                                                <td>{{ $trade->rr_expected}}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         <a href="{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}" type="button" class="btn btn-sm btn-icon btn-success">
@@ -350,7 +364,7 @@
                         </div>
                         <h6><strong>Aktif</strong></h6>
                         <div class="table-responsive my-3" id="table-container-aktif">
-                            <table id="aktif-table" class="table table-sm table-striped table-hover" role="grid"
+                            <table id="aktif-table" class="table table-striped table-hover" role="grid"
                                 data-toggle="data-table">
                                 <thead>
                                     <tr class="light">
@@ -375,12 +389,152 @@
                                     </tr>
                                 </thead>
                                 <tbody id="list-aktif">
+                                    @foreach ($journal->trades as $trade)
+                                        @if ($trade->status == 1)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <img src="{{ $trade->asset->thumb }}" alt="coin">
+                                                    {{ $trade->asset->name }}
+                                                </td>
+                                                <td>
+                                                    @if ($trade->type == 0)
+                                                        <span class="text-danger">SHORT</span>
+                                                    @elseif($trade->type == 1)
+                                                        <span class="text-success">LONG</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ (float) $trade->quantity_remaining }}</td>
+                                                <td>{{ $trade->leverage }}</td>
+                                                <td>${{ (float) $trade->margin }}</td>
+                                                <td>${{ (float) $trade->open_price }}</td>
+                                                <td>{{ $trade->open_time }}</td>
+                                                @if (count($trade->targets->where('type', '0')) > 0)
+                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
+                                                    </td>
+                                                    <td class="text-danger">
+                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                        @if ($journal->risk > 0 and $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                                height="16" fill="currentColor"
+                                                                class="bi bi-exclamation-triangle-fill mb-1"
+                                                                viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                                            </svg>
+                                                        @endif
+                                                    </td>
+                                                @else
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                @endif
+                                                @if (count($trade->targets->where('type', '1')) > 0)
+                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                    </td>
+                                                    <td class="text-success">
+                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                    </td>
+                                                    @if (count($trade->targets->where('type', '1')) > 1)
+                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
+                                                        </td>
+                                                        <td class="text-success">
+                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
+                                                        </td>
+                                                        @if (count($trade->targets->where('type', '1')) > 2)
+                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
+                                                            </td>
+                                                            <td class="text-success">
+                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
+                                                            </td>
+                                                        @else
+                                                            <td>-</td>
+                                                            <td>-</td>
+                                                        @endif
+                                                    @else
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    @endif
+                                                @else
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                @endif
+                                                @if($trade->nett_pnl > 0)
+                                                <td class="text-success">
+                                                    ${{ (float) $trade->nett_pnl }}
+                                                </td>
+                                                @else
+                                                <td class="text-danger">
+                                                    -${{ abs((float) $trade->nett_pnl) }}
+                                                </td>
+                                                @endif
+                                                <td>
+                                                    <div class="flex align-items-center list-asset-transaction-action">
+                                                        <a href="{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}" type="button" class="btn btn-sm btn-icon btn-success">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24"
+                                                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path d="M15.1655 4.60254L19.7315 9.16854"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </a>
+                                                        <form action="{{route('user.journal.trade.delete', ['journal' => $journal->id, 'trade' => $trade->id])}}" method="post" class="d-inline">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <button class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="" data-original-title="Delete">
+                                                                <span class="btn-inner">
+                                                                    <svg width="20" viewBox="0 0 24 24"
+                                                                        fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        stroke="currentColor">
+                                                                        <path
+                                                                            d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                        <path d="M20.708 6.23975H3.75"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                        <path
+                                                                            d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </form>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
                         <h6><strong>Selesai</strong></h6>
                         <div class="table-responsive my-3" id="table-container-selesai">
-                            <table id="selesai-table" class="table table-sm table-striped table-hover" role="grid"
+                            <table id="selesai-table" class="table table-striped table-hover" role="grid"
                                 data-toggle="data-table">
                                 <thead>
                                     <tr class="light">
@@ -404,6 +558,108 @@
                                     </tr>
                                 </thead>
                                 <tbody id="list-selesai">
+                                    @foreach ($journal->trades as $trade)
+                                        @if ($trade->status == 2)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <img src="{{ $trade->asset->thumb }}" alt="coin">
+                                                    {{ $trade->asset->name }}
+                                                </td>
+                                                <td>
+                                                    @if ($trade->type == 0)
+                                                        <span class="text-danger">SHORT</span>
+                                                    @elseif($trade->type == 1)
+                                                        <span class="text-success">LONG</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ abs((float) $trade->transactions()->where('type', 1)->sum('quantity')) }}</td>
+                                                <td>{{ $trade->leverage }}</td>
+                                                <td>${{ abs($trade->transactions()->where('type', 0)->sum('total')) / $trade->leverage  }}</td>
+                                                <td>${{ (float) $trade->open_price }}</td>
+                                                <td>{{ $trade->open_time }}</td>
+                                                <td>${{ (float) $trade->close_price }}</td>
+                                                <td>{{ $trade->close_time }}</td>
+                                                <td>{{$trade->diff_days > 0 ? $trade->diff_days . ' hari ' : ''}}  {{$trade->diff_hours > 0 ? $trade->diff_hours . ' jam ' : ''}} {{$trade->diff_minutes > 0 ? $trade->diff_minutes . ' menit ' : ''}} {{$trade->diff_seconds > 0 ? $trade->diff_seconds . ' detik ' : ''}}</td>
+                                                @if($trade->nett_pnl > 0)
+                                                <td class="text-success">
+                                                    ${{ number_format((float) $trade->nett_pnl, 2) }}
+                                                </td>
+                                                <td class="text-success">
+                                                    {{ number_format((float) $trade->roe, 2) }}%
+                                                </td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-success ">Win (Menang)</span>
+                                                </td>
+                                                @else
+                                                <td class="text-danger">
+                                                    -${{ number_format(abs((float) $trade->nett_pnl, 2) )}}
+                                                </td>
+                                                <td class="text-danger">
+                                                    -{{ number_format(abs((float) $trade->roe), 2) }}%
+                                                </td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-danger ">Loss (Kalah)</span>
+                                                </td>
+                                                @endif
+                                                <td>{{$trade->real_rr}}</td>
+                                                <td>{{$trade->closed_at}}</td>
+                                                <td>
+                                                    <div class="flex align-items-center list-asset-transaction-action">
+                                                        <a href="{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}" type="button" class="btn btn-sm btn-icon btn-success">
+                                                            <span class="btn-inner">
+                                                                <svg width="20" viewBox="0 0 24 24"
+                                                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M11.4925 2.78906H7.75349C4.67849 2.78906 2.75049 4.96606 2.75049 8.04806V16.3621C2.75049 19.4441 4.66949 21.6211 7.75349 21.6211H16.5775C19.6625 21.6211 21.5815 19.4441 21.5815 16.3621V12.3341"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M8.82812 10.921L16.3011 3.44799C17.2321 2.51799 18.7411 2.51799 19.6721 3.44799L20.8891 4.66499C21.8201 5.59599 21.8201 7.10599 20.8891 8.03599L13.3801 15.545C12.9731 15.952 12.4211 16.181 11.8451 16.181H8.09912L8.19312 12.401C8.20712 11.845 8.43412 11.315 8.82812 10.921Z"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                    <path d="M15.1655 4.60254L19.7315 9.16854"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </a>
+                                                        <form action="{{route('user.journal.trade.delete', ['journal' => $journal->id, 'trade' => $trade->id])}}" method="post" class="d-inline">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <button class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="" data-original-title="Delete">
+                                                                <span class="btn-inner">
+                                                                    <svg width="20" viewBox="0 0 24 24"
+                                                                        fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        stroke="currentColor">
+                                                                        <path
+                                                                            d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                        <path d="M20.708 6.23975H3.75"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                        <path
+                                                                            d="M17.4406 6.23973C16.6556 6.23973 15.9796 5.68473 15.8256 4.91573L15.5826 3.69973C15.4326 3.13873 14.9246 2.75073 14.3456 2.75073H10.1126C9.53358 2.75073 9.02558 3.13873 8.87558 3.69973L8.63258 4.91573C8.47858 5.68473 7.80258 6.23973 7.01758 6.23973"
+                                                                            stroke="currentColor" stroke-width="1.5"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round"></path>
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </form>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

@@ -677,7 +677,7 @@
                                     <div class="form-group row gx-1">
                                         <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
                                         <div class="col-6">
-                                            <input type="number" step="1" name="leverage" id="leverage"
+                                            <input type="number" min="1" step="1" name="leverage" id="leverage"
                                                 class="form-control">
                                         </div>
                                     </div>
@@ -687,7 +687,7 @@
                                         <label for="open_price" class="col-4 col-form-label text-dark">Harga
                                             Entri</label>
                                         <div class="col-8">
-                                            <input type="number" step="any" name="open_price" id="open_price"
+                                            <input type="number" min="0"  step="any" name="open_price" id="open_price"
                                                 class="form-control">
                                         </div>
                                     </div>
@@ -699,7 +699,7 @@
                                         <label for="open_quantity"
                                             class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
                                         <div class="col-9 col-md-5">
-                                            <input type="number" step="any" name="open_quantity" id="open_quantity"
+                                            <input type="number" min="0" step="any" name="open_quantity" id="open_quantity"
                                                 class="form-control">
                                         </div>
                                         <span id="openQuantityInline"
