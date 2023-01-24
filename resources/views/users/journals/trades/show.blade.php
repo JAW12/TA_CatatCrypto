@@ -959,7 +959,13 @@
                                                         Tutup
                                                     @endif
                                                 </td>
-                                                <td>${{ number_format((float) $transaction->price, 2) }}</td>
+                                                <td>
+                                                    @if($transaction->price > 0 and $transaction->price < 1)
+                                                    ${{ (float) $transaction->price }}
+                                                    @else
+                                                    ${{ number_format((float) $transaction->price, 2) }}
+                                                    @endif
+                                                </td>
                                                 @if ($transaction->type == 0)
                                                     <td>+{{ number_format((float) $transaction->quantity, 2) }}</td>
                                                 @elseif($transaction->type == 1)

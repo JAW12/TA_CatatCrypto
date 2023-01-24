@@ -10,6 +10,7 @@ use App\Models\TradeTarget;
 use App\Models\TradeTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -173,6 +174,12 @@ class TradeController extends Controller
             }
 
             $journal->count_of_trades = count($journal->trades);
+            $journal->save();
+
+            $user = Auth::user();
+            $user->remaining_trades = $user->remaining_trades - 1;
+            $user->save();
+
             DB::commit();
             return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withSuccess('Catatan berhasil ditambahkan');
         } catch (\Throwable $th) {
@@ -444,9 +451,6 @@ class TradeController extends Controller
                 }
             }
 
-
-
-
             DB::commit();
             return redirect()->back()->withSuccess('Catatan berhasil diubah');
         } catch (\Throwable $th) {
@@ -653,18 +657,18 @@ class TradeController extends Controller
                     $tp_targets = $trade->targets()->where('type', '1')->get();
                     foreach ($tp_targets as $key => $value) {
                         if ($direction == 1 && $request->get('transaction_price') >= $value->price) {
-                            $closed_at = "TP " . $key;
+                            $closed_at = "TP " . ($key+1);
                         } else if ($direction == 0 && $request->get('transaction_price') <= $value->price) {
-                            $closed_at = "TP " . $key;
+                            $closed_at = "TP " . ($key+1);
                         }
                     }
                 } else if ($trade->wl == -1) {
                     $sl_targets = $trade->targets()->where('type', '0')->get();
                     foreach ($sl_targets as $key => $value) {
                         if ($direction == 1 && $request->get('transaction_price') <= $value->price) {
-                            $closed_at = "SL " . $key;
+                            $closed_at = "SL " . ($key+1);
                         } else if ($direction == 0 && $request->get('transaction_price') >= $value->price) {
-                            $closed_at = "SL " . $key;
+                            $closed_at = "SL " . ($key+1);
                         }
                     }
                 }
@@ -679,6 +683,7 @@ class TradeController extends Controller
 
             $journal->balances = $journal->balances + $trade->nett_pnl;
             $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+            $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
             $journal->save();
 
             if ($request->get('transaction_id') == null) {
@@ -792,18 +797,18 @@ class TradeController extends Controller
                     $tp_targets = $trade->targets()->where('type', '1')->get();
                     foreach ($tp_targets as $key => $value) {
                         if ($direction == 1 && $last_transaction->price >= $value->price) {
-                            $closed_at = "TP " . $key;
+                            $closed_at = "TP " . ($key+1);
                         } else if ($direction == 0 && $last_transaction->price <= $value->price) {
-                            $closed_at = "TP " . $key;
+                            $closed_at = "TP " . ($key+1);
                         }
                     }
                 } else if ($trade->wl == -1) {
                     $sl_targets = $trade->targets()->where('type', '0')->get();
                     foreach ($sl_targets as $key => $value) {
                         if ($direction == 1 && $last_transaction->price <= $value->price) {
-                            $closed_at = "SL " . $key;
+                            $closed_at = "SL " . ($key+1);
                         } else if ($direction == 0 && $last_transaction->price >= $value->price) {
-                            $closed_at = "SL " . $key;
+                            $closed_at = "SL " . ($key+1);
                         }
                     }
                 }
@@ -813,6 +818,7 @@ class TradeController extends Controller
             }
             $journal->balances = $journal->balances + $trade->nett_pnl;
             $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+            $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
             $journal->save();
             return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
         }
@@ -858,7 +864,15 @@ class TradeController extends Controller
             $journal->save();
             $delete = $trade->delete();
             $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+            $journal->count_of_trades = count($journal->trades);
+            $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
+
             $journal->save();
+
+            $user = Auth::user();
+            $user->remaining_trades = $user->remaining_trades + 1;
+            $user->save();
+
             DB::commit();
             return redirect()->back()->withSuccess('Catatan berhasil dihapus');
         } catch (\Throwable $th) {

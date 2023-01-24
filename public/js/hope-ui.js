@@ -194,18 +194,18 @@ if(typeof copy !== typeof undefined) {
 /*---------------------------------------------------------------------
               Vanila Datepicker
 -----------------------------------------------------------------------*/
-const datepickers = document.querySelectorAll('.vanila-datepicker')
-Array.from(datepickers, (elem) => {
-  if(typeof Datepicker !== typeof undefined) {
-    new Datepicker(elem)
-  }
-})
-const daterangePickers = document.querySelectorAll('.vanila-daterangepicker')
-Array.from(daterangePickers, (elem) => {
-  if(typeof Datepicker !== typeof undefined) {
-    new DateRangePicker(elem)
-  }
-})
+// const datepickers = document.querySelectorAll('.vanila-datepicker')
+// Array.from(datepickers, (elem) => {
+//   if(typeof Datepicker !== typeof undefined) {
+//     new Datepicker(elem)
+//   }
+// })
+// const daterangePickers = document.querySelectorAll('.vanila-daterangepicker')
+// Array.from(daterangePickers, (elem) => {
+//   if(typeof Datepicker !== typeof undefined) {
+//     new DateRangePicker(elem)
+//   }
+// })
 
 /*---------------------------------------------------------------------
               CounterUp 2

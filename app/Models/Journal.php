@@ -19,6 +19,6 @@ class Journal extends Model
     }
 
     public function trades(){
-        return $this->hasMany(Trade::class);
+        return $this->hasMany(Trade::class)->orderBy('open_time', 'desc');
     }
 }

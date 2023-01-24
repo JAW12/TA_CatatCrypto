@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Journal;
 use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
+use App\Models\Trade;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 

@@ -1,4 +1,9 @@
+@push('styles')
+@endpush
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/datepicker-full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.2.0/dist/js/locales/id.js"></script>
+
     <script>
         $(function() {
             $('#delete-journal').click(function(e) {
@@ -19,27 +24,685 @@
                 })
             });
 
-            let pending_table = $("#pending-table").DataTable({
+            var pending_table = $("#pending-table").DataTable({
                 "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
                     "destroy": true,
-                }
+                },
+                footerCallback: function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ? i.replace(/[\$,%]/g, '') * 1 : typeof i === 'number' ? i : 0;
+                    };
+
+                    totalMargin = api
+                        .column(5, { filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pageTotalMargin = api
+                        .column(5, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalPNL_SL = api
+                        .column(8, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_SL = api
+                        .column(8, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_SL = "";
+                    if(pagetotalPNL_SL > 0){
+                        htmlPNL_SL = `<span class="text-danger me-1">$${pagetotalPNL_SL.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_SL = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_SL > 0){
+                        htmlPNL_SL += `<span class="text-danger">(Total: $${totalPNL_SL.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_SL += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP1 = api
+                        .column(10, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP1 = api
+                        .column(10, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP1 = "";
+                    if(pagetotalPNL_TP1 > 0){
+                        htmlPNL_TP1 = `<span class="text-success me-1">$${pagetotalPNL_TP1.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP1 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP1 > 0){
+                        htmlPNL_TP1 += `<span class="text-success">(Total: $${totalPNL_TP1.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP1 += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP2 = api
+                        .column(12, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP2 = api
+                        .column(12, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP2 = "";
+                    if(pagetotalPNL_TP2 > 0){
+                        htmlPNL_TP2 = `<span class="text-success me-1">$${pagetotalPNL_TP2.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP2 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP2 > 0){
+                        htmlPNL_TP2 += `<span class="text-success">(Total: $${totalPNL_TP2.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP2 += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP3 = api
+                        .column(14, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP3 = api
+                        .column(14, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP3 = "";
+                    if(pagetotalPNL_TP3 > 0){
+                        htmlPNL_TP3 = `<span class="text-success me-1">$${pagetotalPNL_TP3.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP3 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP3 > 0){
+                        htmlPNL_TP3 += `<span class="text-success">(Total: $${totalPNL_TP3.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP3 += "(Total: $0.00)";
+                    }
+
+                    totalRR = api
+                        .column(15, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalRR = totalRR / api.column(15, {filter: 'applied'}).data().count();
+
+                    pageTotalRR = api
+                        .column(15, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                    }, 0);
+
+                    pageTotalRR = pageTotalRR / api.column(15, {filter: 'applied'}).data().count();
+
+                    htmlRR = "";
+                    if(pageTotalRR > 0){
+                        htmlRR = `<span class="text-success me-1">${pageTotalRR.toFixed(2)}</span>`;
+                    }
+                    else if(pageTotalRR < 0){
+                        htmlRR = `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlRR = "<span class='me-1'>0.00</span>";
+                    }
+
+                    if(totalRR > 0){
+                        htmlRR += `<span class="text-success">(Total: ${totalRR.toFixed(2)})</span>`;
+                    }
+                    else if(totalRR < 0){
+                        htmlRR += `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlRR += "(Total: 0.00)";
+                    }
+
+
+                    // Update footer
+                    $(api.column(5).footer()).html(`$${pageTotalMargin.toFixed(2)} (Total: $${totalMargin.toFixed(2)})`);
+
+                    $(api.column(8).footer()).html(htmlPNL_SL);
+                    $(api.column(10).footer()).html(htmlPNL_TP1);
+                    $(api.column(12).footer()).html(htmlPNL_TP2);
+                    $(api.column(14).footer()).html(htmlPNL_TP3);
+                    $(api.column(15).footer()).html(htmlRR);
+                },
             });
-            let aktif_table = $("#aktif-table").DataTable({
+            var aktif_table = $("#aktif-table").DataTable({
                 "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
                     "destroy": true,
-                }
+                },
+                footerCallback: function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ? i.replace(/[\$,%]/g, '') * 1 : typeof i === 'number' ? i : 0;
+                    };
+
+                    totalMargin = api
+                        .column(5, { filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pageTotalMargin = api
+                        .column(5, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalPNL_SL = api
+                        .column(9, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_SL = api
+                        .column(9, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_SL = "";
+                    if(pagetotalPNL_SL > 0){
+                        htmlPNL_SL = `<span class="text-danger me-1">$${pagetotalPNL_SL.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_SL = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_SL > 0){
+                        htmlPNL_SL += `<span class="text-danger">(Total: $${totalPNL_SL.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_SL += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP1 = api
+                        .column(11, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP1 = api
+                        .column(11, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP1 = "";
+                    if(pagetotalPNL_TP1 > 0){
+                        htmlPNL_TP1 = `<span class="text-success me-1">$${pagetotalPNL_TP1.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP1 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP1 > 0){
+                        htmlPNL_TP1 += `<span class="text-success">(Total: $${totalPNL_TP1.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP1 += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP2 = api
+                        .column(13, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP2 = api
+                        .column(13, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP2 = "";
+                    if(pagetotalPNL_TP2 > 0){
+                        htmlPNL_TP2 = `<span class="text-success me-1">$${pagetotalPNL_TP2.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP2 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP2 > 0){
+                        htmlPNL_TP2 += `<span class="text-success">(Total: $${totalPNL_TP2.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP2 += "(Total: $0.00)";
+                    }
+
+                    totalPNL_TP3 = api
+                        .column(15, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_TP3 = api
+                        .column(15, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_TP3 = "";
+                    if(pagetotalPNL_TP3 > 0){
+                        htmlPNL_TP3 = `<span class="text-success me-1">$${pagetotalPNL_TP3.toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP3 = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_TP3 > 0){
+                        htmlPNL_TP3 += `<span class="text-success">(Total: $${totalPNL_TP3.toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_TP3 += "(Total: $0.00)";
+                    }
+
+                    totalPNL_NETT = api
+                        .column(16, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pagetotalPNL_NETT = api
+                        .column(16, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL_NETT = "";
+                    if(pagetotalPNL_NETT > 0){
+                        htmlPNL_NETT = `<span class="text-success me-1">$${pagetotalPNL_NETT.toFixed(2)}</span>`;
+                    }
+                    else if(pagetotalPNL_NETT < 0){
+                        htmlPNL_NETT = `<span class="text-danger me-1">-$${Math.abs(pagetotalPNL_NETT).toFixed(2)}</span>`;
+
+                    }
+                    else
+                    {
+                        htmlPNL_NETT = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL_NETT > 0){
+                        htmlPNL_NETT += `<span class="text-success">(Total: $${totalPNL_NETT.toFixed(2)})</span>`;
+                    }
+                    else if(totalPNL_NETT < 0){
+                        htmlPNL_NETT += `<span class="text-danger">(Total: -$${Math.abs(totalPNL_NETT).toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL_NETT += "(Total: $0.00)";
+                    }
+
+
+                    // Update footer
+                    $(api.column(5).footer()).html(`$${pageTotalMargin.toFixed(2)} (Total: $${totalMargin.toFixed(2)})`);
+
+                    $(api.column(9).footer()).html(htmlPNL_SL);
+                    $(api.column(11).footer()).html(htmlPNL_TP1);
+                    $(api.column(13).footer()).html(htmlPNL_TP2);
+                    $(api.column(15).footer()).html(htmlPNL_TP3);
+                    $(api.column(16).footer()).html(htmlPNL_NETT);
+                },
             });
-            let selesai_table = $("#selesai-table").DataTable({
+            var selesai_table = $("#selesai-table").DataTable({
                 "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
                     "destroy": true,
-                }
+                },
+                footerCallback: function (row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ? i.replace(/[\$,%]/g, '') * 1 : typeof i === 'number' ? i : 0;
+                    };
+
+                    // Check win loss
+                    var checkWL = function (i) {
+                        return typeof i === 'string' ? i.includes("Menang") : typeof i === 'number' ? 0 : 0;
+                    };
+
+                    totalMargin = api
+                        .column(5, { filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pageTotalMargin = api
+                        .column(5, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalPNL = api
+                        .column(11, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    pageTotalPNL = api
+                        .column(11, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    htmlPNL = "";
+                    if(pageTotalPNL > 0){
+                        htmlPNL = `<span class="text-success me-1">$${pageTotalPNL.toFixed(2)}</span>`;
+                    }
+                    else if(pageTotalPNL < 0){
+                        htmlPNL = `<span class="text-danger me-1">-$${Math.abs(pageTotalPNL).toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL = "<span class='me-1'>$0.00</span>";
+                    }
+
+                    if(totalPNL > 0){
+                        htmlPNL += `<span class="text-success">(Total: $${totalPNL.toFixed(2)})</span>`;
+                    }
+                    else if(totalPNL < 0){
+                        htmlPNL += `<span class="text-danger">(Total: -$${Math.abs(totalPNL).toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlPNL += "(Total: $0.00)";
+                    }
+
+                    totalPNLP = api
+                        .column(12, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalPNLP = totalPNLP / api.column(12, {filter: 'applied'}).data().count();
+
+                    pageTotalPNLP = api
+                        .column(12, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                    }, 0);
+
+                    pageTotalPNLP = pageTotalPNLP / api.column(12, {filter: 'applied'}).data().count();
+
+                    htmlPNLP = "";
+                    if(pageTotalPNLP > 0){
+                        htmlPNLP = `<span class="text-success me-1">${pageTotalPNLP.toFixed(2)}%</span>`;
+                    }
+                    else if(pageTotalPNLP < 0){
+                        htmlPNLP = `<span class="text-danger me-1">-${Math.abs(pageTotalPNLP).toFixed(2)}%</span>`;
+                    }
+                    else
+                    {
+                        htmlPNLP = "<span class='me-1'>0%</span>";
+                    }
+
+                    if(totalPNLP > 0){
+                        htmlPNLP += `<span class="text-success">(Total: ${totalPNLP.toFixed(2)})%</span>`;
+                    }
+                    else if(totalPNLP < 0){
+                        htmlPNLP += `<span class="text-danger">(Total: -${Math.abs(totalPNLP).toFixed(2)})%</span>`;
+                    }
+                    else
+                    {
+                        htmlPNLP += "(Total: 0%)";
+                    }
+
+                    totalWL = api
+                        .column(13, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return checkWL(a) + checkWL(b);
+                        }, 0);
+
+                    totalWL = totalWL / api.column(13, {filter: 'applied'}).data().count() * 100;
+
+                    pageTotalWL = api
+                        .column(13, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return checkWL(a) + checkWL(b);
+                    }, 0);
+
+                    pageTotalWL = pageTotalWL / api.column(13, {filter: 'applied'}).data().count() * 100;
+
+                    htmlWL = "";
+                    if(pageTotalWL > 0){
+                        htmlWL = `<span class="text-success me-1">${pageTotalWL.toFixed(2)}%</span>`;
+                    }
+                    else if(pageTotalWL < 0){
+                        htmlWL = `<span class="text-danger me-1">-${Math.abs(pageTotalWL).toFixed(2)}%</span>`;
+                    }
+                    else
+                    {
+                        htmlWL = "<span class='me-1'>0%</span>";
+                    }
+
+                    if(totalWL > 0){
+                        htmlWL += `<span class="text-success">(Total: ${totalWL.toFixed(2)}%)</span>`;
+                    }
+                    else if(totalWL < 0){
+                        htmlWL += `<span class="text-danger">(Total: -${Math.abs(totalWL).toFixed(2)}%)</span>`;
+                    }
+                    else
+                    {
+                        htmlWL += "(Total: 0%)";
+                    }
+
+                    totalRR = api
+                        .column(14, {filter: 'applied'})
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    totalRR = totalRR / api.column(14, {filter: 'applied'}).data().count();
+
+                    pageTotalRR = api
+                        .column(14, { filter: 'applied', page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                    }, 0);
+
+                    pageTotalRR = pageTotalRR / api.column(14, {filter: 'applied'}).data().count();
+
+                    htmlRR = "";
+                    if(pageTotalRR > 0){
+                        htmlRR = `<span class="text-success me-1">${pageTotalRR.toFixed(2)}</span>`;
+                    }
+                    else if(pageTotalRR < 0){
+                        htmlRR = `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
+                    }
+                    else
+                    {
+                        htmlRR = "<span class='me-1'>0.00</span>";
+                    }
+
+                    if(totalRR > 0){
+                        htmlRR += `<span class="text-success">(Total: ${totalRR.toFixed(2)})</span>`;
+                    }
+                    else if(totalRR < 0){
+                        htmlRR += `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
+                    }
+                    else
+                    {
+                        htmlRR += "(Total: 0.00)";
+                    }
+
+
+
+                    // Update footer
+                    $(api.column(5).footer()).html(`$${pageTotalMargin.toFixed(2)} (Total: $${totalMargin.toFixed(2)})`);
+
+                    $(api.column(11).footer()).html(htmlPNL);
+                    $(api.column(12).footer()).html(htmlPNLP);
+                    $(api.column(13).footer()).html(htmlWL);
+                    $(api.column(14).footer()).html(htmlRR);
+                },
             });
+
+            // Date range filter
+            var minDateFilter = null;
+            var maxDateFilter = null;
+
+            const elem = document.getElementById('date_range');
+            const range_picker = new DateRangePicker(elem, {
+                buttonClass: 'btn',
+                allowOneSidedRange: true,
+                todayBtn: true,
+                todayBtnMode: 1,
+                language: 'id',
+            });
+
+            const startElem = document.getElementById('start');
+            const endElem = document.getElementById('end');
+
+            startElem.addEventListener('changeDate', function(e) {
+                if(e.detail.date != null){
+                    minDateFilter = new Date(e.detail.date);
+                }
+                else{
+                    minDateFilter = null;
+                }
+                aktif_table.draw();
+                selesai_table.draw();
+            });
+
+            endElem.addEventListener('changeDate', function(e) {
+                if(e.detail.date != null){
+                    maxDateFilter = new Date(e.detail.date);
+                }
+                else{
+                    maxDateFilter = null;
+                }
+                aktif_table.draw();
+                selesai_table.draw();
+            });
+
+            $("#search").keyup(function(){
+                pending_table.search($(this).val()).draw();
+                aktif_table.search($(this).val()).draw();
+                selesai_table.search($(this).val()).draw();
+            });
+
+
+            $.fn.dataTable.ext.search.push(
+                function( settings, data, dataIndex ) {
+                    // console.log("settings", settings.sInstance == "selesai-table");
+                    var min = minDateFilter;
+                    var max = maxDateFilter;
+                    var date = 0;
+                    if(settings.sInstance == "selesai-table"){
+                        date = new Date(data[9]);
+                    }
+                    else if(settings.sInstance == "aktif-table"){
+                        date = new Date(data[7]);
+                    }
+
+                    if (
+                        (( min === null && max === null ) ||
+                        ( min === null && date <= max ) ||
+                        ( min <= date   && max === null ) ||
+                        ( min <= date   && date <= max ))
+                    ) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
         });
     </script>
 @endpush
@@ -72,7 +735,17 @@
                                 <h6 class="text-muted row">
                                     <small class="col-sm-12 col-md-5">Resiko per Transaksi:
                                         {{ (float) $journal->risk }}%</small>
-                                    <small class="col-sm-12 col-md-7">$200/$500 untuk bulan ini</small>
+                                    <small class="col-sm-12 col-md-7">
+                                        @if($journal->target == '')
+                                            $-/- untuk bulan ini
+                                        @elseif($journal->trades()->whereMonth('close_time', now())->sum('nett_pnl') >= $journal->target)
+                                            <span class="text-success">
+                                                ${{number_format((float)$journal->trades()->whereMonth('close_time', now())->sum('nett_pnl'), 2)}}/${{number_format((float)$journal->target, 2)}} untuk bulan ini
+                                            </span>
+                                        @else
+                                            ${{number_format((float)$journal->trades()->whereMonth('close_time', now())->sum('nett_pnl'), 2)}}/${{number_format((float)$journal->target, 2)}} untuk bulan ini
+                                        @endif
+                                    </small>
                                 </h6>
                             </div>
                             <div class="col-sm-12 col-md-7 mt-3 mt-md-0">
@@ -109,7 +782,7 @@
                                     <tr>
                                         <td><strong>Total Saldo:</strong></td>
                                         <td id="amount_of_assets">
-                                            <strong>${{ (float) $journal->balances }}</strong>
+                                            <strong>${{ number_format((float) $journal->balances, 2) }}</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -118,8 +791,30 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Long:</strong></td>
-                                        <td id="long_side"><strong>2 <span id="pnl_long_side" class="ms-2">+$0 (WR
-                                                    100%)</span></strong></td>
+                                        <td id="long_side">
+                                            <strong>
+                                                {{count($journal->trades->where('type', '1'))}}
+                                                @if($journal->trades->where('type', '1')->sum('nett_pnl') >= 0)
+                                                    <span id="pnl_long_side" class="ms-2 text-success">
+                                                        +${{number_format((float) $journal->trades->where('type', '1')->sum('nett_pnl'), 2)}}
+                                                        @if(count($journal->trades->where('type', '1')) > 0)
+                                                        (WR {{number_format((float) (count($journal->trades->where('type', '1')->where('wl', 1)) / count($journal->trades->where('type', '1')) * 100), 2)}}%)
+                                                        @else
+                                                            (WR 0%)
+                                                        @endif
+                                                    </span>
+                                                @else
+                                                    <span id="pnl_long_side" class="ms-2 text-danger">
+                                                        -${{abs(number_format((float) $journal->trades->where('type', '1')->sum('nett_pnl'), 2))}}
+                                                        @if(count($journal->trades->where('type', '1')) > 0)
+                                                        (WR {{number_format((float) (count($journal->trades->where('type', '1')->where('wl', 1)) / count($journal->trades->where('type', '1')) * 100), 2)}}%)
+                                                        @else
+                                                            (WR 0%)
+                                                        @endif
+                                                    </span>
+                                                @endif
+                                            </strong>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -127,8 +822,30 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Short:</strong></td>
-                                        <td id="short_side"><strong>2 <span id="pnl_short_side" class="ms-2">+$0 (WR
-                                                    100%)</span></strong></td>
+                                        <td id="short_side">
+                                            <strong>
+                                                {{count($journal->trades->where('type' , '0'))}}
+                                                @if($journal->trades->where('type' , '0')->sum('nett_pnl') >= 0)
+                                                    <span id="pnl_long_side" class="ms-2 text-success">
+                                                        +${{number_format((float) $journal->trades->where('type' , '0')->sum('nett_pnl'), 2)}}
+                                                        @if(count($journal->trades->where('type' , '0')) > 0)
+                                                        (WR {{number_format((float) (count($journal->trades->where('type' , '0')->where('wl', 1)) / count($journal->trades->where('type' , '0')) * 100), 2)}}%)
+                                                        @else
+                                                            (WR 0%)
+                                                        @endif
+                                                    </span>
+                                                @else
+                                                    <span id="pnl_long_side" class="ms-2 text-danger">
+                                                        -${{abs(number_format((float) $journal->trades->where('type' , '0')->sum('nett_pnl'), 2))}}
+                                                        @if(count($journal->trades->where('type' , '0')) > 0)
+                                                        (WR {{number_format((float) (count($journal->trades->where('type' , '0')->where('wl', 1)) / count($journal->trades->where('type' , '0')) * 100), 2)}}%)
+                                                        @else
+                                                            (WR 0%)
+                                                        @endif
+                                                    </span>
+                                                @endif
+                                            </strong>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -139,7 +856,7 @@
                                     <tr>
                                         <td><strong>Jumlah Catatan:</strong></td>
                                         <td id="amount_trades">
-                                            <strong>0</strong>
+                                            <strong>{{number_format($journal->count_of_trades, 0)}}</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -148,7 +865,15 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Persentase Keberhasilan:</strong></td>
-                                        <td id="win_rate"><strong>100%</strong></td>
+                                        <td id="win_rate">
+                                            <strong>
+                                                @if($journal->winrate > 0)
+                                                {{number_format((float) $journal->winrate, 2)}}%
+                                                @else
+                                                0%
+                                                @endif
+                                            </strong>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -156,7 +881,21 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td id="total_pnl"><strong>$0</strong></td>
+                                        <td id="total_pnl">
+                                            <strong>
+                                                @if($journal->pnl > 0)
+                                                <span class="text-success">
+                                                    ${{number_format((float) $journal->pnl, 2)}}
+                                                </span>
+                                                @elseif($journal->pnl < 0)
+                                                <span class="text-danger">
+                                                    -${{abs(number_format((float) $journal->pnl, 2))}}
+                                                </span>
+                                                @else
+                                                $0
+                                                @endif
+                                            </strong>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>
@@ -166,14 +905,10 @@
                             <form action="" method="post"
                                 class="col-sm-12 col-md-9 row gy-2 gy-md-0 gx-3 gx-md-2 ms-md-0">
                                 <div class="col-sm-12 col-md-7 d-flex align-items-center">
-                                    <div class="input-group">
-                                        <input type="text" name="from" class="form-control vanila-datepicker"
-                                            placeholder="Dari tanggal">
-                                    </div>
-                                    <span class="mx-3">-</span>
-                                    <div class="input-group">
-                                        <input type="text" name="to" class="form-control vanila-datepicker"
-                                            placeholder="Sampai tanggal">
+                                    <div id="date_range" class="d-flex align-items-center">
+                                        <input type="text" name="start" id="start" class="form-control" placeholder="Dari tanggal">
+                                        <span class="mx-3">-</span>
+                                        <input type="text" name="end" id="end" class="form-control" placeholder="Sampai tanggal">
                                     </div>
                                 </div>
 
@@ -191,7 +926,7 @@
                                                 </path>
                                             </svg>
                                         </span>
-                                        <input name="search" type="text" class="form-control"
+                                        <input name="search" id="search" type="text" class="form-control"
                                             placeholder="Cari">
                                     </div>
                                 </div>
@@ -360,6 +1095,24 @@
                                         @endif
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tfoot>
                             </table>
                         </div>
                         <h6><strong>Aktif</strong></h6>
@@ -466,11 +1219,15 @@
                                                 @endif
                                                 @if($trade->nett_pnl > 0)
                                                 <td class="text-success">
-                                                    ${{ (float) $trade->nett_pnl }}
+                                                    ${{ number_format((float) $trade->nett_pnl, 2) }}
+                                                </td>
+                                                @elseif($trade->nett_pnl < 0)
+                                                <td class="text-danger">
+                                                    -${{ number_format(abs((float) $trade->nett_pnl), 2) }}
                                                 </td>
                                                 @else
-                                                <td class="text-danger">
-                                                    -${{ abs((float) $trade->nett_pnl) }}
+                                                <td>
+                                                    $0.00
                                                 </td>
                                                 @endif
                                                 <td>
@@ -530,6 +1287,26 @@
                                         @endif
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tfoot>
                             </table>
                         </div>
                         <h6><strong>Selesai</strong></h6>
@@ -593,7 +1370,7 @@
                                                 </td>
                                                 @else
                                                 <td class="text-danger">
-                                                    -${{ number_format(abs((float) $trade->nett_pnl, 2) )}}
+                                                    -${{ number_format(abs((float) $trade->nett_pnl), 2)}}
                                                 </td>
                                                 <td class="text-danger">
                                                     -{{ number_format(abs((float) $trade->roe), 2) }}%
@@ -603,7 +1380,7 @@
                                                 </td>
                                                 @endif
                                                 <td>{{$trade->real_rr}}</td>
-                                                <td>{{$trade->closed_at}}</td>
+                                                <td>{{$trade->closed_at == '' ? '-' : $trade->closed_at}}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         <a href="{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}" type="button" class="btn btn-sm btn-icon btn-success">
@@ -661,6 +1438,27 @@
                                         @endif
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
