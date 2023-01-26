@@ -85,7 +85,7 @@
                                             <td>{{ $journal->name }}</td>
                                             <td>{{ $journal->description == '' ? '-' : $journal->description }}</td>
                                             <td>${{ (float) $journal->balances }}</td>
-                                            <td></td>
+                                            <td>{{ count($journal->trades)}}</td>
                                             <td>{{ (float) $journal->winrate }}%</td>
                                             <td class="@if($journal->pnl > 0) text-success @elseif($journal->pnl < 0) text-danger @endif">@if($journal->pnl < 0)-@endif${{ abs((float) $journal->pnl) }}</td>
                                         </tr>

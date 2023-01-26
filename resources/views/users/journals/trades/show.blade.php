@@ -64,8 +64,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.2/viewer.min.css"
+        integrity="sha512-9EosEckNJFma9X2uo5ysGPhVf/dcZTuZUBVW2A9QcWBd0HAx6zs+FK+wsBGhl91uFfDI4ZY+/7MVhtYU4tXEig=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.2/viewer.min.js"
+        integrity="sha512-1TCjsgfYd9edJ4mO6sb8rLzhnGpnFR4GazDGVhDekHrOHU7y7vcqGiO+4yW0HIDBoIY/ocbM/BrXxg8dYO6wSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"
         integrity="sha512-42PE0rd+wZ2hNXftlM78BSehIGzezNeQuzihiBCvUEB3CVxHvsShF86wBWwQORNxNINlBPuq7rG4WWhNiTVHFg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -81,6 +87,7 @@
     <script>
         var risk = "<?php echo $journal->risk; ?>";
         var balances = "<?php echo $journal->balances; ?>";
+        var viewers = [];
 
         $("#asset").autocomplete({
                 source: function(request, response) {
@@ -486,8 +493,8 @@
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
-                let html = `<div class="col mt-0 mb-3 text-dark" id="${data.text}_container" style="order: ${data.id}">
-                                    <strong>${data.text}</strong>
+                let html = `<div class="col mt-0 mb-3 text-dark" id="${data.text.trim()}_container" style="order: ${data.id}">
+                                    <strong>${data.text.trim()}</strong>
                                     <div class="img-wrap" style="display: none">
                                         <a href="javascript:void(0);" class="img-delete text-danger strategy-delete"><svg
                                                 xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -495,20 +502,43 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                            alt="">
+                                        <img src="{{ asset('images/no-image.webp') }}" class="img-fluid viewer"
+                                            alt="" id="viewer-${data.text.trim()}">
                                     </div>
                                     <div class="img-input" style="display: block">
                                         <div class="input-group py-2">
-                                            <input type="file" name="ss[]" id="img_${data.text}" tf="${data.text}" class="img_input">
-                                            <label for="img_${data.text}">Pilih gambar...</label> /
+                                            <input type="file" name="ss[]" id="img_${data.text.trim()}" tf="${data.text.trim()}" class="img_input">
+                                            <label for="img_${data.text.trim()}">Pilih gambar...</label> /
                                         </div>
-                                        <input type="url" name="tv[]" id="img_${data.text}" class="form-control tv_input"
+                                        <input type="url" name="tv[]" id="img_${data.text.trim()}" class="form-control tv_input"
                                             placeholder="Isi URL Trading View Disini..">
                                     </div>
                                 </div>`;
-                if (container.find(`#${data.text}_container`).length == 0) {
+                if (container.find(`#${data.text.trim()}_container`).length == 0) {
                     container.append(html);
+                    let new_viewer = new Viewer(document.getElementById(`viewer-${data.text.trim()}`), {
+                        navbar: false,
+                        title: false,
+                        toolbar: {
+                            zoomIn: 1,
+                            zoomOut: 1,
+                            oneToOne: 1,
+                            reset: 1,
+                            prev: 0,
+                            play: 0,
+                            next: 0,
+                            rotateLeft: 1,
+                            rotateRight: 1,
+                            flipHorizontal: 1,
+                            flipVertical: 1,
+                        },
+                        filter(image) {
+                            return image.complete;
+                        },
+                        keyboard: false,
+                        loop: false,
+                    });
+                    viewers.push(new_viewer);
                 }
             });
 
@@ -516,8 +546,24 @@
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
-                if (container.find(`#${data.text}_container`).length > 0) {
-                    let child_container = container.find(`#${data.text}_container`);
+                if (container.find(`#${data.text.trim()}_container`).length > 0) {
+                    let child_container = container.find(`#${data.text.trim()}_container`);
+                    let child_viewer = null;
+                    viewers.forEach(element => {
+                        // console.log(element.element.id, " == ", data.text.trim(), " : ", element.element.id.includes(data.text.trim()));
+                        if (element.element.id.includes(data.text.trim())) {
+                            child_viewer = element;
+                        }
+                    });
+                    if (child_viewer != null) {
+                        console.log("Child Viewer:", child_viewer);
+                        let index = viewers.indexOf(child_viewer);
+                        console.log("Index:", index);
+                        if (index != -1) {
+                            viewers.splice(index, 1);
+                        }
+                        child_viewer.destroy();
+                    }
                     child_container.remove();
                 }
             });
@@ -558,6 +604,32 @@
                     $("#transaction_time").val(null);
                 }
             });
+
+            document.querySelectorAll('.viewer').forEach(function(element) {
+                let new_viewer = new Viewer(element, {
+                    navbar: false,
+                    title: false,
+                    toolbar: {
+                        zoomIn: 1,
+                        zoomOut: 1,
+                        oneToOne: 1,
+                        reset: 1,
+                        prev: 0,
+                        play: 0,
+                        next: 0,
+                        rotateLeft: 1,
+                        rotateRight: 1,
+                        flipHorizontal: 1,
+                        flipVertical: 1,
+                    },
+                    filter(image) {
+                        return image.complete;
+                    },
+                    keyboard: false,
+                    loop: false,
+                });
+                viewers.push(new_viewer);
+            });
         });
     </script>
 @endpush
@@ -577,10 +649,10 @@
                                     <span class="badge bg-primary rounded-pill">Aktif</span>
                                 @elseif($trade->status == 2)
                                     <span class="badge bg-primary rounded-pill ms-2">Selesai</span>
-                                    @if($trade->wl == 1)
-                                    <span class="badge bg-success rounded-pill ms-2">Win (Menang)</span>
+                                    @if ($trade->wl == 1)
+                                        <span class="badge bg-success rounded-pill ms-2">Win (Menang)</span>
                                     @elseif($trade->wl == -1)
-                                    <span class="badge bg-danger rounded-pill ms-2">Loss (Kalah)</span>
+                                        <span class="badge bg-danger rounded-pill ms-2">Loss (Kalah)</span>
                                     @endif
                                 @endif
                             </h4>
@@ -627,8 +699,8 @@
                                     <div class="form-group row gx-1">
                                         <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
                                         <div class="col-6">
-                                            <input type="number" min="1" step="1" name="leverage" id="leverage"
-                                                class="form-control" value="{{ $trade->leverage }}"
+                                            <input type="number" min="1" step="1" name="leverage"
+                                                id="leverage" class="form-control" value="{{ $trade->leverage }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                     </div>
@@ -638,8 +710,9 @@
                                         <label for="open_price" class="col-4 col-form-label text-dark">Harga
                                             Entri</label>
                                         <div class="col-8">
-                                            <input type="number" min="0" step="any" name="open_price" id="open_price"
-                                                class="form-control" value="{{ (float) $trade->open_price }}"
+                                            <input type="number" min="0" step="any" name="open_price"
+                                                id="open_price" class="form-control"
+                                                value="{{ (float) $trade->open_price }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                     </div>
@@ -651,8 +724,9 @@
                                         <label for="open_quantity"
                                             class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
                                         <div class="col-9 col-md-5">
-                                            <input type="number" min="0" step="any" name="open_quantity" id="open_quantity"
-                                                class="form-control" value="{{ (float) $trade->open_quantity }}"
+                                            <input type="number" min="0" step="any" name="open_quantity"
+                                                id="open_quantity" class="form-control"
+                                                value="{{ (float) $trade->open_quantity }}"
                                                 @if ($trade->status != 0) readonly="readonly" @endif>
                                         </div>
                                         <span id="openQuantityInline"
@@ -692,7 +766,8 @@
                                 <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <span>Harga TP</span>
-                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary" @if($trade->status == 2) disabled @endif>+ Tambah
+                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary"
+                                            @if ($trade->status == 2) disabled @endif>+ Tambah
                                             Harga TP</button>
                                     </div>
                                     <div id="tp_container" class="h-100">
@@ -715,7 +790,9 @@
                                                 <div class="col-sm-12 col-md-3"><input type="number" step="any"
                                                         name="tp[]" id="tp{{ $loop->iteration }}"
                                                         no="{{ $loop->iteration }}" class="form-control input_tp"
-                                                        value="{{ (float) $target->price }}" @if ($trade->status == 2) readonly="readonly" @endif></div>
+                                                        value="{{ (float) $target->price }}"
+                                                        @if ($trade->status == 2) readonly="readonly" @endif>
+                                                </div>
                                                 <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
                                                         class="text-success pnl_tp"
                                                         id="pnl_tp{{ $loop->iteration }}">${{ number_format((float) $target->pnl, 2) }}
@@ -734,7 +811,8 @@
                                 <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <span>Harga SL</span>
-                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary" @if($trade->status == 2) disabled @endif>+ Tambah
+                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary"
+                                            @if ($trade->status == 2) disabled @endif>+ Tambah
                                             Harga SL</button>
                                     </div>
                                     <div id="sl_container" class="h-100">
@@ -758,7 +836,9 @@
                                                 <div class="col-sm-12 col-md-3"><input type="number" step="any"
                                                         name="sl[]" id="sl{{ $loop->iteration }}"
                                                         no="{{ $loop->iteration }}" class="form-control input_sl"
-                                                        value="{{ (float) $target->price }}" @if ($trade->status == 2) readonly="readonly" @endif></div>
+                                                        value="{{ (float) $target->price }}"
+                                                        @if ($trade->status == 2) readonly="readonly" @endif>
+                                                </div>
                                                 <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                                         class="text-danger pnl_sl"
                                                         id="pnl_sl1">${{ number_format((float) $target->pnl, 2) }}
@@ -898,11 +978,12 @@
                                                         d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                                 </svg></a>
                                             @if ($timeframe->pivot->picture_type == 0)
-                                                <img src="{{ $timeframe->pivot->url_picture }}" class="img-fluid"
-                                                    alt="">
+                                                <img src="{{ $timeframe->pivot->url_picture }}"class="img-fluid viewer"
+                                                    alt="" id="viewer-{{ $timeframe->name }}">
                                             @elseif($timeframe->pivot->picture_type == 1)
                                                 <img src="{{ asset('storage/uploads/' . $timeframe->pivot->url_picture) }}"
-                                                    class="img-fluid" alt="">
+                                                    class="img-fluid viewer" alt=""
+                                                    id="viewer-{{ $timeframe->name }}">
                                             @endif
                                         </div>
                                         <div class="img-input" style="display: none">
@@ -960,10 +1041,10 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if($transaction->price > 0 and $transaction->price < 1)
-                                                    ${{ (float) $transaction->price }}
+                                                    @if ($transaction->price > 0 and $transaction->price < 1)
+                                                        ${{ (float) $transaction->price }}
                                                     @else
-                                                    ${{ number_format((float) $transaction->price, 2) }}
+                                                        ${{ number_format((float) $transaction->price, 2) }}
                                                     @endif
                                                 </td>
                                                 @if ($transaction->type == 0)
@@ -985,7 +1066,11 @@
                                                 @endif
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
-                                                        <button type="button" class="btn btn-sm btn-icon btn-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal" data-transaction-id="{{json_encode($transaction)}}">
+                                                        <button type="button" class="btn btn-sm btn-icon btn-success"
+                                                            data-toggle="tooltip" data-placement="top" title=""
+                                                            data-original-title="Edit" data-bs-toggle="modal"
+                                                            data-bs-target="#tambahTransaksiModal"
+                                                            data-transaction-id="{{ json_encode($transaction) }}">
                                                             <span class="btn-inner">
                                                                 <svg width="20" viewBox="0 0 24 24"
                                                                     fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1006,13 +1091,13 @@
                                                                 </svg>
                                                             </span>
                                                         </button>
-                                                        <a href="{{route('user.journal.trade.transaction.delete', ['journal' => $journal->id, 'trade' => $trade->id, 'trade_transaction' => $transaction->id])}}" class="btn btn-sm btn-icon btn-danger btn-delete"
-                                                            data-toggle="tooltip" data-placement="top"
-                                                            title="" data-original-title="Delete">
+                                                        <a href="{{ route('user.journal.trade.transaction.delete', ['journal' => $journal->id, 'trade' => $trade->id, 'trade_transaction' => $transaction->id]) }}"
+                                                            class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                            data-toggle="tooltip" data-placement="top" title=""
+                                                            data-original-title="Delete">
                                                             <span class="btn-inner">
                                                                 <svg width="20" viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none" xmlns="http://www.w3.org/2000/svg"
                                                                     stroke="currentColor">
                                                                     <path
                                                                         d="M19.3248 9.46826C19.3248 9.46826 18.7818 16.2033 18.4668 19.0403C18.3168 20.3953 17.4798 21.1893 16.1088 21.2143C13.4998 21.2613 10.8878 21.2643 8.27979 21.2093C6.96079 21.1823 6.13779 20.3783 5.99079 19.0473C5.67379 16.1853 5.13379 9.46826 5.13379 9.46826"
@@ -1043,46 +1128,66 @@
                                     <div class="col-sm-12 col-md-4">
                                         Total Keuntungan:
                                         @if ($trade->pnl > 0)
-                                        <span id="total_pnl" class="text-success ms-2"> ${{ number_format((float) $trade->pnl, 2) }}</span>
+                                            <span id="total_pnl" class="text-success ms-2">
+                                                ${{ number_format((float) $trade->pnl, 2) }}</span>
                                         @elseif($trade->pnl < 0)
-                                        <span id="total_pnl" class="text-danger ms-2"> -${{ abs(number_format((float) $trade->pnl, 2)) }}</span>
+                                            <span id="total_pnl" class="text-danger ms-2">
+                                                -${{ abs(number_format((float) $trade->pnl, 2)) }}</span>
                                         @else
-                                        <span>-</span>
+                                            <span>-</span>
                                         @endif
-                                    </span>
+                                        </span>
                                     </div>
-                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
+                                    <div
+                                        class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
                                         Total Biaya Tambahan:
                                         @if ($trade->total_fees > 0)
-                                        <span id="total_fees" class="ms-2"> ${{ number_format((float) $trade->total_fees, 2) }}</span>
+                                            <span id="total_fees" class="ms-2">
+                                                ${{ number_format((float) $trade->total_fees, 2) }}</span>
                                         @else
-                                        <span>-</span>
+                                            <span>-</span>
                                         @endif
                                     </div>
-                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
+                                    <div
+                                        class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
                                         Keuntungan Bersih:
                                         @if ($trade->nett_pnl > 0)
-                                        <span id="nett_pnl" class="text-success ms-2"> ${{ number_format((float) $trade->nett_pnl, 2) }} ({{number_format((float) $trade->roe, 2)}}%)</span>
+                                            <span id="nett_pnl" class="text-success ms-2">
+                                                ${{ number_format((float) $trade->nett_pnl, 2) }}
+                                                ({{ number_format((float) $trade->roe, 2) }}%)</span>
                                         @elseif($trade->nett_pnl < 0)
-                                        <span id="nett_pnl" class="text-danger ms-2"> -${{ abs(number_format((float) $trade->nett_pnl, 2))}} (-{{abs(number_format((float) $trade->roe, 2))}}%)</span>
+                                            <span id="nett_pnl" class="text-danger ms-2">
+                                                -${{ abs(number_format((float) $trade->nett_pnl, 2)) }}
+                                                (-{{ abs(number_format((float) $trade->roe, 2)) }}%)</span>
                                         @else
-                                        <span>-</span>
+                                            <span>-</span>
                                         @endif
                                     </div>
                                 </div>
                                 @if ($trade->status == 2)
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-4">
-                                        Durasi: {{$trade->diff_days > 0 ? $trade->diff_days . ' hari ' : ''}}  {{$trade->diff_hours > 0 ? $trade->diff_hours . ' jam ' : ''}} {{$trade->diff_minutes > 0 ? $trade->diff_minutes . ' menit ' : ''}} {{$trade->diff_seconds > 0 ? $trade->diff_seconds . ' detik ' : ''}}
-                                    </span>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-4">
+                                            Durasi: {{ $trade->diff_days > 0 ? $trade->diff_days . ' hari ' : '' }}
+                                            {{ $trade->diff_hours > 0 ? $trade->diff_hours . ' jam ' : '' }}
+                                            {{ $trade->diff_minutes > 0 ? $trade->diff_minutes . ' menit ' : '' }}
+                                            {{ $trade->diff_seconds > 0 ? $trade->diff_seconds . ' detik ' : '' }}
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
+                                            Risk Ratio Ril: {{ $trade->real_rr }}
+                                        </div>
+                                        <div
+                                            class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
+                                            Tutup Memenuhi: @if (str_contains($trade->closed_at, 'TP'))
+                                                <span class="text-success ms-2">{{ $trade->closed_at }}</span>
+                                            @elseif(str_contains($trade->closed_at, 'SL'))
+                                                <span class="text-danger ms-2">{{ $trade->closed_at }}</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-center">
-                                        Risk Ratio Ril: {{$trade->real_rr}}
-                                    </div>
-                                    <div class="col-sm-12 col-md-4 d-flex justify-content-start justify-content-md-end">
-                                        Tutup Memenuhi: @if(str_contains($trade->closed_at, 'TP')) <span class="text-success ms-2">{{$trade->closed_at}}</span> @elseif(str_contains($trade->closed_at, 'SL')) <span class="text-danger ms-2">{{$trade->closed_at}}</span> @else - @endif
-                                    </div>
-                                </div>
                                 @endif
                             @endif
                             <hr />
@@ -1098,13 +1203,14 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="@if ($trade->screenshot_url_1 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_1)}} @endif"
-                                            class="img-fluid" alt="">
+                                        <img src="@if ($trade->screenshot_url_1 == '') {{ asset('images/no-image.webp') }} @else {{ asset('storage/uploads/' . $trade->screenshot_url_1) }} @endif"
+                                            class="img-fluid viewer" alt="">
                                     </div>
                                     <div class="img-input"
                                         style="@if ($trade->screenshot_url_1 != '') display:none @endif">
                                         <div class="input-group py-2">
-                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_1) }}">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_1) }}">
                                             <input type="file" name="img[]" id="img_1" class="img_input"
                                                 value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_1) }}">
                                             <label for="img_1">Pilih gambar...</label>
@@ -1121,13 +1227,14 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="@if ($trade->screenshot_url_2 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_2)}} @endif"
-                                            class="img-fluid" alt="">
+                                        <img src="@if ($trade->screenshot_url_2 == '') {{ asset('images/no-image.webp') }} @else {{ asset('storage/uploads/' . $trade->screenshot_url_2) }} @endif"
+                                            class="img-fluid viewer" alt="">
                                     </div>
                                     <div class="img-input"
                                         style="@if ($trade->screenshot_url_2 != '') display:none @endif">
                                         <div class="input-group py-2">
-                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_2) }}">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_2) }}">
                                             <input type="file" name="img[]" id="img_2" class="img_input"
                                                 value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_2) }}">
                                             <label for="img_2">Pilih gambar...</label>
@@ -1144,13 +1251,14 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="@if ($trade->screenshot_url_3 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_3)}} @endif"
-                                            class="img-fluid" alt="">
+                                        <img src="@if ($trade->screenshot_url_3 == '') {{ asset('images/no-image.webp') }} @else {{ asset('storage/uploads/' . $trade->screenshot_url_3) }} @endif"
+                                            class="img-fluid viewer" alt="">
                                     </div>
                                     <div class="img-input"
                                         style="@if ($trade->screenshot_url_3 != '') display:none @endif">
                                         <div class="input-group py-2">
-                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_3) }}">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_3) }}">
                                             <input type="file" name="img[]" id="img_3" class="img_input"
                                                 value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_3) }}">
                                             <label for="img_3">Pilih gambar...</label>
@@ -1167,13 +1275,14 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="@if ($trade->screenshot_url_4 == '') {{asset('images/no-image.webp')}} @else {{asset('storage/uploads/' . $trade->screenshot_url_4)}} @endif"
-                                            class="img-fluid" alt="">
+                                        <img src="@if ($trade->screenshot_url_4 == '') {{ asset('images/no-image.webp') }} @else {{ asset('storage/uploads/' . $trade->screenshot_url_4) }} @endif"
+                                            class="img-fluid viewer" alt="">
                                     </div>
                                     <div class="img-input"
                                         style="@if ($trade->screenshot_url_4 != '') display:none @endif">
                                         <div class="input-group py-2">
-                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input" value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_4) }}">
+                                            <input type="hidden" name="hidden_img[]" class="hidden_img_input"
+                                                value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_4) }}">
                                             <input type="file" name="img[]" id="img_4" class="img_input"
                                                 value="{{ URL::asset('storage/uploads/' . $trade->screenshot_url_4) }}">
                                             <label for="img_4">Pilih gambar...</label>

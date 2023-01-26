@@ -34,6 +34,6 @@ class Trade extends Model
     }
 
     public function transactions(){
-        return $this->hasMany(TradeTransaction::class, 'trade_id', 'id');
+        return $this->hasMany(TradeTransaction::class, 'trade_id', 'id')->orderBy('time', 'desc');
     }
 }

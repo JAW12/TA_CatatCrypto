@@ -737,13 +737,15 @@
                                         {{ (float) $journal->risk }}%</small>
                                     <small class="col-sm-12 col-md-7">
                                         @if($journal->target == '')
-                                            $-/- untuk bulan ini
+
                                         @elseif($journal->trades()->whereMonth('close_time', now())->sum('nett_pnl') >= $journal->target)
                                             <span class="text-success">
                                                 ${{number_format((float)$journal->trades()->whereMonth('close_time', now())->sum('nett_pnl'), 2)}}/${{number_format((float)$journal->target, 2)}} untuk bulan ini
                                             </span>
                                         @else
+                                        <span class="text-warning">
                                             ${{number_format((float)$journal->trades()->whereMonth('close_time', now())->sum('nett_pnl'), 2)}}/${{number_format((float)$journal->target, 2)}} untuk bulan ini
+                                        </span>
                                         @endif
                                     </small>
                                 </h6>

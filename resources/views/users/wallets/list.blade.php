@@ -74,7 +74,7 @@
                                             <td>{{ $wallet->name }}
                                                 @if ($wallet->binance_api_key != '')
                                                     <span class="badge rounded-pill"
-                                                        style="background-color: #F3BA2F">Binance</span>
+                                                        style="background-color: #F3BA2F">Binance @if($wallet->demo == 1) (Demo) @endif</span>
                                                 @endif
                                             </td>
                                             <td>{{ $wallet->description == '' ? '-' : $wallet->description }}</td>

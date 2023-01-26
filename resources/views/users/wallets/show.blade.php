@@ -267,7 +267,7 @@
                                         <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                     @endif
                                     @if ($wallet->binance_api_key != '')
-                                        <span class="badge rounded-pill" style="background-color: #F3BA2F">Binance</span>
+                                        <span class="badge rounded-pill" style="background-color: #F3BA2F">Binance @if($wallet->demo == 1) (Demo) @endif</span>
                                     @endif
                                     <a class="text-dark" data-bs-toggle="modal" data-bs-target="#ubahDompetModal"
                                         style="cursor:pointer">

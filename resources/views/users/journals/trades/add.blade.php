@@ -64,8 +64,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.2/viewer.min.css"
+        integrity="sha512-9EosEckNJFma9X2uo5ysGPhVf/dcZTuZUBVW2A9QcWBd0HAx6zs+FK+wsBGhl91uFfDI4ZY+/7MVhtYU4tXEig=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.2/viewer.min.js"
+        integrity="sha512-1TCjsgfYd9edJ4mO6sb8rLzhnGpnFR4GazDGVhDekHrOHU7y7vcqGiO+4yW0HIDBoIY/ocbM/BrXxg8dYO6wSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"
         integrity="sha512-42PE0rd+wZ2hNXftlM78BSehIGzezNeQuzihiBCvUEB3CVxHvsShF86wBWwQORNxNINlBPuq7rG4WWhNiTVHFg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -83,6 +89,7 @@
         var balances = "<?php echo $journal->balances; ?>";
         var transaction_table = null;
         var transactions = [];
+        var viewers = [];
 
         $("#asset").autocomplete({
                 source: function(request, response) {
@@ -533,8 +540,8 @@
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
-                let html = `<div class="col mt-0 mb-3 text-dark" id="${data.text}_container" style="order: ${data.id}">
-                                    <strong>${data.text}</strong>
+                let html = `<div class="col mt-0 mb-3 text-dark" id="${data.text.trim()}_container" style="order: ${data.id}">
+                                    <strong>${data.text.trim()}</strong>
                                     <div class="img-wrap" style="display: none">
                                         <a href="javascript:void(0);" class="img-delete text-danger strategy-delete"><svg
                                                 xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -542,20 +549,41 @@
                                                 <path
                                                     d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                             </svg></a>
-                                        <img src="{{ asset('images/no-image.webp') }}" class="img-fluid"
-                                            alt="">
+                                        <img src="{{ asset('images/no-image.webp') }}" class="img-fluid viewer"
+                                            alt="" id="viewer-${data.text.trim()}">
                                     </div>
                                     <div class="img-input" style="display: block">
                                         <div class="input-group py-2">
-                                            <input type="file" name="ss[]" id="img_${data.text}" tf="${data.text}" class="img_input">
-                                            <label for="img_${data.text}">Pilih gambar...</label> /
+                                            <input type="file" name="ss[]" id="img_${data.text.trim()}" tf="${data.text.trim()}" class="img_input">
+                                            <label for="img_${data.text.trim()}">Pilih gambar...</label> /
                                         </div>
-                                        <input type="url" name="tv[]" id="img_${data.text}" class="form-control tv_input"
+                                        <input type="url" name="tv[]" id="img_${data.text.trim()}" class="form-control tv_input"
                                             placeholder="Isi URL Trading View Disini..">
                                     </div>
                                 </div>`;
-                if (container.find(`#${data.text}_container`).length == 0) {
+                if (container.find(`#${data.text.trim()}_container`).length == 0) {
                     container.append(html);
+                    let new_viewer = new Viewer(document.getElementById(`viewer-${data.text.trim()}`), {
+                        navbar: false,
+                        title: false,
+                        toolbar: {
+                            zoomIn: 1,
+                            zoomOut: 1,
+                            oneToOne: 1,
+                            reset: 1,
+                            prev: 0,
+                            play: 0,
+                            next: 0,
+                            rotateLeft: 1,
+                            rotateRight: 1,
+                            flipHorizontal: 1,
+                            flipVertical: 1,
+                        },
+                        keyboard: false,
+                        loop: false,
+                    });
+                    viewers.push(new_viewer);
+                    console.table(viewers);
                 }
             });
 
@@ -563,8 +591,24 @@
                 var data = e.params.data;
 
                 let container = $("#strategy_screenshot");
-                if (container.find(`#${data.text}_container`).length > 0) {
-                    let child_container = container.find(`#${data.text}_container`);
+                if (container.find(`#${data.text.trim()}_container`).length > 0) {
+                    let child_container = container.find(`#${data.text.trim()}_container`);
+                    let child_viewer = null;
+                    viewers.forEach(element => {
+                        // console.log(element.element.id, " == ", data.text.trim(), " : ", element.element.id.includes(data.text.trim()));
+                        if (element.element.id.includes(data.text.trim())) {
+                            child_viewer = element;
+                        }
+                    });
+                    if (child_viewer != null) {
+                        console.log("Child Viewer:", child_viewer);
+                        let index = viewers.indexOf(child_viewer);
+                        console.log("Index:", index);
+                        if (index != -1) {
+                            viewers.splice(index, 1);
+                        }
+                        child_viewer.destroy();
+                    }
                     child_container.remove();
                 }
             });
@@ -677,8 +721,8 @@
                                     <div class="form-group row gx-1">
                                         <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
                                         <div class="col-6">
-                                            <input type="number" min="1" step="1" name="leverage" id="leverage"
-                                                class="form-control">
+                                            <input type="number" min="1" step="1" name="leverage"
+                                                id="leverage" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -687,8 +731,8 @@
                                         <label for="open_price" class="col-4 col-form-label text-dark">Harga
                                             Entri</label>
                                         <div class="col-8">
-                                            <input type="number" min="0"  step="any" name="open_price" id="open_price"
-                                                class="form-control">
+                                            <input type="number" min="0" step="any" name="open_price"
+                                                id="open_price" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -699,8 +743,8 @@
                                         <label for="open_quantity"
                                             class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
                                         <div class="col-9 col-md-5">
-                                            <input type="number" min="0" step="any" name="open_quantity" id="open_quantity"
-                                                class="form-control">
+                                            <input type="number" min="0" step="any" name="open_quantity"
+                                                id="open_quantity" class="form-control">
                                         </div>
                                         <span id="openQuantityInline"
                                             class="col-12 col-md-5 col-form-label form-text text-center"
