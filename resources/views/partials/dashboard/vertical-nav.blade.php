@@ -307,7 +307,7 @@
             </ul>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-membership" role="button"
+            <a class="nav-link" href="{{route('user.membership')}}"
                 aria-expanded="false" aria-controls="sidebar-membership">
                 <i class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"

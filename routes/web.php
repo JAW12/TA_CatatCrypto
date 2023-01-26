@@ -43,26 +43,33 @@ Route::get('/asset/init', [AssetController::class, 'init']);
 //     Route::get('pengaturan_akun', [AuthController::class, 'userprivacysetting'])->name('auth.userprivacysetting');
 // });
 
-Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
-    Route::group(['prefix' => 'dompet'], function(){
+Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
+    Route::group(['prefix' => 'profil'], function () {
+        Route::get('/{id}', [UserController::class, 'show'])->name('user.profile');
+        Route::patch('/{id}', [UserController::class, 'update'])->name('user.profile.edit');
+        Route::get('/{id}/password', [UserController::class, 'password'])->name('user.password');
+        Route::patch('/{id}/password', [UserController::class, 'password_update'])->name('user.password.edit');
+    });
+
+    Route::group(['prefix' => 'dompet'], function () {
         Route::get('', [WalletController::class, 'index'])->name('user.wallet');
         Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
         Route::get('/demografi', [WalletController::class, 'demography'])->name('user.wallet.demography');
 
-        Route::group(['prefix' => '{wallet}'], function(){
+        Route::group(['prefix' => '{wallet}'], function () {
             Route::get('', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
             Route::get('/load', [WalletController::class, 'load'])->name('user.wallet.detail.load')->withTrashed();
             Route::post('', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
             Route::delete('/nonaktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
             Route::post('/aktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
 
-            Route::group(['prefix' => 'aset'], function(){
+            Route::group(['prefix' => 'aset'], function () {
                 Route::get('', [AssetController::class, 'index'])->name('user.wallet.asset.list');
                 Route::post('/tambah', [AssetWalletController::class, 'add'])->name('user.wallet.asset.add');
                 Route::get('/autocomplete', [AssetController::class, 'autocomplete'])->name('user.wallet.asset.list.autocomplete');
                 Route::get('/load', [AssetController::class, 'load'])->name('user.wallet.asset.load');
 
-                Route::group(['prefix' => '{asset}'], function(){
+                Route::group(['prefix' => '{asset}'], function () {
                     Route::get('', [AssetWalletController::class, 'show'])->name('user.wallet.asset.detail');
                     Route::delete('/hapus', [AssetWalletController::class, 'destroy'])->name('user.wallet.asset.delete');
                     Route::get('/load', [AssetWalletController::class, 'load'])->name('user.wallet.asset.detail.load');
@@ -73,16 +80,14 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
                 });
             });
         });
-
-
     });
 
-    Route::group(['prefix' => 'jurnal'], function(){
+    Route::group(['prefix' => 'jurnal'], function () {
         Route::get('', [JournalController::class, 'index'])->name('user.journal');
         Route::post('/tambah', [JournalController::class, 'store'])->name('user.journal.add');
         Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
 
-        Route::group(['prefix' => '{journal}'], function(){
+        Route::group(['prefix' => '{journal}'], function () {
             Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();
             Route::post('', [JournalController::class, 'update'])->name('user.journal.update')->withTrashed();
             Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
@@ -91,7 +96,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
             Route::post('/tambah', [TradeController::class, 'store'])->name('user.journal.trade.store');
             Route::get('/autocomplete', [TradeController::class, 'autocomplete'])->name('user.journal.asset.autocomplete');
 
-            Route::group(['prefix' => '/catatan/{trade}'], function(){
+            Route::group(['prefix' => '/catatan/{trade}'], function () {
                 Route::get('', [TradeController::class, 'show'])->name('user.journal.trade.edit')->withTrashed();
                 Route::post('', [TradeController::class, 'update'])->name('user.journal.trade.update')->withTrashed();
                 Route::post('/tambah', [TradeController::class, 'store_transaction'])->name('user.journal.trade.transaction.store');
@@ -102,44 +107,41 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function(){
         });
     });
 
-    Route::group(['prefix' => 'pustaka'], function(){
+    Route::group(['prefix' => 'membership'], function () {
+        Route::get('/', [MembershipController::class, 'index'])->name('user.membership');
+    });
+
+    Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::get('/favorit', [LibraryController::class, 'favoritePage'])->name('user.library.favorite');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
 
-    Route::group(['prefix' => 'membership'], function(){
-        Route::get('/', [MembershipController::class, 'index'])->name('user.membership');
-    });
 
-    Route::group(['prefix' => 'profil'], function(){
-        Route::get('/{id}', [UserController::class, 'show'])->name('user.profile');
-        Route::patch('/{id}', [UserController::class, 'update'])->name('user.profile.edit');
-        Route::get('/{id}/password', [UserController::class, 'password'])->name('user.password');
-        Route::patch('/{id}/password', [UserController::class, 'password_update'])->name('user.password.edit');
-    });
+    Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
+    Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
 });
 
-Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function(){
-    Route::group(['prefix' => 'pengguna'], function(){
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::group(['prefix' => 'pengguna'], function () {
         Route::get('', [UserController::class, 'index'])->name('admin.users');
         Route::get('/demografi', [UserController::class, 'demography'])->name('admin.users.demography');
     });
 
-    Route::group(['prefix' => 'membership'], function(){
+    Route::group(['prefix' => 'membership'], function () {
         Route::get('/transaksi', [MembershipController::class, 'transactions'])->name('admin.transactions');
         Route::get('/laporan', [MembershipController::class, 'reports'])->name('admin.transactions.report');
     });
 
-    Route::group(['prefix' => 'pustaka'], function(){
+    Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('admin.library');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('admin.library.add');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('admin.library.reports');
     });
 });
 //UI Pages Routs
-Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
+// Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 
 // // Dashboard Routes
 // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -228,5 +230,3 @@ Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 //     Route::get('colored', [HomeController::class, 'colored'])->name('icons.colored');
 // });
 // //Extra Page Routs
-Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
-Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');

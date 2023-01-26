@@ -35,7 +35,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Saldo:</strong></td>
-                                        <td><strong>$</strong></td>
+                                        <td><strong>${{ number_format((float)$data->journals->sum('balances'), 2)}}</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -43,7 +43,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Catatan:</strong></td>
-                                        <td><strong>Catatan</strong></td>
+                                        <td><strong>{{ $data->journals->count()}} Catatan</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -52,7 +52,11 @@
 
                                     <tr>
                                         <td><strong>Catatan Tersisa:</strong></td>
-                                        <td><strong>Catatan</strong></td>
+                                        <td><strong>@if(Auth::user()->remaining_trades > 0)
+                                            {{Auth::user()->remaining_trades}}
+                                        @else
+                                        ∞
+                                        @endif</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -98,7 +102,7 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Persentase Keberhasilan:</strong></td>
-                                        <td><strong>%</strong></td>
+                                        <td><strong>{{ number_format((float) ($data->journals->sum('winrate') / $data->journals->count()), 2) }}%</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -106,7 +110,13 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td><strong>$</strong></td>
+                                        @if((float)$data->journals->sum('pnl') > 0)
+                                        <td class="text-success"><strong>$ {{ number_format((float)$data->journals->sum('pnl'), 2)}}</strong></td>
+                                        @elseif((float)$data->journals->sum('pnl') < 0)
+                                        <td class="text-danger"><strong>-$ {{ abs(number_format((float)$data->journals->sum('pnl'), 2))}}</strong></td>
+                                        @else
+                                        <td><strong>$0.00</strong></td>
+                                        @endif
                                     </tr>
                                 </table>
                             </div>
