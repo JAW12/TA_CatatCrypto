@@ -11,6 +11,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\TradeController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Models\AssetTransaction;
 
@@ -109,6 +110,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'membership'], function () {
         Route::get('/', [MembershipController::class, 'index'])->name('user.membership');
+        Route::get('/{type}', [MembershipController::class, 'show'])->name('user.membership.payments');
+        Route::post('/checkout', [TransactionController::class, 'checkout'])->name('user.membership.checkout');
+        Route::post('/payment_post', [TransactionController::class, 'payment_post'])->name('user.membership.payment_post');
     });
 
     Route::group(['prefix' => 'pustaka'], function () {

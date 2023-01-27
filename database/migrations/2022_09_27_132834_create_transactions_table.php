@@ -16,6 +16,11 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
+            $table->foreignId('membership_id');
+
+            $table->string('name');
+            $table->string('phone_number')->nullable();
+            $table->string('email')->nullable();
 
             $table->string('status');
             $table->string('id_transaction')->nullable();
@@ -24,12 +29,12 @@ return new class extends Migration
             $table->string('bank_name')->nullable();
             $table->string('payment_name')->nullable();
             $table->string('payment_type');
-            $table->string('payment_code')->nullable();
-            $table->string('url_invoice')->nullable();
+            $table->dateTime('payment_time')->nullable();
 
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
+            $table->foreign('membership_id')->references('id')->on('memberships')->onDelete('CASCADE');
         });
     }
 

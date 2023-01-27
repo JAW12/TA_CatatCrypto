@@ -71,4 +71,12 @@ class User extends Authenticatable
     public function journals(){
         return $this->hasMany(Journal::class)->withTrashed();
     }
+
+    public function transactions(){
+        return $this->hasMany(Transaction::class, 'user_id', 'id');
+    }
+
+    public function memberships(){
+        return $this->belongsToMany(Membership::class, 'membership_user', 'user_id', 'membership_id')->withPivot('membership_expiration')->withTimestamps();
+    }
 }

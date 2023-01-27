@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price', 19, 2, true);
-            $table->integer('duration_days')->comment('0 - no limit, others - limit');
+            $table->integer('duration_months')->comment('-1 - no limit, others - limit');
             $table->integer('max_wallets')->default(0)->comment("-1 - no limit, 0 - can't make, others - limit");
             $table->integer('max_journals')->default(0)->comment("-1 - no limit, 0 - can't make, others - limit");
             $table->integer('trades_quantity_per_month')->comment("-1 - no limit, 0 - can't make, others - limit");

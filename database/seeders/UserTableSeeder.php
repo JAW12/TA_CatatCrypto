@@ -15,6 +15,8 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        $today = date("Y-m-d");
+        $date = date('Y-m-d', strtotime($today. ' + 1 months'));
         $users = [
             [
                 'first_name' => 'System',
@@ -34,7 +36,9 @@ class UserTableSeeder extends Seeder
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
                 'user_type' => 'trial',
-                'status' => 'active'
+                'status' => 'active',
+                'membership_since' => $today,
+                'membership_till' => $date,
             ]
         ];
         foreach ($users as $key => $value) {

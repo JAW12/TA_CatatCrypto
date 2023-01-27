@@ -29,6 +29,12 @@ class RoleTableSeeder extends Seeder
                 'permissions' => ['portfolio', 'portfolio-daftar', 'portfolio-tambah', 'portfolio-hapus', 'portfolio-ubah', 'portfolio-tambah-manual', 'journal', 'journal-daftar', 'journal-tambah', 'journal-hapus', 'journal-ubah', 'notes', 'notes-daftar', 'notes-tambah', 'notes-hapus', 'notes-ubah']
             ],
             [
+                'name' => 'free',
+                'title' => 'Free',
+                'status' => 1,
+                'permissions' => ['portfolio', 'portfolio-daftar', 'journal', 'journal-daftar', 'notes', 'notes-daftar']
+            ],
+            [
                 'name' => 'basic',
                 'title' => 'Basic',
                 'status' => 1,

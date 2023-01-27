@@ -102,7 +102,11 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Persentase Keberhasilan:</strong></td>
+                                        @if($data->journals->count() > 0)
                                         <td><strong>{{ number_format((float) ($data->journals->sum('winrate') / $data->journals->count()), 2) }}%</strong></td>
+                                        @else
+                                        <td><strong>0%</strong></td>
+                                        @endif
                                     </tr>
                                 </table>
                             </div>

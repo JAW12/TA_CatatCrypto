@@ -5,95 +5,106 @@
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 mb-3 text-center">
                     <div class="col">
                         <div class="card mb-4 rounded-3 h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <h1 class="card-title pricing-card-title">Rp 99k
-                                </h1>
-                                <h6 class="text-muted fw-light">untuk 1 bulan</h6>
-                                <h4 class="my-0 fw-normal mt-3">Basic</h4>
-                                <ul class="list-unstyled my-3">
-                                    <li>
-                                        <p>Maks 1 Dompet</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 1 Jurnal</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 100 Catatan / bln</p>
-                                    </li>
-                                </ul>
-                                <button type="button" class="btn btn-outline-primary">Beli Basic</button>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h1 class="card-title pricing-card-title">Rp 99k
+                                    </h1>
+                                    <h6 class="text-muted fw-light">untuk 1 bulan</h6>
+                                    <h4 class="my-0 fw-normal mt-3">Basic</h4>
+                                    <ul class="list-unstyled my-3">
+                                        <li>
+                                            <p>Maks 1 Dompet</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 1 Jurnal</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 100 Catatan / bln</p>
+                                        </li>
+                                        <li>
+                                            <p>-</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a href="{{route('user.membership.payments', 1)}}" type="button" class="btn btn-outline-primary @if(Auth::user()->user_type != "trial" && Auth::user()->user_type != "free" && Auth::user()->user_type != "basic") disabled @endif">Beli Basic</a>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card mb-4 rounded-3 h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <h1 class="card-title pricing-card-title">Rp 299k</h1>
-                                <h6 class="text-muted fw-light">untuk 2 bulan</h6>
-                                <h4 class="my-0 fw-normal mt-3">Home</h4>
-                                <ul class="list-unstyled my-3">
-                                    <li>
-                                        <p>Maks 3 Dompet</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 3 Jurnal</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 500 Catatan / bln</p>
-                                    </li>
-                                    <li>
-                                        <p>Integrasi akun Binance & Transaksi Real Time</p>
-                                    </li>
-                                </ul>
-                                <button type="button" class="btn btn-outline-primary">Beli Home</button>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h1 class="card-title pricing-card-title">Rp 299k</h1>
+                                    <h6 class="text-muted fw-light">untuk 2 bulan</h6>
+                                    <h4 class="my-0 fw-normal mt-3">Home</h4>
+                                    <ul class="list-unstyled my-3">
+                                        <li>
+                                            <p>Maks 3 Dompet</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 3 Jurnal</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 500 Catatan / bln</p>
+                                        </li>
+                                        <li>
+                                            <p>Integrasi akun Binance & Transaksi Real Time</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a href="{{route('user.membership.payments', 2)}}" type="button" class="btn btn-outline-primary @if(Auth::user()->user_type != "trial" && Auth::user()->user_type != "free" && Auth::user()->user_type != "home") disabled @endif">Beli Home</a>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card mb-4 rounded-3 h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <h1 class="card-title pricing-card-title">Rp 459k</h1>
-                                <h6 class="text-muted fw-light">untuk 4 bulan</h6>
-                                <h4 class="my-0 fw-normal mt-3">Professional</h4>
-                                <ul class="list-unstyled my-3">
-                                    <li>
-                                        <p>Maks 3 Dompet</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 3 Jurnal</p>
-                                    </li>
-                                    <li>
-                                        <p>Maks 1500 Catatan / bln</p>
-                                    </li>
-                                    <li>
-                                        <p>Integrasi akun Binance & Transaksi Real Time dengan Notifikasi</p>
-                                    </li>
-                                </ul>
-                                <button type="button" class="btn btn-primary">Beli Professional</button>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h1 class="card-title pricing-card-title">Rp 459k</h1>
+                                    <h6 class="text-muted fw-light">untuk 4 bulan</h6>
+                                    <h4 class="my-0 fw-normal mt-3">Professional</h4>
+                                    <ul class="list-unstyled my-3">
+                                        <li>
+                                            <p>Maks 3 Dompet</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 3 Jurnal</p>
+                                        </li>
+                                        <li>
+                                            <p>Maks 1500 Catatan / bln</p>
+                                        </li>
+                                        <li>
+                                            <p>Integrasi akun Binance & Transaksi Real Time dengan Notifikasi</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a href="{{route('user.membership.payments', 3)}}"  type="button" class="btn btn-primary @if(Auth::user()->user_type != "trial" && Auth::user()->user_type != "free" && Auth::user()->user_type != "professional") disabled @endif">Beli Professional</a>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card mb-4 rounded-3 h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <h1 class="card-title pricing-card-title">Rp 1.289k</h1>
-                                <h6 class="text-muted fw-light">untuk 6 bulan</h6>
-                                <h4 class="my-0 fw-normal mt-3">Business</h4>
-                                <ul class="list-unstyled my-3">
-                                    <li>
-                                        <p>∞ Dompet</p>
-                                    </li>
-                                    <li>
-                                        <p>∞ Jurnal</p>
-                                    </li>
-                                    <li>
-                                        <p>∞ Catatan / bln</p>
-                                    </li>
-                                    <li>
-                                        <p>Integrasi akun Binance & Transaksi Real Time dengan Notifikasi</p>
-                                    </li>
-                                </ul>
-                                <button type="button" class="btn btn-outline-primary">Beli Business</button>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h1 class="card-title pricing-card-title">Rp 1.289k</h1>
+                                    <h6 class="text-muted fw-light">untuk 6 bulan</h6>
+                                    <h4 class="my-0 fw-normal mt-3">Business</h4>
+                                    <ul class="list-unstyled my-3">
+                                        <li>
+                                            <p>∞ Dompet</p>
+                                        </li>
+                                        <li>
+                                            <p>∞ Jurnal</p>
+                                        </li>
+                                        <li>
+                                            <p>∞ Catatan / bln</p>
+                                        </li>
+                                        <li>
+                                            <p>Integrasi akun Binance & Transaksi Real Time dengan Notifikasi</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a href="{{route('user.membership.payments', 4)}}" class="btn btn-outline-primary @if(Auth::user()->user_type != "trial" && Auth::user()->user_type != "free" && Auth::user()->user_type != "business") disabled @endif">Beli Business</a>
                             </div>
                         </div>
                     </div>
