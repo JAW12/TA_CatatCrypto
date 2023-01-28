@@ -14,10 +14,10 @@ class Transaction extends Model
     protected $guarded = [];
 
     public function membership(){
-        return $this->belongsTo(Membership::class, 'id', 'membership_id');
+        return $this->belongsTo(Membership::class, 'membership_id', 'id');
     }
 
     public function user(){
-        return $this->belongsTo(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

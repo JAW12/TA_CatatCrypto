@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class TransactionController extends Controller
 {
@@ -89,7 +90,7 @@ class TransactionController extends Controller
             $today = date("Y-m-d");
             $date = date('Y-m-d', strtotime($today. ' + ' . $membership->duration_months . ' months'));
 
-            Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date]);
+            Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
 
             $user = User::find(Auth::id());
             $user->user_type = $membership->name;
@@ -106,6 +107,16 @@ class TransactionController extends Controller
         else{
             return redirect()->route('index')->withError('Transaksi gagal');
         }
+    }
+
+    public function list($id)
+    {
+        if($id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            return redirect()->route('index');
+        }
+
+        return view('users.profile.transaction');
     }
 
     // public function payment_handler(Request $request)

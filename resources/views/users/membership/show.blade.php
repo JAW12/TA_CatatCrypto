@@ -50,16 +50,16 @@
                             <select name="payment_type" id="payment_type" class="form-control">
                                 <option disabled selected>Pilih salah satu metode pembayaran</option>
                                 <optgroup label="Bank Transfer Manual">
-                                    <option value="bca">BCA</option>
-                                    <option value="bni">BNI</option>
-                                    <option value="bri">BRI</option>
-                                    <option value="mandiri">Mandiri</option>
-                                    <option value="jago">Jago</option>
+                                    <option value="Manual Transfer Bank BCA">BCA</option>
+                                    <option value="Manual Transfer Bank BNI">BNI</option>
+                                    <option value="Manual Transfer Bank BRI">BRI</option>
+                                    <option value="Manual Transfer Bank Mandiri">Mandiri</option>
+                                    <option value="Manual Transfer Bank Jago">Jago</option>
                                 </optgroup>
                                 <optgroup label="E-Wallet Transfer Manual">
-                                    <option value="gopay">GoPay</option>
-                                    <option value="dana">Dana</option>
-                                    <option value="ovo">OVO</option>
+                                    <option value="Manual Transfer E-Wallet GoPay">GoPay</option>
+                                    <option value="Manual Transfer E-Wallet Dana">Dana</option>
+                                    <option value="Manual Transfer E-Wallet OVO">OVO</option>
                                 </optgroup>
                                 <optgroup label="Pembayaran Otomatis">
                                     <option value="automatic">Midtrans</option>

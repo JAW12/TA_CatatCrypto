@@ -79,7 +79,7 @@ class UserController extends Controller
 
         $data = User::findOrFail($id);
 
-        return view('users.profile', compact('data'));
+        return view('users.profile.index', compact('data'));
     }
 
 
@@ -90,7 +90,7 @@ class UserController extends Controller
             return redirect()->route('index');
         }
 
-        return view('users.password');
+        return view('users.profile.password');
     }
 
     public function password_update(Request $request)

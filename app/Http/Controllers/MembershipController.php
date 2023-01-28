@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Membership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class MembershipController extends Controller
 {
@@ -21,5 +22,15 @@ class MembershipController extends Controller
 
         $price = $membership->price + rand(0, 1000);
         return view('users.membership.show', compact('membership', 'price'));
+    }
+
+    public function list($id)
+    {
+        if($id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            return redirect()->route('index');
+        }
+
+        return view('users.profile.membership');
     }
 }

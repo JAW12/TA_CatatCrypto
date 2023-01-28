@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetTransactionController;
 use App\Http\Controllers\AssetWalletController;
@@ -50,6 +51,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::patch('/{id}', [UserController::class, 'update'])->name('user.profile.edit');
         Route::get('/{id}/password', [UserController::class, 'password'])->name('user.password');
         Route::patch('/{id}/password', [UserController::class, 'password_update'])->name('user.password.edit');
+        Route::get('/{id}/membership', [MembershipController::class, 'list'])->name('user.membership.list');
+        Route::get('/{id}/transaksi', [TransactionController::class, 'list'])->name('user.transaction.list');
     });
 
     Route::group(['prefix' => 'dompet'], function () {
@@ -112,30 +115,32 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/', [MembershipController::class, 'index'])->name('user.membership');
         Route::get('/{type}', [MembershipController::class, 'show'])->name('user.membership.payments');
         Route::post('/checkout', [TransactionController::class, 'checkout'])->name('user.membership.checkout');
-        Route::post('/payment_post', [TransactionController::class, 'payment_post'])->name('user.membership.payment_post');
+        Route::post('/post_pembayaran', [TransactionController::class, 'payment_post'])->name('user.membership.payment_post');
     });
 
+    // belum
     Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::get('/favorit', [LibraryController::class, 'favoritePage'])->name('user.library.favorite');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
-
-
     Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
     Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+
+    Route::group(['prefix' => 'membership'], function () {
+        Route::get('/transaksi', [AdminController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/transaksi/{id_order}', [AdminController::class, 'transaction_detail'])->name('admin.transaction.detail');
+        Route::get('/laporan', [AdminController::class, 'transactions_report'])->name('admin.transactions.report');
+    });
+
+
     Route::group(['prefix' => 'pengguna'], function () {
         Route::get('', [UserController::class, 'index'])->name('admin.users');
         Route::get('/demografi', [UserController::class, 'demography'])->name('admin.users.demography');
-    });
-
-    Route::group(['prefix' => 'membership'], function () {
-        Route::get('/transaksi', [MembershipController::class, 'transactions'])->name('admin.transactions');
-        Route::get('/laporan', [MembershipController::class, 'reports'])->name('admin.transactions.report');
     });
 
     Route::group(['prefix' => 'pustaka'], function () {

@@ -247,7 +247,7 @@
                         role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{{ asset('images/avatars/01.png') }}" alt="User-Profile"
                             class="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded">
-                        <img src="{{ asset('images/avatars/avtar_1.png') }}" alt="User-Profile"
+                        {{-- <img src="{{ asset('images/avatars/avtar_1.png') }}" alt="User-Profile"
                             class="theme-color-purple-img img-fluid avatar avatar-50 avatar-rounded">
                         <img src="{{ asset('images/avatars/avtar_2.png') }}" alt="User-Profile"
                             class="theme-color-blue-img img-fluid avatar avatar-50 avatar-rounded">
@@ -256,10 +256,12 @@
                         <img src="{{ asset('images/avatars/avtar_5.png') }}" alt="User-Profile"
                             class="theme-color-yellow-img img-fluid avatar avatar-50 avatar-rounded">
                         <img src="{{ asset('images/avatars/avtar_3.png') }}" alt="User-Profile"
-                            class="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded">
+                            class="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded"> --}}
                         <div class="caption ms-3 d-none d-md-block ">
                             <h6 class="mb-0 caption-title">{{ auth()->user()->full_name ?? 'CatatCrypto User' }}</h6>
-                            <p class="mb-0 caption-sub-title text-capitalize"></p>
+                            @if(auth()->user()->membership_till != null)
+                            <p class="mb-0 caption-sub-title"><small>{{ucwords(auth()->user()->user_type)}} aktif sampai {{date_format(date_create(auth()->user()->membership_till), 'd F Y')}}</small></p>
+                            @endif
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -268,9 +270,9 @@
                         </li>
                         <li><a class="dropdown-item" href="{{ route('user.password', Auth::id()) }}">Ubah Password</a>
                         </li>
-                        <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Riwayat Membership</a>
+                        <li><a class="dropdown-item" href="{{ route('user.membership.list', Auth::id()) }}">Riwayat Membership</a>
                         </li>
-                        <li><a class="dropdown-item" href="{{ route('user.profile', Auth::id()) }}">Riwayat Transaksi</a>
+                        <li><a class="dropdown-item" href="{{ route('user.transaction.list', Auth::id()) }}">Riwayat Transaksi</a>
                         </li>
                         @endif
                         {{-- <li><a class="dropdown-item" href="{{ route('auth.userprivacysetting') }}">Privacy

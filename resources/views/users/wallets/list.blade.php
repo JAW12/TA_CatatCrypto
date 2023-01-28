@@ -11,8 +11,10 @@
                             <div class="header-title col-sm-12 col-md-7">
                                 <h4 class="card-title">Daftar Dompet</h4>
                                 @if ($data->max_wallets >= 0)
-                                    <h6 class="text-muted"><small>{{ $data->wallets->count()}} / {{$data->max_wallets}}
-                                        Dompet, Tersedia {{ $data->max_wallets - $data->wallets->count() }} Dompet yang bisa ditambahkan</small></h6>
+                                    <h6 class="text-muted"><small>{{ $data->wallets->count() }} /
+                                            {{ $data->max_wallets }}
+                                            Dompet, Tersedia {{ $data->max_wallets - $data->wallets->count() }} Dompet
+                                            yang bisa ditambahkan</small></h6>
                                 @endif
                             </div>
                             <div class="col-sm-12 col-md-5 justify-content-md-end mt-3 mt-md-0 row g-2">
@@ -20,9 +22,9 @@
                                     <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
                                 </div>
                                 <div class="col-sm-12 col-md-6">
-                                <button type="button" class="btn btn-primary w-100"
-                                    @if ($data->max_wallets > 0 and $data->wallets->count() >= $data->max_wallets) disabled @endif data-bs-toggle="modal"
-                                    data-bs-target="#tambahDompetModal">+ Tambah Dompet</button>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        @if ($data->max_wallets > 0 and $data->wallets->count() >= $data->max_wallets) disabled @endif data-bs-toggle="modal"
+                                        data-bs-target="#tambahDompetModal">+ Tambah Dompet</button>
                                 </div>
                             </div>
                         </div>
@@ -33,7 +35,8 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Jumlah Aset:</strong></td>
-                                        <td><strong>${{ number_format((float)$data->wallets->sum('amount_of_assets'), 2, '.', ',')}}</strong></td>
+                                        <td><strong>${{ number_format((float) $data->wallets->sum('amount_of_assets'), 2, '.', ',') }}</strong>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -45,7 +48,14 @@
                                 <table class="text-dark">
                                     <tr>
                                         <td><strong>Total Keuntungan:</strong></td>
-                                        <td class="@if($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif"><strong>@if($data->wallets->sum('pnl') < 0)-@endif${{number_format(abs((float)$data->wallets->sum('pnl')), 2, '.', ',')}}</strong></td>
+                                        <td
+                                            class="@if ($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif">
+                                            <strong>
+                                                @if ($data->wallets->sum('pnl') < 0)
+                                                    -
+                                                @endif
+                                                ${{ number_format(abs((float) $data->wallets->sum('pnl')), 2, '.', ',') }}
+                                            </strong></td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -74,7 +84,10 @@
                                             <td>{{ $wallet->name }}
                                                 @if ($wallet->binance_api_key != '')
                                                     <span class="badge rounded-pill"
-                                                        style="background-color: #F3BA2F">Binance @if($wallet->demo == 1) (Demo) @endif</span>
+                                                        style="background-color: #F3BA2F">Binance @if ($wallet->demo == 1)
+                                                            (Demo)
+                                                        @endif
+                                                    </span>
                                                 @endif
                                             </td>
                                             <td>{{ $wallet->description == '' ? '-' : $wallet->description }}</td>
@@ -86,8 +99,15 @@
                                                 @endif
                                             </td>
                                             <td>${{ number_format((float) $wallet->balance, 2, '.', ',') }}</td>
-                                            <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}</td>
-                                            <td class="@if($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">@if($wallet->pnl < 0)-@endif${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}</td>
+                                            <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}
+                                            </td>
+                                            <td
+                                                class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
+                                                @if ($wallet->pnl < 0)
+                                                    -
+                                                @endif
+                                                ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -115,7 +135,8 @@
                                 <input type="text" class="form-control" name="name" placeholder="Binance (Jem)">
                             </div>
                             <div class="form-group form-group-alt mb-2">
-                                <label for="balance" class="form-label text-dark">Saldo Dompet (Diisi apabila tidak ada Integrasi Binance)</label>
+                                <label for="balance" class="form-label text-dark">Saldo Dompet (Diisi apabila tidak ada
+                                    Integrasi Binance)</label>
                                 <input type="text" class="form-control" name="balance" placeholder="0">
                             </div>
                             <div class="form-group form-group-alt row gx-2 gy-0">

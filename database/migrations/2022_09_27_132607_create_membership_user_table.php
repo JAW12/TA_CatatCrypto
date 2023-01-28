@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('membership_id');
             $table->foreignId('user_id');
+            $table->integer('status')->default(1)->comment('0 - inactive, 1 - active');
             $table->dateTime('membership_expiration');
             $table->timestamps();
 

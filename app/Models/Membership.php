@@ -18,6 +18,6 @@ class Membership extends Model
     }
 
     public function users(){
-        return $this->belongsToMany(User::class, 'membership_user', 'membership_id', 'user_id');
+        return $this->belongsToMany(User::class, 'membership_user', 'membership_id', 'user_id')->withPivot('membership_expiration', 'status');
     }
 }

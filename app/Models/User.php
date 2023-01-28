@@ -73,10 +73,10 @@ class User extends Authenticatable
     }
 
     public function transactions(){
-        return $this->hasMany(Transaction::class, 'user_id', 'id');
+        return $this->hasMany(Transaction::class, 'user_id', 'id')->orderBy('payment_time', 'desc');
     }
 
     public function memberships(){
-        return $this->belongsToMany(Membership::class, 'membership_user', 'user_id', 'membership_id')->withPivot('membership_expiration')->withTimestamps();
+        return $this->belongsToMany(Membership::class, 'membership_user', 'user_id', 'membership_id')->withPivot('membership_expiration', 'status')->withTimestamps()->orderBy('membership_expiration', 'desc');
     }
 }

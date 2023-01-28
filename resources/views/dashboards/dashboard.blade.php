@@ -2,13 +2,16 @@
     @if (Auth::user()->email_verified_at == null)
         <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
             <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
             </symbol>
             <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+                <path
+                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
             </symbol>
             <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                <path
+                    d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
             </symbol>
         </svg>
         <div class="alert alert-danger d-flex align-items-center" style="margin-top: -1%" role="alert">
@@ -17,11 +20,522 @@
             </svg>
             <div>
                 Email belum verifikasi, harap lakukan verifikasi <a href="{{ route('verification.send') }}"
-                class="alert-link">disini</a>.
+                    class="alert-link">disini</a>.
             </div>
         </div>
-    @else
+    @elseif(Auth::user()->user_type != 'admin')
+        @push('scripts')
+            <script>
+                $(function() {
+                    var pending_table = $("#pending-table").DataTable({
+                        "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
+                        "language": {
+                            "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                            "destroy": true,
+                        },
+                        footerCallback: function(row, data, start, end, display) {
+                            var api = this.api();
 
+                            // Remove the formatting to get integer data for summation
+                            var intVal = function(i) {
+                                return typeof i === 'string' ? i.replace(/[\$,%]/g, '') * 1 : typeof i ===
+                                    'number' ? i : 0;
+                            };
+
+                            totalMargin = api
+                                .column(6, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pageTotalMargin = api
+                                .column(6, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            totalPNL_SL = api
+                                .column(9, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pagetotalPNL_SL = api
+                                .column(9, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            htmlPNL_SL = "";
+                            if (pagetotalPNL_SL > 0) {
+                                htmlPNL_SL =
+                                    `<span class="text-danger me-1">$${pagetotalPNL_SL.toFixed(2)}</span>`;
+                            } else {
+                                htmlPNL_SL = "<span class='me-1'>$0.00</span>";
+                            }
+
+                            if (totalPNL_SL > 0) {
+                                htmlPNL_SL +=
+                                    `<span class="text-danger">(Total: $${totalPNL_SL.toFixed(2)})</span>`;
+                            } else {
+                                htmlPNL_SL += "(Total: $0.00)";
+                            }
+
+                            totalPNL_TP1 = api
+                                .column(11, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pagetotalPNL_TP1 = api
+                                .column(11, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            htmlPNL_TP1 = "";
+                            if (pagetotalPNL_TP1 > 0) {
+                                htmlPNL_TP1 =
+                                    `<span class="text-success me-1">$${pagetotalPNL_TP1.toFixed(2)}</span>`;
+                            } else {
+                                htmlPNL_TP1 = "<span class='me-1'>$0.00</span>";
+                            }
+
+                            if (totalPNL_TP1 > 0) {
+                                htmlPNL_TP1 +=
+                                    `<span class="text-success">(Total: $${totalPNL_TP1.toFixed(2)})</span>`;
+                            } else {
+                                htmlPNL_TP1 += "(Total: $0.00)";
+                            }
+
+                            totalPNL_TP2 = api
+                                .column(13, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pagetotalPNL_TP2 = api
+                                .column(13, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            htmlPNL_TP2 = "";
+                            if (pagetotalPNL_TP2 > 0) {
+                                htmlPNL_TP2 =
+                                    `<span class="text-success me-1">$${pagetotalPNL_TP2.toFixed(2)}</span>`;
+                            } else {
+                                htmlPNL_TP2 = "<span class='me-1'>$0.00</span>";
+                            }
+
+                            if (totalPNL_TP2 > 0) {
+                                htmlPNL_TP2 +=
+                                    `<span class="text-success">(Total: $${totalPNL_TP2.toFixed(2)})</span>`;
+                            } else {
+                                htmlPNL_TP2 += "(Total: $0.00)";
+                            }
+
+                            totalPNL_TP3 = api
+                                .column(15, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pagetotalPNL_TP3 = api
+                                .column(15, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            htmlPNL_TP3 = "";
+                            if (pagetotalPNL_TP3 > 0) {
+                                htmlPNL_TP3 =
+                                    `<span class="text-success me-1">$${pagetotalPNL_TP3.toFixed(2)}</span>`;
+                            } else {
+                                htmlPNL_TP3 = "<span class='me-1'>$0.00</span>";
+                            }
+
+                            if (totalPNL_TP3 > 0) {
+                                htmlPNL_TP3 +=
+                                    `<span class="text-success">(Total: $${totalPNL_TP3.toFixed(2)})</span>`;
+                            } else {
+                                htmlPNL_TP3 += "(Total: $0.00)";
+                            }
+
+                            totalRR = api
+                                .column(16, {
+                                    filter: 'applied'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            totalRR = totalRR / api.column(16, {
+                                filter: 'applied'
+                            }).data().count();
+
+                            pageTotalRR = api
+                                .column(16, {
+                                    filter: 'applied',
+                                    page: 'current'
+                                })
+                                .data()
+                                .reduce(function(a, b) {
+                                    return intVal(a) + intVal(b);
+                                }, 0);
+
+                            pageTotalRR = pageTotalRR / api.column(16, {
+                                filter: 'applied'
+                            }).data().count();
+
+                            htmlRR = "";
+                            if (pageTotalRR > 0) {
+                                htmlRR = `<span class="text-success me-1">${pageTotalRR.toFixed(2)}</span>`;
+                            } else if (pageTotalRR < 0) {
+                                htmlRR =
+                                    `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
+                            } else {
+                                htmlRR = "<span class='me-1'>0.00</span>";
+                            }
+
+                            if (totalRR > 0) {
+                                htmlRR += `<span class="text-success">(Total: ${totalRR.toFixed(2)})</span>`;
+                            } else if (totalRR < 0) {
+                                htmlRR +=
+                                    `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
+                            } else {
+                                htmlRR += "(Total: 0.00)";
+                            }
+
+
+                            // Update footer
+                            $(api.column(6).footer()).html(
+                                `$${pageTotalMargin.toFixed(2)} (Total: $${totalMargin.toFixed(2)})`);
+
+                            $(api.column(9).footer()).html(htmlPNL_SL);
+                            $(api.column(11).footer()).html(htmlPNL_TP1);
+                            $(api.column(13).footer()).html(htmlPNL_TP2);
+                            $(api.column(15).footer()).html(htmlPNL_TP3);
+                            $(api.column(16).footer()).html(htmlRR);
+                        },
+                    });
+                });
+            </script>
+        @endpush
+        <h2 class="mb-3"><strong>Dashbor</strong></h2>
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="bg-primary text-white rounded p-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-wallet" viewBox="0 0 16 16">
+                                    <path
+                                        d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5V3zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a1.99 1.99 0 0 1-1-.268zM1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1z" />
+                                </svg>
+                            </div>
+                            <div class="text-end">
+                                Dompet
+                                <h2 class="counter">{{ count(auth()->user()->wallets) }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="bg-primary text-white rounded p-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-journals" viewBox="0 0 16 16">
+                                    <path
+                                        d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z" />
+                                    <path
+                                        d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0z" />
+                                </svg>
+                            </div>
+                            <div class="text-end">
+                                Jurnal Trading
+                                <h2 class="counter">{{ count(auth()->user()->journals) }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="bg-primary text-white rounded p-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-file-earmark-richtext" viewBox="0 0 16 16">
+                                    <path
+                                        d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                    <path
+                                        d="M4.5 12.5A.5.5 0 0 1 5 12h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2A.5.5 0 0 1 5 10h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm1.639-3.708 1.33.886 1.854-1.855a.25.25 0 0 1 .289-.047l1.888.974V8.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8s1.54-1.274 1.639-1.208zM6.25 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z" />
+                                </svg>
+                            </div>
+                            <div class="text-end">
+                                Catatan Trading
+                                <h2 class="counter">{{ auth()->user()->journals->sum('count_of_trades') }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="card">
+                    <div class="card-body d-flex justify-content-around text-center">
+                        <div>
+                            <h2 class="mb-2">
+                                ${{ number_format((float) auth()->user()->wallets->sum('amount_of_assets'),2,'.',',') }}
+                            </h2>
+                            <p class="mb-0 text-secondary">Jumlah Aset</p>
+                        </div>
+                        <hr class="hr-vertial">
+                        <div class="bg-primary text-white rounded p-3 px-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor"
+                                class="bi bi-coin" viewBox="0 0 16 16">
+                                <path
+                                    d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path
+                                    d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+                            </svg>
+                        </div>
+                        <hr class="hr-vertial">
+                        <div>
+                            <h2
+                                class="mb-2 @if (auth()->user()->wallets->sum('pnl') > 0) text-success @elseif(auth()->user()->wallets->sum('pnl') < 0) text-danger @endif">
+                                @if (auth()->user()->wallets->sum('pnl') < 0)
+                                    -
+                                @elseif (auth()->user()->wallets->sum('pnl') > 0)
+                                    +
+                                @endif
+                                ${{ number_format(abs((float) auth()->user()->wallets->sum('pnl')),2,'.',',') }}
+                            </h2>
+                            <p class="mb-0 text-secondary">Keuntungan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="card">
+                    <div class="card-body d-flex justify-content-around text-center">
+                        <div>
+                            <h2 class="mb-2">${{ number_format((float) auth()->user()->journals->sum('balances'),2) }}
+                            </h2>
+                            <p class="mb-0 text-secondary">Total Saldo</p>
+                        </div>
+                        <hr class="hr-vertial">
+                        <div class="bg-primary text-white rounded p-3 px-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor"
+                                class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
+                            </svg>
+                        </div>
+                        <hr class="hr-vertial">
+                        <div>
+                            <h2
+                                class="mb-2 @if (auth()->user()->journals->sum('pnl') > 0) text-success @elseif(auth()->user()->journals->sum('pnl') < 0) text-danger @endif">
+                                @if (auth()->user()->journals->sum('pnl') < 0)
+                                    -
+                                @elseif (auth()->user()->journals->sum('pnl') > 0)
+                                    +
+                                @endif
+                                ${{ number_format(abs((float) auth()->user()->journals->sum('pnl')),2,'.',',') }}
+                            </h2>
+                            <p class="mb-0 text-secondary">Keuntungan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="header-title">
+                                <h4 class="card-title">Pending Trading</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive my-3" id="table-container-pending">
+                            <table id="pending-table" class="table table-striped table-hover" role="grid"
+                                data-toggle="data-table">
+                                <thead>
+                                    <tr class="light">
+                                        <th>#</th>
+                                        <th>Jurnal</th>
+                                        <th>Koin</th>
+                                        <th>Tipe</th>
+                                        <th>Jumlah</th>
+                                        <th>Lev</th>
+                                        <th>Margin</th>
+                                        <th>Hrg Entri</th>
+                                        <th>Hrg SL 1</th>
+                                        <th>P/L SL 1</th>
+                                        <th>Hrg TP 1</th>
+                                        <th>P/L TP 1</th>
+                                        <th>Hrg TP 2</th>
+                                        <th>P/L TP 2</th>
+                                        <th>Hrg TP 3</th>
+                                        <th>P/L TP 3</th>
+                                        <th>Ratio Resiko</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-pending">
+                                    @foreach (auth()->user()->journals as $k_journal => $journal)
+                                        @foreach ($journal->trades as $trade)
+                                            @if ($trade->status == 0)
+                                                <tr onclick="window.location='{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}'" style="cursor: pointer;">
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>
+                                                        <img src="{{ $trade->asset->thumb }}" alt="coin">
+                                                        {{ $trade->asset->name }}
+                                                    </td>
+                                                    <td>
+                                                        @if ($trade->type == 0)
+                                                            <span class="text-danger">SHORT</span>
+                                                        @elseif($trade->type == 1)
+                                                            <span class="text-success">LONG</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ (float) $trade->open_quantity }}</td>
+                                                    <td>{{ $trade->leverage }}</td>
+                                                    <td>${{ (float) $trade->open_margin }}</td>
+                                                    <td>${{ (float) $trade->open_price }}</td>
+                                                    @if (count($trade->targets->where('type', '0')) > 0)
+                                                        <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
+                                                        </td>
+                                                        <td class="text-danger">
+                                                            ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                            @if (
+                                                                $journal->risk > 0 and
+                                                                    $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                                    height="16" fill="currentColor"
+                                                                    class="bi bi-exclamation-triangle-fill mb-1"
+                                                                    viewBox="0 0 16 16">
+                                                                    <path
+                                                                        d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                                                </svg>
+                                                            @endif
+                                                        </td>
+                                                    @else
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    @endif
+                                                    @if (count($trade->targets->where('type', '1')) > 0)
+                                                        <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                        </td>
+                                                        <td class="text-success">
+                                                            ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                        </td>
+                                                        @if (count($trade->targets->where('type', '1')) > 1)
+                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
+                                                            </td>
+                                                            <td class="text-success">
+                                                                ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
+                                                            </td>
+                                                            @if (count($trade->targets->where('type', '1')) > 2)
+                                                                <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
+                                                                </td>
+                                                                <td class="text-success">
+                                                                    ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
+                                                                </td>
+                                                            @else
+                                                                <td>-</td>
+                                                                <td>-</td>
+                                                            @endif
+                                                        @else
+                                                            <td>-</td>
+                                                            <td>-</td>
+                                                            <td>-</td>
+                                                            <td>-</td>
+                                                        @endif
+                                                    @else
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    @endif
+                                                    <td>{{ $trade->rr_expected }}</td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif(Auth::user()->user_type == 'admin')
     @endif
     {{-- <div class="row">
         <div class="col-md-12 col-lg-12">
