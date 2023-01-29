@@ -18,7 +18,8 @@ class TransactionController extends Controller
             'payment_type' => 'required'
         ]);
 
-        $order_id = rand();
+        $order_id = "order-" . date('y') . date('m') . date('d') . $request->membership_id . sprintf('%03d', Transaction::where('membership_id', $request->membership_id)->whereDate('created_at', date('Y-m-d'))->count());
+
         if ($request->payment_type != "automatic") {
             $transaction = Auth::user()->transactions()->create([
                 'membership_id' => $request->membership_id,
@@ -31,6 +32,7 @@ class TransactionController extends Controller
                 'payment_name' => $request->bank_name,
                 'payment_type' => $request->payment_type,
                 'payment_time' => $request->transfer_time,
+                'id_order' => $order_id,
             ]);
             return $transaction ? redirect()->route('index')->withSuccess('Transaksi berhasil') : redirect()->route('index')->withError('Transaksi gagal');
         } else {
@@ -102,6 +104,13 @@ class TransactionController extends Controller
             $user->membership_till = $date;
             $user->spent = $user->spent + $transaction->gross_amount;
             $user->save();
+
+            foreach($user->transactions as $transaction){
+                if($transaction->status == "pending"){
+                    $transaction->status = "cancel";
+                    $transaction->save();
+                }
+            }
             return redirect()->route('index')->withSuccess('Transaksi berhasil');
         }
         else{
