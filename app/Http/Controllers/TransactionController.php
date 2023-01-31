@@ -18,7 +18,7 @@ class TransactionController extends Controller
             'payment_type' => 'required'
         ]);
 
-        $order_id = "order-" . date('y') . date('m') . date('d') . $request->membership_id . sprintf('%03d', Transaction::where('membership_id', $request->membership_id)->whereDate('created_at', date('Y-m-d'))->count());
+        $order_id = "order-" . date('y') . date('m') . date('d') . Auth::id() . '-' . $request->membership_id . sprintf('%03d', Transaction::where('membership_id', $request->membership_id)->whereDate('created_at', date('Y-m-d'))->count());
 
         if ($request->payment_type != "automatic") {
             $transaction = Auth::user()->transactions()->create([
@@ -99,11 +99,30 @@ class TransactionController extends Controller
             $user->max_wallets = $membership->max_wallets;
             $user->max_journals = $membership->max_journals;
             $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
-            $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
+            if($user->remaining_trades < $user->trades_quantity_per_month){
+                $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
+            }
+            else if($membership->trades_quantity_per_month == -1){
+                $user->remaining_trades = -1;
+            }
             $user->membership_since = $today;
             $user->membership_till = $date;
             $user->spent = $user->spent + $transaction->gross_amount;
             $user->save();
+
+            if($membership->enable_binance == 1){
+                $user->givePermissionTo('portfolio-tambah-binance');
+            }
+            else{
+                $user->revokePermissionTo('portfolio-tambah-binance');
+            }
+
+            if($membership->enable_notification == 1){
+                $user->givePermissionTo('assets-transactions-notifikasi');
+            }
+            else{
+                $user->revokePermissionTo('assets-transactions-notifikasi');
+            }
 
             foreach($user->transactions as $transaction){
                 if($transaction->status == "pending"){

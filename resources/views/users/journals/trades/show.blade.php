@@ -1,3 +1,4 @@
+@section('title', 'Ubah Catatan')
 @push('styles')
     <style>
         .ui-autocomplete {
@@ -634,6 +635,9 @@
     </script>
 @endpush
 <x-app-layout :options="['loading']">
+    @if (Auth::user()->email_verified_at == null)
+        <x-verify-button></x-verify-button>
+    @else
     <x-back-button>{{ route('user.journal.detail', ['journal' => $journal->id]) }}</x-back-button>
     <div>
         <div class="row">
@@ -1367,4 +1371,5 @@
             </div>
         </div>
     </div>
+    @endif
 </x-app-layout>

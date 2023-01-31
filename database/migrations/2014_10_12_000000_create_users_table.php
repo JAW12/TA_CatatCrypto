@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('user_type')->default('trial');
-            $table->string('status')->default('active');
+            $table->string('user_type');
+            // $table->string('status')->default('active');
             $table->string('gender')->comment('m - male, f - female')->nullable();
             $table->date('birthdate')->nullable();
             // $table->integer('membership_status')->default(0)->comment('0 - not registered, 1 - basic, 2 - home, 3 - professional, 4 - business');

@@ -28,6 +28,67 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-koin" role="button" aria-expanded="false"
+                aria-controls="sidebar-koin">
+                <i class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-coin" viewBox="0 0 16 16">
+                        <path
+                            d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                        <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+                    </svg>
+                </i>
+                <span class="item-name">Koin</span>
+                <i class="right-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </i>
+            </a>
+            <ul class="sub-nav collapse" id="sidebar-koin" data-bs-parent="#sidebar-koin">
+                <li class=" nav-item">
+                    <a class="nav-link" href="{{ route('user.wallet') }}">
+                        <i class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                            </svg>
+                        </i>
+                        <i class="sidenav-mini-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                            </svg>
+                        </i>
+                        <span class="item-name">Daftar Koin</span>
+                    </a>
+                </li>
+                <li class=" nav-item">
+                    <a class="nav-link" href="{{ route('user.wallet') }}">
+                        <i class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                            </svg>
+                        </i>
+                        <i class="sidenav-mini-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                            </svg>
+                        </i>
+                        <span class="item-name">Koin Watchlist</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-dompet" role="button" aria-expanded="false"
                 aria-controls="sidebar-dompet">
                 <i class="icon">
@@ -49,15 +110,15 @@
                 <li class=" nav-item">
                     <a class="nav-link {{ activeRoute(route('user.wallet')) }}" href="{{ route('user.wallet') }}">
                         <i class="icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-list" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd"
                                     d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
                             </svg>
                         </i>
                         <i class="sidenav-mini-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-list" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd"
                                     d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
                             </svg>
@@ -69,15 +130,15 @@
                     <a class="nav-link {{ activeRoute(route('user.wallet.demography')) }}"
                         href="{{ route('user.wallet.demography') }}">
                         <i class="icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
                                 <path
                                     d="M15.985 8.5H8.207l-5.5 5.5a8 8 0 0 0 13.277-5.5zM2 13.292A8 8 0 0 1 7.5.015v7.778l-5.5 5.5zM8.5.015V7.5h7.485A8.001 8.001 0 0 0 8.5.015z" />
                             </svg>
                         </i>
                         <i class="sidenav-mini-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
                                 <path
                                     d="M15.985 8.5H8.207l-5.5 5.5a8 8 0 0 0 13.277-5.5zM2 13.292A8 8 0 0 1 7.5.015v7.778l-5.5 5.5zM8.5.015V7.5h7.485A8.001 8.001 0 0 0 8.5.015z" />
                             </svg>
@@ -86,17 +147,18 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a href="{{ (request()->is('user/dompet/*')) ? 'javascript:window.location.reload(true)' : route('user.wallet') }}" class="nav-link {{ (request()->is('user/dompet/*')) ? 'active' : '' }}" style="cursor:pointer">
+                    <a href="{{ request()->is('user/dompet/*') ? 'javascript:window.location.reload(true)' : route('user.wallet') }}"
+                        class="nav-link {{ request()->is('user/dompet/*') ? 'active' : '' }}" style="cursor:pointer">
                         <i class="icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-wallet2" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
                                 <path
                                     d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
                             </svg>
                         </i>
                         <i class="sidenav-mini-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-wallet2" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
                                 <path
                                     d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z" />
                             </svg>
@@ -171,7 +233,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a href="{{ (request()->is('user/jurnal/*')) ? 'javascript:window.location.reload(true)' : route('user.journal') }}" class="nav-link {{ (request()->is('user/jurnal/*')) ? 'active' : '' }}" style="cursor:pointer">
+                    <a href="{{ request()->is('user/jurnal/*') ? 'javascript:window.location.reload(true)' : route('user.journal') }}"
+                        class="nav-link {{ request()->is('user/jurnal/*') ? 'active' : '' }}" style="cursor:pointer">
 
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -307,8 +370,8 @@
             </ul>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{route('user.membership')}}"
-                aria-expanded="false" aria-controls="sidebar-membership">
+            <a class="nav-link" href="{{ route('user.membership') }}" aria-expanded="false"
+                aria-controls="sidebar-membership">
                 <i class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-award" viewBox="0 0 16 16">
@@ -330,21 +393,21 @@
             <hr class="hr-horizontal">
         </li>
         <li class="nav-item static-item">
-            <a class="nav-link static-item disabled" href="#" tabindex="-1" style="text-align: center; padding: 0">
+            <a class="nav-link static-item disabled" href="#" tabindex="-1"
+                style="text-align: center; padding: 0">
                 <div class="default-icon text-sm-center">Sisa Catatan Trading</div>
                 <div class="text-center">
-                    @if(Auth::user()->remaining_trades > 0)
-                        {{Auth::user()->remaining_trades}}
+                    @if (Auth::user()->remaining_trades >= 0)
+                        {{ Auth::user()->remaining_trades }}
                     @else
-                    ∞
+                        ∞
                     @endif
                 </div>
             </a>
         </li>
     @else
         <li class="nav-item">
-            <a class="nav-link {{ activeRoute(route('index')) }}" aria-current="page"
-                href="{{ route('index') }}">
+            <a class="nav-link {{ activeRoute(route('index')) }}" aria-current="page" href="{{ route('index') }}">
                 <i class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-house-door-fill" viewBox="0 0 16 16">

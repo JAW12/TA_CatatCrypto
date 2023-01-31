@@ -16,7 +16,7 @@ class MembershipController extends Controller
     public function show($type){
         $membership = Membership::find($type);
 
-        if(Auth::user()->user_type != 'free' && Auth::user()->user_type != 'trial' && Auth::user()->user_type != strtolower($membership->name)){
+        if(count(Auth::user()->membership) > 0){
             return redirect()->back()->withError('Anda masih memiliki membership lain yang aktif saat ini');
         }
 

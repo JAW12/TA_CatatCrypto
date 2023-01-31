@@ -1,3 +1,4 @@
+@section('title', 'Daftar Transaksi Pengguna')
 <x-app-layout :options="['loading']">
     <div class="row">
         <div class="col-lg-12">

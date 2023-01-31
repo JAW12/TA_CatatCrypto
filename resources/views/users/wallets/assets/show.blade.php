@@ -1,3 +1,5 @@
+@section('title', 'Detail Aset')
+
 @push('styles')
     <style>
         .nav.nav-tabs>li.disabled {
@@ -70,6 +72,7 @@
         });
 
         loadData();
+
         function loadData() {
             $.ajax({
                 url: "{{ route('user.wallet.asset.detail.load', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}",
@@ -244,16 +247,19 @@
 
                     let change = '';
                     if (data.pnl > 0) {
-                        if(data.pnl > 999){
-                            change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2).toLocaleString('en-US')}%)</span>`;
-                        }
-                        else{
-                            change = `<span class="h6 text-success">${parseFloat(data.pnl).toFixed(2)}$ (+${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        if (data.pnl > 999) {
+                            change =
+                                `<span class="h6 text-success">$${parseFloat(data.pnl).toFixed(2)} (+${parseFloat(data.pnl_percentage).toFixed(2).toLocaleString('en-US')}%)</span>`;
+                        } else {
+                            change =
+                                `<span class="h6 text-success">$${parseFloat(data.pnl).toFixed(2)} (+${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                         }
                     } else if (data.pnl < 0) {
-                        change = `<span class="h6 text-danger">${parseFloat(data.pnl).toFixed(2)}$ (${-parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        change =
+                            `<span class="h6 text-danger">-$${Math.abs(parseFloat(data.pnl)).toFixed(2)} (${-parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                     } else {
-                        change = `<span class="h6">${parseFloat(data.pnl).toFixed(2)}$ (${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
+                        change =
+                            `<span class="h6">$${parseFloat(data.pnl).toFixed(2)} (${parseFloat(data.pnl_percentage).toFixed(2)}%)</span>`;
                     }
                     $("#change").html(change);
 
@@ -297,7 +303,7 @@
                     let tables = $('[data-toggle="data-table"]').DataTable({
                         "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
                         "language": {
-                        "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                            "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
                         },
                     });
                     loaderInit();
@@ -315,7 +321,8 @@
                             cancelButtonText: 'Tidak',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $(e.target).closest('form').submit() // Post the surrounding form
+                                $(e.target).closest('form')
+                                .submit() // Post the surrounding form
                             }
                         })
                     });
@@ -351,7 +358,7 @@
                     let tables = $('[data-toggle="data-table"]').DataTable({
                         "dom": '<"row align-items-center"<"col-md-6" l><"col-md-6" f>><"table-responsive border-bottom my-3" rt><"row align-items-center" <"col-md-6" i><"col-md-6" p>><"clear">',
                         "language": {
-                        "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
+                            "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/id.json",
                         },
                     });
                     loaderInit();
@@ -540,7 +547,7 @@
                 $("input[name=time]").val(time);
             });
 
-            $("#btnHapus").click(function(e){
+            $("#btnHapus").click(function(e) {
                 e.preventDefault();
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
@@ -570,78 +577,90 @@
 @endpush
 
 <x-app-layout>
-    <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
-    <div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="header-title col-sm-12 col-md-5 d-inline-flex align-items-center">
-                                <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
-                                <h4 class="card-title ms-3 mt-2">
-                                    {{ $asset->name }}
-                                    <span id="change">
-                                        <span class="h6 @if($asset_wallet->pnl > 0) text-success @elseif($asset_wallet->pnl < 0) text-danger @endif">{{(float)$asset_wallet->pnl}}$ ({{(float)$asset_wallet->pnl_percentage}}%)</span>
-                                    </span>
-                                    <a href="{{ route('user.wallet.asset.detail.info', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}""
-                                        class="btn btn-light btn-sm">Lihat Info Koin</a>
-                                </h4>
-                            </div>
-                            <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0">
-                                <div class="row g-2">
-                                    <div class="col-sm-12 col-md-4">
-                                        @if($wallet->binance_api_key == null)
-                                        <form action="{{route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" method="post" class="w-100">
-                                            @csrf
-                                            @method('delete')
-                                            <button id="btnHapus" type="submit" class="btn btn-danger w-100">Hapus Aset Ini</button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                    <div class="col-sm-12 col-md-4">
-                                        <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
-                                    </div>
-                                    <div class="col-sm-12 col-md-4">
-                                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#tambahTransaksiModal">+ Tambah Transaksi</button>
+    @if (Auth::user()->email_verified_at == null)
+        <x-verify-button></x-verify-button>
+    @else
+        <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
+        <div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="header-title col-sm-12 col-md-5 d-inline-flex align-items-center">
+                                    <img src="{{ $asset->thumb }}" alt="logo_crypto" class="img-thumbnail">
+                                    <h4 class="card-title ms-3 mt-2">
+                                        {{ $asset->name }}
+                                        <span id="change">
+                                            <span
+                                                class="h6 @if ($asset_wallet->pnl > 0) text-success @elseif($asset_wallet->pnl < 0) text-danger @endif">{{ (float) $asset_wallet->pnl }}$
+                                                ({{ (float) $asset_wallet->pnl_percentage }}%)</span>
+                                        </span>
+                                        <a href="{{ route('user.wallet.asset.detail.info', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}""
+                                            class="btn btn-light btn-sm">Lihat Info Koin</a>
+                                    </h4>
+                                </div>
+                                <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0">
+                                    <div class="row g-2">
+                                        <div class="col-sm-12 col-md-4">
+                                            @if ($wallet->binance_api_key == null)
+                                                <form
+                                                    action="{{ route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
+                                                    method="post" class="w-100">
+                                                    @csrf
+                                                    @method('delete')
+                                                    <button id="btnHapus" type="submit"
+                                                        class="btn btn-danger w-100">Hapus Aset Ini</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
+                                                data-bs-target="#tambahTransaksiModal">+ Tambah Transaksi</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-sm-12 col-md-4">
-                                <table class="text-dark">
-                                    <tr>
-                                        <td><strong>Jumlah Koin:</strong></td>
-                                        <td id="amount"><strong>{{ (float) $asset_wallet->amount}} {{$asset->symbol}}</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td id="total"><small>$ {{ (float) $asset_wallet->total}}</small></td>
-                                    </tr>
-                                </table>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-12 col-md-4">
+                                    <table class="text-dark">
+                                        <tr>
+                                            <td><strong>Jumlah Koin:</strong></td>
+                                            <td id="amount"><strong>{{ (float) $asset_wallet->amount }}
+                                                    {{ $asset->symbol }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td id="total"><small>$ {{ (float) $asset_wallet->total }}</small></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-sm-12 col-md-4">
+                                    <table class="text-dark">
+                                        <tr>
+                                            <td><strong>Harga Rata-Rata:</strong></td>
+                                            <td id="average_price"><strong>$
+                                                    {{ (float) $asset_wallet->average_price }}</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-sm-12 col-md-4">
+                                    <table class="text-dark">
+                                        <tr>
+                                            <td><strong>Harga Sekarang:</strong></td>
+                                            <td id="current_price"><strong>$
+                                                    {{ (float) $asset->current_price }}</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="col-sm-12 col-md-4">
-                                <table class="text-dark">
-                                    <tr>
-                                        <td><strong>Harga Rata-Rata:</strong></td>
-                                        <td id="average_price"><strong>$ {{ (float)$asset_wallet->average_price}}</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-sm-12 col-md-4">
-                                <table class="text-dark">
-                                    <tr>
-                                        <td><strong>Harga Sekarang:</strong></td>
-                                        <td id="current_price"><strong>$ {{(float)$asset->current_price}}</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="table-responsive" id="table-container">
-                            {{-- <table id="assets-list-table" class="table table-striped table-hover" role="grid"
+                            <div class="table-responsive" id="table-container">
+                                {{-- <table id="assets-list-table" class="table table-striped table-hover" role="grid"
                                 data-toggle="data-table">
                                 <thead>
                                     <tr class="light">
@@ -861,215 +880,222 @@
                         @endforeach
                         </tbody>
                         </table> --}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="tambahTransaksiModal" tabindex="-1" aria-labelledby="tambahTransaksiLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="tambahTransaksiTitle">Tambah Transaksi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="bd-example">
-                        <ul class="nav nav-tabs nav-justified" id="myTab " role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="beli-tab" data-bs-toggle="tab"
-                                    data-bs-target="#pills-beli" type="button" role="tab" aria-controls="beli"
-                                    aria-selected="true">Beli</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="jual-tab" data-bs-toggle="tab"
-                                    data-bs-target="#pills-jual" type="button" role="tab" aria-controls="jual"
-                                    aria-selected="false">Jual</button>
-                            </li>
-                            <li class="nav-item @if ($wallet->binance_api_key != null) disabled @endif" role="presentation">
-                                <button class="nav-link " id="transfer-tab" data-bs-toggle="tab"
-                                    data-bs-target="#pills-transfer" type="button" role="tab"
-                                    aria-controls="transfer" aria-selected="false">Transfer</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="pills-tabContent">
-                            <div class="tab-pane fade show active" id="pills-beli" role="tabpanel"
-                                aria-labelledby="pills-beli-tab1">
-                                <form
-                                    action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
-                                    method="post">
-                                    @csrf
-                                    <input type="hidden" name="transaction_id" id="beli_transaction_id">
-                                    <div class="form-group form-group-alt mb-2">
-                                        <label for="price" class="form-label text-dark">Harga Koin</label>
-                                        <input type="text" class="form-control" name="price" placeholder="0.000"
-                                            id="beli_price">
-                                    </div>
-                                    <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div
-                                            class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
-                                            <label for="amount" class="form-label text-dark">Jumlah Koin</label>
-                                            <div class="form-group form-group-alt input-group mb-3">
-                                                <input type="text" name="amount" class="form-control"
-                                                    aria-label="Jumlah Koin" aria-describedby="basic-addon2"
-                                                    id="beli_amount">
-                                                <span class="input-group-text"
-                                                    id="basic-addon2">{{ $asset->symbol }}</span>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
-                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
-                                            <input type="text" class="form-control" name="fee"
-                                                id="beli_fee">
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
-                                        <label for="time" class="form-label text-dark">Waktu</label>
-                                        <input type="datetime-local" id="beli_time" name="time"
-                                            class="form-control">
-                                    </div>
-                                    <div class="form-group form-group-alt">
-                                        <label for="description" class="form-label text-dark">Catatan</label>
-                                        <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="beli_description"></textarea>
-                                    </div>
-                                    <div class="form-group form-group-alt">
-                                        <label for="total" class="form-label text-dark">Jumlah Transaksi</label>
-
-                                        <div class="form-group input-group form-group-alt">
-                                            <span class="input-group-text text-dark"
-                                                style="background-color:#e9ecef; font-size: 2em"
-                                                id="basic-addon1">$</span>
-                                            <input type="text" class="form-control" name="total"
-                                                aria-label="total" aria-describedby="basic-addon1"
-                                                style="font-size: 2em" readonly="readonly" id="beli_total">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <button type="reset" class="btn btn-danger">Reset</button>
-                                        <button type="submit" name="type" class="btn btn-primary"
-                                            value="0">Kumpul</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="pills-jual" role="tabpanel"
-                                aria-labelledby="pills-jual-tab1">
-                                <form
-                                    action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
-                                    method="post">
-                                    @csrf
-                                    <input type="hidden" name="transaction_id" id="jual_transaction_id">
-                                    <div class="form-group form-group-alt mb-2">
-                                        <label for="price" class="form-label text-dark">Harga Koin</label>
-                                        <input type="text" class="form-control" name="price"
-                                            placeholder="0.000" id="jual_price">
-                                    </div>
-                                    <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div
-                                            class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
-                                            <label for="amount" class="form-label text-dark">Jumlah Koin</label>
-                                            <div class="form-group form-group-alt input-group mb-3">
-                                                <input type="text" name="amount" class="form-control"
-                                                    aria-label="Jumlah Koin" aria-describedby="basic-addon2"
-                                                    id="jual_amount">
-                                                <span class="input-group-text"
-                                                    id="basic-addon2">{{ $asset->symbol }}</span>
-                                            </div>
-
-                                        </div>
-                                        <div
-                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
-                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
-                                            <input type="text" class="form-control" name="fee"
-                                                id="jual_fee">
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
-                                        <label for="time" class="form-label text-dark">Waktu</label>
-                                        <input type="datetime-local" name="time" class="form-control"
-                                            id="jual_time">
-                                    </div>
-                                    <div class="form-group form-group-alt">
-                                        <label for="description" class="form-label text-dark">Catatan</label>
-                                        <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="jual_description"></textarea>
-                                    </div>
-                                    <div class="form-group form-group-alt">
-                                        <label for="total" class="form-label text-dark">Jumlah Transaksi</label>
-
-                                        <div class="form-group input-group form-group-alt">
-                                            <span class="input-group-text text-dark"
-                                                style="background-color:#e9ecef; font-size: 2em"
-                                                id="basic-addon1">$</span>
-                                            <input type="text" class="form-control" name="total"
-                                                aria-label="total" aria-describedby="basic-addon1"
-                                                style="font-size: 2em" readonly="readonly" id="jual_total">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <button type="reset" class="btn btn-danger">Reset</button>
-                                        <button type="submit" name="type" value="1"
-                                            class="btn btn-primary">Kumpul</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="pills-transfer" role="tabpanel"
-                                aria-labelledby="pills-transfer-tab1">
-                                <form
-                                    action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
-                                    method="post">
-                                    @csrf
-                                    <input type="hidden" name="transaction_id" id="transfer_transaction_id">
-                                    <div class="form-group form-group-alt mb-2">
-                                        <label for="price" class="form-label text-dark">Jenis Transfer</label>
-                                        <select class="form-control form-select" name="type">
-                                            <option value="3">Transfer Keluar</option>
-                                            <option value="4">Transfer Masuk</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group form-group-alt row gx-2 gy-0">
-                                        <div
-                                            class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
-                                            <label for="amount" class="form-label text-dark">Jumlah Koin</label>
-                                            <div class="form-group form-group-alt input-group mb-3">
-                                                <input type="text" name="amount" class="form-control"
-                                                    aria-label="Jumlah Koin" aria-describedby="basic-addon2"
-                                                    id="transfer_amount">
-                                                <span class="input-group-text"
-                                                    id="basic-addon2">{{ $asset->symbol }}</span>
-                                            </div>
-
-                                        </div>
-                                        <div
-                                            class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
-                                            <label for="fee" class="form-label text-dark">Biaya Tambahan</label>
-                                            <input type="text" class="form-control" name="fee"
-                                                id="transfer_fee">
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
-                                        <label for="time" class="form-label text-dark">Waktu</label>
-                                        <input type="datetime-local" name="time" class="form-control"
-                                            id="transfer_time">
-                                    </div>
-                                    <div class="form-group form-group-alt">
-                                        <label for="description" class="form-label text-dark">Catatan</label>
-                                        <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="transfer_description"></textarea>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <button type="reset" class="btn btn-danger">Reset</button>
-                                        <button type="submit" class="btn btn-primary">Kumpul</button>
-                                    </div>
-                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <div class="modal fade" id="tambahTransaksiModal" tabindex="-1" aria-labelledby="tambahTransaksiLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tambahTransaksiTitle">Tambah Transaksi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="bd-example">
+                            <ul class="nav nav-tabs nav-justified" id="myTab " role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="beli-tab" data-bs-toggle="tab"
+                                        data-bs-target="#pills-beli" type="button" role="tab" aria-controls="beli"
+                                        aria-selected="true">Beli</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="jual-tab" data-bs-toggle="tab"
+                                        data-bs-target="#pills-jual" type="button" role="tab" aria-controls="jual"
+                                        aria-selected="false">Jual</button>
+                                </li>
+                                <li class="nav-item @if ($wallet->binance_api_key != null) disabled @endif"
+                                    role="presentation">
+                                    <button class="nav-link " id="transfer-tab" data-bs-toggle="tab"
+                                        data-bs-target="#pills-transfer" type="button" role="tab"
+                                        aria-controls="transfer" aria-selected="false">Transfer</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="pills-tabContent">
+                                <div class="tab-pane fade show active" id="pills-beli" role="tabpanel"
+                                    aria-labelledby="pills-beli-tab1">
+                                    <form
+                                        action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
+                                        method="post">
+                                        @csrf
+                                        <input type="hidden" name="transaction_id" id="beli_transaction_id">
+                                        <div class="form-group form-group-alt mb-2">
+                                            <label for="price" class="form-label text-dark">Harga Koin</label>
+                                            <input type="text" class="form-control" name="price"
+                                                placeholder="0.000" id="beli_price">
+                                        </div>
+                                        <div class="form-group form-group-alt row gx-2 gy-0">
+                                            <div
+                                                class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
+                                                <label for="amount" class="form-label text-dark">Jumlah Koin</label>
+                                                <div class="form-group form-group-alt input-group mb-3">
+                                                    <input type="text" name="amount" class="form-control"
+                                                        aria-label="Jumlah Koin" aria-describedby="basic-addon2"
+                                                        id="beli_amount">
+                                                    <span class="input-group-text"
+                                                        id="basic-addon2">{{ $asset->symbol }}</span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
+                                                <label for="fee" class="form-label text-dark">Biaya
+                                                    Tambahan</label>
+                                                <input type="text" class="form-control" name="fee"
+                                                    id="beli_fee">
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="time" class="form-label text-dark">Waktu</label>
+                                            <input type="datetime-local" id="beli_time" name="time"
+                                                class="form-control">
+                                        </div>
+                                        <div class="form-group form-group-alt">
+                                            <label for="description" class="form-label text-dark">Catatan</label>
+                                            <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="beli_description"></textarea>
+                                        </div>
+                                        <div class="form-group form-group-alt">
+                                            <label for="total" class="form-label text-dark">Jumlah
+                                                Transaksi</label>
+
+                                            <div class="form-group input-group form-group-alt">
+                                                <span class="input-group-text text-dark"
+                                                    style="background-color:#e9ecef; font-size: 2em"
+                                                    id="basic-addon1">$</span>
+                                                <input type="text" class="form-control" name="total"
+                                                    aria-label="total" aria-describedby="basic-addon1"
+                                                    style="font-size: 2em" readonly="readonly" id="beli_total">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="reset" class="btn btn-danger">Reset</button>
+                                            <button type="submit" name="type" class="btn btn-primary"
+                                                value="0">Kumpul</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="pills-jual" role="tabpanel"
+                                    aria-labelledby="pills-jual-tab1">
+                                    <form
+                                        action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
+                                        method="post">
+                                        @csrf
+                                        <input type="hidden" name="transaction_id" id="jual_transaction_id">
+                                        <div class="form-group form-group-alt mb-2">
+                                            <label for="price" class="form-label text-dark">Harga Koin</label>
+                                            <input type="text" class="form-control" name="price"
+                                                placeholder="0.000" id="jual_price">
+                                        </div>
+                                        <div class="form-group form-group-alt row gx-2 gy-0">
+                                            <div
+                                                class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
+                                                <label for="amount" class="form-label text-dark">Jumlah Koin</label>
+                                                <div class="form-group form-group-alt input-group mb-3">
+                                                    <input type="text" name="amount" class="form-control"
+                                                        aria-label="Jumlah Koin" aria-describedby="basic-addon2"
+                                                        id="jual_amount">
+                                                    <span class="input-group-text"
+                                                        id="basic-addon2">{{ $asset->symbol }}</span>
+                                                </div>
+
+                                            </div>
+                                            <div
+                                                class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
+                                                <label for="fee" class="form-label text-dark">Biaya
+                                                    Tambahan</label>
+                                                <input type="text" class="form-control" name="fee"
+                                                    id="jual_fee">
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="time" class="form-label text-dark">Waktu</label>
+                                            <input type="datetime-local" name="time" class="form-control"
+                                                id="jual_time">
+                                        </div>
+                                        <div class="form-group form-group-alt">
+                                            <label for="description" class="form-label text-dark">Catatan</label>
+                                            <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="jual_description"></textarea>
+                                        </div>
+                                        <div class="form-group form-group-alt">
+                                            <label for="total" class="form-label text-dark">Jumlah
+                                                Transaksi</label>
+
+                                            <div class="form-group input-group form-group-alt">
+                                                <span class="input-group-text text-dark"
+                                                    style="background-color:#e9ecef; font-size: 2em"
+                                                    id="basic-addon1">$</span>
+                                                <input type="text" class="form-control" name="total"
+                                                    aria-label="total" aria-describedby="basic-addon1"
+                                                    style="font-size: 2em" readonly="readonly" id="jual_total">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="reset" class="btn btn-danger">Reset</button>
+                                            <button type="submit" name="type" value="1"
+                                                class="btn btn-primary">Kumpul</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="pills-transfer" role="tabpanel"
+                                    aria-labelledby="pills-transfer-tab1">
+                                    <form
+                                        action="{{ route('user.wallet.asset.detail.add', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
+                                        method="post">
+                                        @csrf
+                                        <input type="hidden" name="transaction_id" id="transfer_transaction_id">
+                                        <div class="form-group form-group-alt mb-2">
+                                            <label for="price" class="form-label text-dark">Jenis Transfer</label>
+                                            <select class="form-control form-select" name="type">
+                                                <option value="3">Transfer Keluar</option>
+                                                <option value="4">Transfer Masuk</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-group-alt row gx-2 gy-0">
+                                            <div
+                                                class="col-sm-12 @if ($wallet->binance_api_key == null) col-md-6 @else col @endif">
+                                                <label for="amount" class="form-label text-dark">Jumlah Koin</label>
+                                                <div class="form-group form-group-alt input-group mb-3">
+                                                    <input type="text" name="amount" class="form-control"
+                                                        aria-label="Jumlah Koin" aria-describedby="basic-addon2"
+                                                        id="transfer_amount">
+                                                    <span class="input-group-text"
+                                                        id="basic-addon2">{{ $asset->symbol }}</span>
+                                                </div>
+
+                                            </div>
+                                            <div
+                                                class="col-sm-12 col-md-6 @if ($wallet->binance_api_key != null) d-none @endif">
+                                                <label for="fee" class="form-label text-dark">Biaya
+                                                    Tambahan</label>
+                                                <input type="text" class="form-control" name="fee"
+                                                    id="transfer_fee">
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="form-group form-group-alt @if ($wallet->binance_api_key != null) d-none @endif">
+                                            <label for="time" class="form-label text-dark">Waktu</label>
+                                            <input type="datetime-local" name="time" class="form-control"
+                                                id="transfer_time">
+                                        </div>
+                                        <div class="form-group form-group-alt">
+                                            <label for="description" class="form-label text-dark">Catatan</label>
+                                            <textarea name="description" class="form-control" style="height: 15vh; resize:none" id="transfer_description"></textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="reset" class="btn btn-danger">Reset</button>
+                                            <button type="submit" class="btn btn-primary">Kumpul</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </x-app-layout>

@@ -1,3 +1,5 @@
+@section('title', 'Profil Pengguna')
+
 <x-app-layout :options="['loading']">
     <form method="POST">
         @csrf
@@ -842,7 +844,7 @@
                                 <tbody>
                                     <tr>
                                         <th>Jenis Membership</th>
-                                        <td><span class="text-capitalize mt-1">{{ str_replace('_', ' ', auth()->user()->user_type) ?? 'Marketing Administrator' }}</span>
+                                        <td><span class="text-capitalize mt-1">{{ ucwords(count(auth()->user()->membership) == 0 ? auth()->user()->user_type == "user" ? "-" : auth()->user()->user_type : auth()->user()->membership->first()->name) }}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -859,7 +861,8 @@
                                         <th>Dompet tersedia</th>
                                         @if($data->max_wallets >= 0)
                                         <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
-                                            {{ $data->max_wallets - $data->wallets->count() }} Dompet</td>
+                                            @if($data->max_wallets - $data->wallets->count() >= 0) {{$data->max_wallets - $data->wallets->count()}} Dompet
+                                            @else 0 Dompet @endif</td>
                                         @else
                                         <td>∞ Dompet</td>
                                         @endif
@@ -867,8 +870,7 @@
                                     <tr>
                                         <th>Jurnal tersedia</th>
                                         @if($data->max_journals >= 0)
-                                        <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa
-                                            {{ $data->max_journals - $data->journals->count() }} Jurnal</td>
+                                        <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa @if($data->max_journals - $data->journals->count() >= 0){{$data->max_journals - $data->journals->count()}} Jurnal @else 0 Jurnal @endif</td>
                                         @else
                                         <td>∞ Jurnal</td>
                                         @endif

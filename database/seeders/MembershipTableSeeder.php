@@ -59,7 +59,7 @@ class MembershipTableSeeder extends Seeder
         ];
 
         foreach ($memberships as $value) {
-            Membership::create($value);
+            Membership::firstOrCreate($value);
         }
     }
 }

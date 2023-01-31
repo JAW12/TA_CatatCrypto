@@ -38,6 +38,7 @@ class UpdateAsset extends Command
         $total = AssetUpdateJob::count();
         $updated = AssetUpdateJob::where('updated', 1)->count();
         if($total == $updated){
+            info("Update Asset Sudah Selesai");
             AssetUpdateJob::truncate();
         }
 

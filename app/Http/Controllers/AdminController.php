@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Membership;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -32,18 +33,36 @@ class AdminController extends Controller
             $today = date("Y-m-d");
             $date = date('Y-m-d', strtotime($today. ' + ' . $membership->duration_months . ' months'));
 
-            $transaction->user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
-
-            $user = $transaction->user();
-            $user->user_type = $membership->name;
+            $user = User::find($transaction->user->id);
+            $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
             $user->max_wallets = $membership->max_wallets;
             $user->max_journals = $membership->max_journals;
             $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
-            $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
+
+            if($user->remaining_trades < $user->trades_quantity_per_month){
+                $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
+            }
+            else if($membership->trades_quantity_per_month == -1){
+                $user->remaining_trades = -1;
+            }
             $user->membership_since = $today;
             $user->membership_till = $date;
             $user->spent = $user->spent + $transaction->gross_amount;
             $user->save();
+
+            if($membership->enable_binance == 1){
+                $user->givePermissionTo('portfolio-tambah-binance');
+            }
+            else{
+                $user->revokePermissionTo('portfolio-tambah-binance');
+            }
+
+            if($membership->enable_notification == 1){
+                $user->givePermissionTo('assets-transactions-notifikasi');
+            }
+            else{
+                $user->revokePermissionTo('assets-transactions-notifikasi');
+            }
 
             $transaction->save();
 
@@ -57,7 +76,8 @@ class AdminController extends Controller
             return redirect()->route('admin.transactions')->withSuccess('Berhasil menerima pembayaran');
         } catch (\Throwable $th) {
             DB::rollback();
-            redirect()->route('admin.transactions')->withError('Gagal menerima pembayaran');
+            throw $th;
+            return redirect()->route('admin.transactions')->withError('Gagal menerima pembayaran');
         }
     }
 

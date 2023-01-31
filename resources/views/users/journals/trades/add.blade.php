@@ -1,3 +1,5 @@
+@section('title', 'Tambah Catatan')
+
 @push('styles')
     <style>
         .ui-autocomplete {
@@ -676,90 +678,94 @@
     </script>
 @endpush
 <x-app-layout :options="['loading']">
-    <x-back-button>{{ route('user.journal.detail', ['journal' => $journal->id]) }}</x-back-button>
-    <div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="header-title">
-                            <h4 class="card-title">Tambah Catatan</h4>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-3">
-                                <h6 class="text-muted"><strong>Informasi Koin</strong></h6>
+    @if (Auth::user()->email_verified_at == null)
+        <x-verify-button></x-verify-button>
+    @else
+        <x-back-button>{{ route('user.journal.detail', ['journal' => $journal->id]) }}</x-back-button>
+        <div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="header-title">
+                                <h4 class="card-title">Tambah Catatan</h4>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-3">
-                                    <div class="form-group row gx-1">
-                                        <label for="asset" class="col-2 col-form-label text-dark">Koin</label>
-                                        <div class="col-10">
-                                            <div class="ui-widget">
-                                                <input type="hidden" name="asset_id" id="asset_id"
-                                                    class="form-control" />
-                                                <input type="text" name="asset" id="asset"
-                                                    class="form-control" />
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <h6 class="text-muted"><strong>Informasi Koin</strong></h6>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-3">
+                                        <div class="form-group row gx-1">
+                                            <label for="asset" class="col-2 col-form-label text-dark">Koin</label>
+                                            <div class="col-10">
+                                                <div class="ui-widget">
+                                                    <input type="hidden" name="asset_id" id="asset_id"
+                                                        class="form-control" />
+                                                    <input type="text" name="asset" id="asset"
+                                                        class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-3">
+                                        <div class="form-group row gx-1">
+                                            <label for="type" class="col-3 col-form-label text-dark">Tipe</label>
+                                            <div class="col-9">
+                                                <select name="type" id="type" class="form-control">
+                                                    <option value="1">LONG</option>
+                                                    <option value="0">SHORT</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-2">
+                                        <div class="form-group row gx-1">
+                                            <label for="leverage"
+                                                class="col-6 col-form-label text-dark">Leverage</label>
+                                            <div class="col-6">
+                                                <input type="number" min="1" step="1" name="leverage"
+                                                    id="leverage" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
+                                        <div class="form-group row gx-1">
+                                            <label for="open_price" class="col-4 col-form-label text-dark">Harga
+                                                Entri</label>
+                                            <div class="col-8">
+                                                <input type="number" min="0" step="any" name="open_price"
+                                                    id="open_price" class="form-control">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-3">
-                                    <div class="form-group row gx-1">
-                                        <label for="type" class="col-3 col-form-label text-dark">Tipe</label>
-                                        <div class="col-9">
-                                            <select name="type" id="type" class="form-control">
-                                                <option value="1">LONG</option>
-                                                <option value="0">SHORT</option>
-                                            </select>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <label for="open_quantity"
+                                                class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
+                                            <div class="col-9 col-md-5">
+                                                <input type="number" min="0" step="any" name="open_quantity"
+                                                    id="open_quantity" class="form-control">
+                                            </div>
+                                            <span id="openQuantityInline"
+                                                class="col-12 col-md-5 col-form-label form-text text-center"
+                                                style="display: none;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <div class="col-12 col-form-label text-dark">Margin Awal: $<span
+                                                    id="initial_margin"></span></div>
+                                            <input type="hidden" name="initial_margin" id="input_initial_margin">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-2">
-                                    <div class="form-group row gx-1">
-                                        <label for="leverage" class="col-6 col-form-label text-dark">Leverage</label>
-                                        <div class="col-6">
-                                            <input type="number" min="1" step="1" name="leverage"
-                                                id="leverage" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-4">
-                                    <div class="form-group row gx-1">
-                                        <label for="open_price" class="col-4 col-form-label text-dark">Harga
-                                            Entri</label>
-                                        <div class="col-8">
-                                            <input type="number" min="0" step="any" name="open_price"
-                                                id="open_price" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <label for="open_quantity"
-                                            class="col-3 col-md-2 col-form-label text-dark">Jumlah</label>
-                                        <div class="col-9 col-md-5">
-                                            <input type="number" min="0" step="any" name="open_quantity"
-                                                id="open_quantity" class="form-control">
-                                        </div>
-                                        <span id="openQuantityInline"
-                                            class="col-12 col-md-5 col-form-label form-text text-center"
-                                            style="display: none;"></span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <div class="col-12 col-form-label text-dark">Margin Awal: $<span
-                                                id="initial_margin"></span></div>
-                                        <input type="hidden" name="initial_margin" id="input_initial_margin">
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- <div class="row">
+                                {{-- <div class="row">
                                 <div class="col-sm-12 col-md-3">
                                     Harga Entri Rata-Rata: $<span id="average_price">0</span>
                                     <input type="hidden" name="average_price" id="input_average_price">
@@ -769,157 +775,166 @@
                                     <input type="hidden" name="quantity_remaining" id="input_quantity_remaining">
                                 </div>
                             </div> --}}
-                            <hr />
-                            <h6 class="text-muted mb-3"><strong>Informasi TP & SL</strong></h6>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <span>Harga TP</span>
-                                        <button id="add_tp" type="button" class="btn btn-sm btn-primary">+ Tambah
-                                            Harga TP</button>
-                                    </div>
-                                    <div id="tp_container" class="h-100">
-                                        <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
-                                            <div class="col-sm-12 col-md-2">
-                                                <span class="txt">TP 1</span>
+                                <hr />
+                                <h6 class="text-muted mb-3"><strong>Informasi TP & SL</strong></h6>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <span>Harga TP</span>
+                                            <button id="add_tp" type="button" class="btn btn-sm btn-primary">+
+                                                Tambah
+                                                Harga TP</button>
+                                        </div>
+                                        <div id="tp_container" class="h-100">
+                                            <div class="row gx-2 gy-2 gy-md-0 mb-2 align-items-center tp_container">
+                                                <div class="col-sm-12 col-md-2">
+                                                    <span class="txt">TP 1</span>
+                                                </div>
+                                                <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                        name="tp[]" id="tp1" no="1"
+                                                        class="form-control input_tp"></div>
+                                                <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
+                                                        class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span>
+                                                </div>
+                                                <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
+                                                <input type="hidden" name="tp_roe[]" id="tp_roe1">
                                             </div>
-                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                    name="tp[]" id="tp1" no="1"
-                                                    class="form-control input_tp"></div>
-                                            <div class="col-sm-12 col-md-7">akan mendapatkan keuntungan <span
-                                                    class="text-success pnl_tp" id="pnl_tp1">$0 (0%)</span></div>
-                                            <input type="hidden" name="tp_pnl[]" id="tp_pnl1">
-                                            <input type="hidden" name="tp_roe[]" id="tp_roe1">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <span>Harga SL</span>
-                                        <button id="add_sl" type="button" class="btn btn-sm btn-primary">+ Tambah
-                                            Harga SL</button>
-                                    </div>
-                                    <div id="sl_container" class="h-100">
-                                        <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
-                                            no="1">
-                                            <div class="col-sm-12 col-md-2">
-                                                <span class="txt">SL 1</span>
+                                    <div class="col-sm-12 col-md-6 justify-content-start align-items-start">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <span>Harga SL</span>
+                                            <button id="add_sl" type="button" class="btn btn-sm btn-primary">+
+                                                Tambah
+                                                Harga SL</button>
+                                        </div>
+                                        <div id="sl_container" class="h-100">
+                                            <div class="row gx-2 gy-2 gy-md-0 align-items-center mb-2 sl_container"
+                                                no="1">
+                                                <div class="col-sm-12 col-md-2">
+                                                    <span class="txt">SL 1</span>
+                                                </div>
+                                                <div class="col-sm-12 col-md-3"><input type="number" step="any"
+                                                        name="sl[]" id="sl1" no="1"
+                                                        class="form-control input_sl"></div>
+                                                <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
+                                                        class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
+                                                <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
+                                                <input type="hidden" name="sl_roe[]" id="sl_roe1">
                                             </div>
-                                            <div class="col-sm-12 col-md-3"><input type="number" step="any"
-                                                    name="sl[]" id="sl1" no="1"
-                                                    class="form-control input_sl"></div>
-                                            <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
-                                                    class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
-                                            <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
-                                            <input type="hidden" name="sl_roe[]" id="sl_roe1">
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div>
-                                Risk Ratio Terdekat: <span id="rr_expected">0</span>
-                                <input type="hidden" name="rr_expected" id="input_rr_expected">
-                            </div>
-                            <hr />
-                            <h6 class="text-muted mb-3"><strong>Analisa dan Strategi yang Digunakan</strong></h6>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-4">
-                                    <div class="form-group row gx-1">
-                                        <label for="timeframe"
-                                            class="col-4 col-md-3 col-form-label text-dark">Timeframe</label>
-                                        <div class="col-8 col-md-9">
-                                            <select name="timeframe[]" id="timeframe" class="form-control"
-                                                multiple="multiple">
-                                                @foreach ($timeframes as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
+                                <div>
+                                    Risk Ratio Terdekat: <span id="rr_expected">0</span>
+                                    <input type="hidden" name="rr_expected" id="input_rr_expected">
+                                </div>
+                                <hr />
+                                <h6 class="text-muted mb-3"><strong>Analisa dan Strategi yang Digunakan</strong></h6>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-4">
+                                        <div class="form-group row gx-1">
+                                            <label for="timeframe"
+                                                class="col-4 col-md-3 col-form-label text-dark">Timeframe</label>
+                                            <div class="col-8 col-md-9">
+                                                <select name="timeframe[]" id="timeframe" class="form-control"
+                                                    multiple="multiple">
+                                                    @foreach ($timeframes as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-8">
+                                        <div class="form-group row gx-1">
+                                            <label for="entry_strategy"
+                                                class="col-4 col-md-2 col-form-label text-dark">Strategi Entry</label>
+                                            <div class="col-8 col-md-10">
+                                                <select name="entry_strategy[]" id="entry_strategy"
+                                                    class="form-control" multiple="multiple">
+                                                    @foreach ($entry_strategies as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-8">
-                                    <div class="form-group row gx-1">
-                                        <label for="entry_strategy"
-                                            class="col-4 col-md-2 col-form-label text-dark">Strategi Entry</label>
-                                        <div class="col-8 col-md-10">
-                                            <select name="entry_strategy[]" id="entry_strategy" class="form-control"
-                                                multiple="multiple">
-                                                @foreach ($entry_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <label for="fibonacci_strategy"
+                                                class="col-4 col-md-2 col-form-label text-dark">Fibonacci</label>
+                                            <div class="col-8 col-md-10">
+                                                <select name="fibonacci_strategy[]" id="fibonacci_strategy"
+                                                    class="form-control" multiple="multiple">
+                                                    @foreach ($fibonacci_strategies as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <label for="candlestick_strategy"
+                                                class="col-4 col-md-2 col-form-label text-dark text-start text-md-end">Candlestick</label>
+                                            <div class="col-8 col-md-10">
+                                                <select name="candlestick_strategy[]" id="candlestick_strategy"
+                                                    class="form-control" multiple="multiple">
+                                                    @foreach ($candlestick_strategies as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <label for="fibonacci_strategy"
-                                            class="col-4 col-md-2 col-form-label text-dark">Fibonacci</label>
-                                        <div class="col-8 col-md-10">
-                                            <select name="fibonacci_strategy[]" id="fibonacci_strategy"
-                                                class="form-control" multiple="multiple">
-                                                @foreach ($fibonacci_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <label for="chart_strategy"
+                                                class="col-3 col-md-2 col-form-label text-dark">Chart</label>
+                                            <div class="col-9 col-md-10">
+                                                <select name="chart_strategy[]" id="chart_strategy"
+                                                    class="form-control" multiple="multiple">
+                                                    @foreach ($chart_strategies as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6">
+                                        <div class="form-group row gx-1">
+                                            <label for="indicator_strategy"
+                                                class="col-3 col-md-2 col-form-label text-dark text-start text-md-end">Indikator</label>
+                                            <div class="col-9 col-md-10">
+                                                <select name="indicator_strategy[]" id="indicator_strategy"
+                                                    class="form-control" multiple="multiple">
+                                                    @foreach ($indicator_strategies as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <label for="candlestick_strategy"
-                                            class="col-4 col-md-2 col-form-label text-dark text-start text-md-end">Candlestick</label>
-                                        <div class="col-8 col-md-10">
-                                            <select name="candlestick_strategy[]" id="candlestick_strategy"
-                                                class="form-control" multiple="multiple">
-                                                @foreach ($candlestick_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4" id="strategy_screenshot">
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <label for="chart_strategy"
-                                            class="col-3 col-md-2 col-form-label text-dark">Chart</label>
-                                        <div class="col-9 col-md-10">
-                                            <select name="chart_strategy[]" id="chart_strategy" class="form-control"
-                                                multiple="multiple">
-                                                @foreach ($chart_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="notes" class="text-dark">Catatan</label>
+                                    <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
                                 </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <div class="form-group row gx-1">
-                                        <label for="indicator_strategy"
-                                            class="col-3 col-md-2 col-form-label text-dark text-start text-md-end">Indikator</label>
-                                        <div class="col-9 col-md-10">
-                                            <select name="indicator_strategy[]" id="indicator_strategy"
-                                                class="form-control" multiple="multiple">
-                                                @foreach ($indicator_strategies as $key => $value)
-                                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4" id="strategy_screenshot">
-                            </div>
-                            <div class="form-group">
-                                <label for="notes" class="text-dark">Catatan</label>
-                                <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
-                            </div>
-                            <hr />
-                            {{-- <div class="row gy-3 gy-md-0">
+                                <hr />
+                                {{-- <div class="row gy-3 gy-md-0">
                                 <div class="col-sm-12 col-md-7">
                                     <div>
                                         <div class="d-flex align-items-start justify-content-between text-dark mb-3">
@@ -1040,11 +1055,11 @@
                                 </div>
                             </div>
                             <hr /> --}}
-                            <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">Simpan</button>
-                            </div>
-                        </form>
-                        {{-- <div class="modal fade" id="tambahTransaksiModal" tabindex="-1"
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                </div>
+                            </form>
+                            {{-- <div class="modal fade" id="tambahTransaksiModal" tabindex="-1"
                             aria-labelledby="tambahTransaksiLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -1102,9 +1117,10 @@
                                 </div>
                             </div>
                         </div> --}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 </x-app-layout>

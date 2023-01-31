@@ -1,3 +1,4 @@
+@section('title', 'Detail Transaksi Pengguna')
 <x-app-layout :options="['loading']">
     <x-back-button>{{ route('admin.transactions') }}</x-back-button>
     <div class="row">

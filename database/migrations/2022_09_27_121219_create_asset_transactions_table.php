@@ -26,6 +26,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('status')->comment('0 - pending, 1 - filled');
             $table->integer('integrated')->comment('0 - manual, 1 - integrated');
+            $table->integer('notified')->default(0)->comment('0 - not yet, 1 - done');
             $table->timestamp('time')->nullable();
             $table->timestamps();
 

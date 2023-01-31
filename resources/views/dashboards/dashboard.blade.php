@@ -1,28 +1,7 @@
+@section('title', 'Dashbor User')
 <x-app-layout :options="['loading']">
     @if (Auth::user()->email_verified_at == null)
-        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-            <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-            </symbol>
-            <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
-            </symbol>
-            <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                    d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-            </symbol>
-        </svg>
-        <div class="alert alert-danger d-flex align-items-center" style="margin-top: -1%" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24">
-                <use xlink:href="#exclamation-triangle-fill" />
-            </svg>
-            <div>
-                Email belum verifikasi, harap lakukan verifikasi <a href="{{ route('verification.send') }}"
-                    class="alert-link">disini</a>.
-            </div>
-        </div>
+        <x-verify-button></x-verify-button>
     @elseif(Auth::user()->user_type != 'admin')
         @push('scripts')
             <script>
@@ -265,8 +244,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="bg-primary text-white rounded p-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    fill="currentColor" class="bi bi-wallet" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                    class="bi bi-wallet" viewBox="0 0 16 16">
                                     <path
                                         d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5V3zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a1.99 1.99 0 0 1-1-.268zM1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1z" />
                                 </svg>
@@ -429,89 +408,90 @@
                                 </thead>
                                 <tbody id="list-pending">
                                     @foreach (auth()->user()->journals as $k_journal => $journal)
-                                        @foreach ($journal->trades as $trade)
-                                            @if ($trade->status == 0)
-                                                <tr onclick="window.location='{{route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])}}'" style="cursor: pointer;">
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>
-                                                        <img src="{{ $trade->asset->thumb }}" alt="coin">
-                                                        {{ $trade->asset->name }}
+                                        @foreach ($journal->trades->where('status', 0) as $trade)
+                                            <tr onclick="window.location='{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}'"
+                                                style="cursor: pointer;">
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $trade->journal->name }}</td>
+                                                <td>
+                                                    <img src="{{ $trade->asset->thumb }}" alt="coin">
+                                                    {{ $trade->asset->name }}
+                                                </td>
+                                                <td>
+                                                    @if ($trade->type == 0)
+                                                        <span class="text-danger">SHORT</span>
+                                                    @elseif($trade->type == 1)
+                                                        <span class="text-success">LONG</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ (float) $trade->open_quantity }}</td>
+                                                <td>{{ $trade->leverage }}</td>
+                                                <td>${{ (float) $trade->open_margin }}</td>
+                                                <td>${{ (float) $trade->open_price }}</td>
+                                                @if (count($trade->targets->where('type', '0')) > 0)
+                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
                                                     </td>
-                                                    <td>
-                                                        @if ($trade->type == 0)
-                                                            <span class="text-danger">SHORT</span>
-                                                        @elseif($trade->type == 1)
-                                                            <span class="text-success">LONG</span>
+                                                    <td class="text-danger">
+                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                        @if (
+                                                            $journal->risk > 0 and
+                                                                $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                                height="16" fill="currentColor"
+                                                                class="bi bi-exclamation-triangle-fill mb-1"
+                                                                viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                                            </svg>
                                                         @endif
                                                     </td>
-                                                    <td>{{ (float) $trade->open_quantity }}</td>
-                                                    <td>{{ $trade->leverage }}</td>
-                                                    <td>${{ (float) $trade->open_margin }}</td>
-                                                    <td>${{ (float) $trade->open_price }}</td>
-                                                    @if (count($trade->targets->where('type', '0')) > 0)
-                                                        <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
-                                                        </td>
-                                                        <td class="text-danger">
-                                                            ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
-                                                            @if (
-                                                                $journal->risk > 0 and
-                                                                    $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16"
-                                                                    height="16" fill="currentColor"
-                                                                    class="bi bi-exclamation-triangle-fill mb-1"
-                                                                    viewBox="0 0 16 16">
-                                                                    <path
-                                                                        d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                                                                </svg>
-                                                            @endif
-                                                        </td>
-                                                    @else
-                                                        <td>-</td>
-                                                        <td>-</td>
-                                                    @endif
-                                                    @if (count($trade->targets->where('type', '1')) > 0)
-                                                        <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                @else
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                @endif
+                                                @if (count($trade->targets->where('type', '1')) > 0)
+                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                    </td>
+                                                    <td class="text-success">
+                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                    </td>
+                                                    @if (count($trade->targets->where('type', '1')) > 1)
+                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
                                                         </td>
                                                         <td class="text-success">
-                                                            ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
                                                         </td>
-                                                        @if (count($trade->targets->where('type', '1')) > 1)
-                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
+                                                        @if (count($trade->targets->where('type', '1')) > 2)
+                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
                                                             </td>
                                                             <td class="text-success">
-                                                                ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
+                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
                                                             </td>
-                                                            @if (count($trade->targets->where('type', '1')) > 2)
-                                                                <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
-                                                                </td>
-                                                                <td class="text-success">
-                                                                    ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
-                                                                </td>
-                                                            @else
-                                                                <td>-</td>
-                                                                <td>-</td>
-                                                            @endif
                                                         @else
                                                             <td>-</td>
                                                             <td>-</td>
-                                                            <td>-</td>
-                                                            <td>-</td>
                                                         @endif
                                                     @else
                                                         <td>-</td>
                                                         <td>-</td>
                                                         <td>-</td>
                                                         <td>-</td>
-                                                        <td>-</td>
-                                                        <td>-</td>
                                                     @endif
-                                                    <td>{{ $trade->rr_expected }}</td>
-                                                </tr>
-                                            @endif
+                                                @else
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                @endif
+                                                <td>{{ $trade->rr_expected }}</td>
+                                            </tr>
                                         @endforeach
                                     @endforeach
                                 </tbody>
                                 <tfoot>
+                                    <th></th>
                                     <th></th>
                                     <th></th>
                                     <th></th>

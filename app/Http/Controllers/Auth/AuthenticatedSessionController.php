@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if(Auth::user()->user_type == "admin" || Auth::user()->user_type == "demo_admin"){
+        if(Auth::user()->user_type == "admin"){
             Auth::guard('web')->logout();
 
             $request->session()->invalidate();

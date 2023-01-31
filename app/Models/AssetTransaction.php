@@ -13,6 +13,6 @@ class AssetTransaction extends Model
     protected $guarded = [];
 
     public function asset_wallet(){
-        return $this->belongsTo(AsseWallet::class);
+        return $this->belongsTo(AssetWallet::class);
     }
 }

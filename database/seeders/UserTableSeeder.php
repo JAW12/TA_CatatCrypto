@@ -26,7 +26,6 @@ class UserTableSeeder extends Seeder
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
                 'user_type' => 'admin',
-                'status' => 'active',
             ],
             [
                 'first_name' => 'Jem',
@@ -36,7 +35,6 @@ class UserTableSeeder extends Seeder
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
                 'user_type' => 'trial',
-                'status' => 'active',
                 'membership_since' => $today,
                 'membership_till' => $date,
             ],
@@ -48,7 +46,6 @@ class UserTableSeeder extends Seeder
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
                 'user_type' => 'trial',
-                'status' => 'active',
                 'membership_since' => $today,
                 'membership_till' => $date,
             ]
@@ -61,14 +58,19 @@ class UserTableSeeder extends Seeder
                 'phone_number' => '+12398190255',
                 'email_verified_at' => now(),
                 'user_type' => 'trial',
-                'status' => 'active',
                 'membership_since' => $today,
                 'membership_till' => $date,
             ]
         ];
         foreach ($users as $key => $value) {
             $user = User::create($value);
-            $user->assignRole($value['user_type']);
+
+            if($value['user_type'] == "trial"){
+                $user->assignRole("user");
+            }
+            else{
+                $user->assignRole($value['user_type']);
+            }
         }
     }
 }

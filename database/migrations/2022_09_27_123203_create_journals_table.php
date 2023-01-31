@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('balances', 19, 8, true)->default(0);
             $table->integer('risk', false, true)->nullable();
             $table->bigInteger('count_of_trades')->default(0);
-            $table->decimal('winrate', 5, 4, true)->nullable();
+            $table->decimal('winrate', 5, 2, true)->nullable();
             $table->decimal('target', 19, 8, true)->nullable();
             $table->timestamps();
 

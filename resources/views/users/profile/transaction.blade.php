@@ -1,3 +1,4 @@
+@section('title', 'Riwayat Transaksi')
 <x-app-layout :options="['loading', 'datatable']">
     <div class="row">
         <div class="col-lg-12">

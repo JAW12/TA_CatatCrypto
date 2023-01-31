@@ -177,7 +177,7 @@ class AssetWalletController extends Controller
                                             'integrated' => 1,
                                             'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
                                         ]);
-                                    } else {
+                                    } else if($asset_transaction->status == 0) {
                                         $asset_transaction->update([
                                             'trade_id' => $myTrades['id'],
                                             'order_id' => $order['orderId'],

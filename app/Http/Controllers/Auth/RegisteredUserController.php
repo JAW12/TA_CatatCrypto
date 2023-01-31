@@ -47,7 +47,6 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'user_type' => 'trial',
-            'status' => 'active',
             'max_wallets' => 1,
             'max_journals' => 1,
             'trades_quantity_per_month' => 0,
@@ -56,7 +55,7 @@ class RegisteredUserController extends Controller
             'membership_till' => Carbon::now()->addMonth(),
         ]));
 
-        $user->assignRole($user->type);
+        $user->assignRole("user");
 
         event(new Registered($user));
 

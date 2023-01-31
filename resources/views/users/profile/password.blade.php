@@ -1,3 +1,4 @@
+@section('title', 'Ubah Password')
 <x-app-layout :options="['loading']">
     <form method="POST">
         @csrf

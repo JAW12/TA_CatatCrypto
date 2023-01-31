@@ -18,8 +18,12 @@ class JournalController extends Controller
      */
     public function index()
     {
-        $data = User::findOrFail(Auth::id());
-        return view('users.journals.list', compact('data'));
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $data = User::findOrFail(Auth::id());
+            return view('users.journals.list', compact('data'));
+        } else {
+            abort(403);
+        }
     }
 
     /**
@@ -30,22 +34,27 @@ class JournalController extends Controller
      */
     public function store(StoreJournalRequest $request)
     {
-        if (Auth::user()->max_journals == 0 or Auth::user()->journals->count() < Auth::user()->max_journals) {
-            $wallet = Auth::user()->journals()->create($request->all());
-            if ($wallet) {
-                return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
+        if (Auth::user()->hasPermissionTo('journal-tambah')) {
+
+            if (Auth::user()->max_journals == 0 or Auth::user()->journals->count() < Auth::user()->max_journals) {
+                $wallet = Auth::user()->journals()->create($request->all());
+                if ($wallet) {
+                    return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
+                } else {
+                    return redirect()->back()->withError('Jurnal gagal ditambahkan');
+                }
+            } else if (Auth::user()->max_journals == -1) {
+                $wallet = Auth::user()->journals()->create($request->all());
+                if ($wallet) {
+                    return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
+                } else {
+                    return redirect()->back()->withError('Jurnal gagal ditambahkan');
+                }
             } else {
-                return redirect()->back()->withError('Jurnal gagal ditambahkan');
-            }
-        } else if (Auth::user()->max_journals == -1) {
-            $wallet = Auth::user()->journals()->create($request->all());
-            if ($wallet) {
-                return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
-            } else {
-                return redirect()->back()->withError('Jurnal gagal ditambahkan');
+                return redirect()->back()->withError('Jumlah jurnal yang dimiliki pengguna sudah mencapai batasnya');
             }
         } else {
-            return redirect()->back()->withError('Jumlah jurnal yang dimiliki pengguna sudah mencapai batasnya');
+            abort(403);
         }
     }
 
@@ -57,7 +66,11 @@ class JournalController extends Controller
      */
     public function show(Journal $journal)
     {
-        return view('users.journals.show', compact('journal'));
+        if (Auth::user()->hasPermissionTo('journal-daftar')) {
+            return view('users.journals.show', compact('journal'));
+        } else {
+            abort(403);
+        }
     }
 
     /**
@@ -80,31 +93,43 @@ class JournalController extends Controller
      */
     public function update(UpdateJournalRequest $request, Journal $journal)
     {
-        $success = $journal->update($request->all());
-        if ($success) {
-            return redirect()->back()->withSuccess('Jurnal berhasil diubah');
+        if (Auth::user()->hasPermissionTo('journal-ubah')) {
+            $success = $journal->update($request->all());
+            if ($success) {
+                return redirect()->back()->withSuccess('Jurnal berhasil diubah');
+            } else {
+                return redirect()->back()->withError('Jurnal gagal diubah');
+            }
         } else {
-            return redirect()->back()->withError('Jurnal gagal diubah');
+            abort(403);
         }
     }
 
     public function destroy(Journal $journal)
     {
-        $delete = $journal->delete();
-        if ($delete) {
-            return redirect()->back()->withSuccess('Jurnal berhasil dinonaktifkan');
+        if (Auth::user()->hasPermissionTo('journal-hapus')) {
+            $delete = $journal->delete();
+            if ($delete) {
+                return redirect()->back()->withSuccess('Jurnal berhasil dinonaktifkan');
+            } else {
+                return redirect()->back()->withError('Jurnal gagal dinonaktifkan');
+            }
         } else {
-            return redirect()->back()->withError('Jurnal gagal dinonaktifkan');
+            abort(403);
         }
     }
 
     public function restore(Journal $journal)
     {
-        $restore = $journal->restore();
-        if ($restore) {
-            return redirect()->back()->withSuccess('Jurnal berhasil diaktifkan');
+        if (Auth::user()->hasPermissionTo('journal-hapus')) {
+            $restore = $journal->restore();
+            if ($restore) {
+                return redirect()->back()->withSuccess('Jurnal berhasil diaktifkan');
+            } else {
+                return redirect()->back()->withError('Jurnal gagal diaktifkan');
+            }
         } else {
-            return redirect()->back()->withError('Jurnal gagal diaktifkan');
+            abort(403);
         }
     }
 }

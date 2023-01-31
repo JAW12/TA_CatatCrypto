@@ -33,7 +33,7 @@ class CategoryTableSeeder extends Seeder
             ],
         ];
         foreach ($categories as $key => $value) {
-            $category = Category::create($value);
+            $category = Category::firstOrCreate($value);
         }
     }
 }

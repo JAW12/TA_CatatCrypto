@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\AssetTransactionSuccess;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetTransactionController;
@@ -14,7 +15,11 @@ use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Libraries\Binance;
 use App\Models\AssetTransaction;
+use App\Models\Membership;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +38,8 @@ Route::get('/storage', function () {
 
 
 Route::get('', [HomeController::class, 'index'])->name('index');
-Route::get('/asset/init', [AssetController::class, 'init']);
+
+// Route::get('/asset/init', [AssetController::class, 'init']);
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
 //     Route::get('masuk', [AuthController::class, 'signin'])->name('auth.signin');

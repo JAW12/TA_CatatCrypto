@@ -260,7 +260,7 @@
                         <div class="caption ms-3 d-none d-md-block ">
                             <h6 class="mb-0 caption-title">{{ auth()->user()->full_name ?? 'CatatCrypto User' }}</h6>
                             @if(auth()->user()->membership_till != null)
-                            <p class="mb-0 caption-sub-title"><small>{{ucwords(auth()->user()->user_type)}} aktif sampai {{date_format(date_create(auth()->user()->membership_till), 'd F Y')}}</small></p>
+                            <p class="mb-0 caption-sub-title"><small>{{ucwords(count(auth()->user()->membership) == 0 ? auth()->user()->user_type : auth()->user()->membership->first()->name)}} aktif sampai {{date_format(date_create(auth()->user()->membership_till), 'd F Y')}}</small></p>
                             @endif
                         </div>
                     </a>

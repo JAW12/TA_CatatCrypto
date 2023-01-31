@@ -79,4 +79,8 @@ class User extends Authenticatable
     public function memberships(){
         return $this->belongsToMany(Membership::class, 'membership_user', 'user_id', 'membership_id')->withPivot('membership_expiration', 'status')->withTimestamps()->orderBy('membership_expiration', 'desc');
     }
+
+    public function membership(){
+        return $this->belongsToMany(Membership::class, 'membership_user', 'user_id', 'membership_id')->withPivot('membership_expiration', 'status')->withTimestamps()->wherePivot('status', 1);
+    }
 }

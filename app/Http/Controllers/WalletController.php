@@ -24,8 +24,12 @@ class WalletController extends Controller
      */
     public function index()
     {
-        $data = User::findOrFail(Auth::id());
-        return view('users.wallets.list', compact('data'));
+        if (Auth::user()->hasPermissionTo('portfolio')) {
+            $data = User::findOrFail(Auth::id());
+            return view('users.wallets.list', compact('data'));
+        } else {
+            abort(403);
+        }
     }
 
     /**
@@ -46,43 +50,47 @@ class WalletController extends Controller
      */
     public function store(StoreWalletRequest $request)
     {
-        if (Auth::user()->max_wallets == 0 or Auth::user()->wallets->count() < Auth::user()->max_wallets) {
-            if ($request['binance_api_key'] == null and $request['balance'] == null) {
-                return redirect()->back()->withError('Dompet gagal ditambahkan');
-            } else if ($request['binance_api_key'] != null) {
-                $request['balance'] = 0;
+        if (Auth::user()->hasPermissionTo('portfolio-tambah')) {
+            if (Auth::user()->max_wallets == 0 or Auth::user()->wallets->count() < Auth::user()->max_wallets) {
+                if ($request['binance_api_key'] == null and $request['balance'] == null) {
+                    return redirect()->back()->withError('Dompet gagal ditambahkan');
+                } else if ($request['binance_api_key'] != null) {
+                    $request['balance'] = 0;
 
-                Binance::auth($request['binance_api_key'], $request['binance_secret_key']);
-                $url = "/sapi/v1/account/status";
-                $params = [];
-                $type = "GET";
-                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
+                    Binance::auth($request['binance_api_key'], $request['binance_secret_key']);
+                    $url = "/sapi/v1/account/status";
+                    $params = [];
+                    $type = "GET";
+                    $account_status = Binance::call(false, "SPOT", $url, $params, $type);
 
-                if (array_key_exists("msg", $account_status)) {
-                    if (str_contains($account_status['msg'], 'Invalid')) {
-                        $request['demo'] = true;
+                    if (array_key_exists("msg", $account_status)) {
+                        if (str_contains($account_status['msg'], 'Invalid')) {
+                            $request['demo'] = true;
+                        } else {
+                            $request['demo'] = false;
+                        }
                     } else {
                         $request['demo'] = false;
                     }
-                } else {
-                    $request['demo'] = false;
                 }
-            }
-            $wallet = Auth::user()->wallets()->create($request->all());
-            if ($wallet) {
-                return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
+                $wallet = Auth::user()->wallets()->create($request->all());
+                if ($wallet) {
+                    return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
+                } else {
+                    return redirect()->back()->withError('Dompet gagal ditambahkan');
+                }
+            } else if (Auth::user()->max_wallets == -1) {
+                $wallet = Auth::user()->wallets()->create($request->all());
+                if ($wallet) {
+                    return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
+                } else {
+                    return redirect()->back()->withError('Dompet gagal ditambahkan');
+                }
             } else {
-                return redirect()->back()->withError('Dompet gagal ditambahkan');
-            }
-        } else if (Auth::user()->max_wallets == -1) {
-            $wallet = Auth::user()->wallets()->create($request->all());
-            if ($wallet) {
-                return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
-            } else {
-                return redirect()->back()->withError('Dompet gagal ditambahkan');
+                return redirect()->back()->withError('Jumlah dompet yang dimiliki pengguna sudah mencapai batasnya');
             }
         } else {
-            return redirect()->back()->withError('Jumlah dompet yang dimiliki pengguna sudah mencapai batasnya');
+            abort(403);
         }
     }
 
@@ -104,7 +112,11 @@ class WalletController extends Controller
      */
     public function show(Wallet $wallet)
     {
-        return view('users.wallets.show', compact('wallet'));
+        if (Auth::user()->hasPermissionTo('portfolio-daftar')) {
+            return view('users.wallets.show', compact('wallet'));
+        } else {
+            abort(403);
+        }
     }
 
     public function load(Wallet $wallet)
@@ -400,7 +412,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_out_usd_future) != 1) {
                         if ($transfer_out_usd_future['total'] > 0) {
                             foreach ($transfer_out_usd_future['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 2;
 
                                     $negative = -1;
@@ -445,7 +457,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_out_coin_future) != 1) {
                         if ($transfer_out_coin_future['total'] > 0) {
                             foreach ($transfer_out_coin_future['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 2;
 
                                     $negative = -1;
@@ -490,7 +502,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_out_margin) != 1) {
                         if ($transfer_out_margin['total'] > 0) {
                             foreach ($transfer_out_margin['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 2;
 
                                     $negative = -1;
@@ -535,7 +547,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_out_funding) != 1) {
                         if ($transfer_out_funding['total'] > 0) {
                             foreach ($transfer_out_funding['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 2;
 
                                     $negative = -1;
@@ -581,7 +593,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_in_usd_future) != 1) {
                         if ($transfer_in_usd_future['total'] > 0) {
                             foreach ($transfer_in_usd_future['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 3;
 
                                     $negative = -1;
@@ -626,7 +638,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_in_coin_future) != 1) {
                         if ($transfer_in_coin_future['total'] > 0) {
                             foreach ($transfer_in_coin_future['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 3;
 
                                     $negative = -1;
@@ -671,7 +683,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_in_margin) != 1) {
                         if ($transfer_in_margin['total'] > 0) {
                             foreach ($transfer_in_margin['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 3;
 
                                     $negative = -1;
@@ -716,7 +728,7 @@ class WalletController extends Controller
                     if (array_key_exists('code', $transfer_in_funding) != 1) {
                         if ($transfer_in_funding['total'] > 0) {
                             foreach ($transfer_in_funding['rows'] as $transfer) {
-                                if($transfer['asset'] == $asset->symbol){
+                                if ($transfer['asset'] == $asset->symbol) {
                                     $type = 3;
 
                                     $negative = -1;
@@ -851,77 +863,81 @@ class WalletController extends Controller
      */
     public function update(UpdateWalletRequest $request, Wallet $wallet)
     {
-        if ($wallet->binance_api_key != null) {
-            if ($request->binance_api_key == '' or $request->binance_api_key == null) {
-                foreach ($wallet->assets as $asset) {
-                    $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
-                    $detaches = [];
-                    foreach ($asset_wallet->transactions as $transaction) {
-                        if ($transaction->status == 0 and $transaction->integrated == 1) {
-                            $url = "/api/v3/order";
-                            $params = [
-                                'symbol' => $asset->binance_symbol,
-                                'orderId' => $transaction->order_id,
-                            ];
-                            $type = "DELETE";
-                            $delete_order = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+        if (Auth::user()->hasPermissionTo('portfolio-ubah')) {
+            if ($wallet->binance_api_key != null) {
+                if ($request->binance_api_key == '' or $request->binance_api_key == null) {
+                    foreach ($wallet->assets as $asset) {
+                        $asset_wallet = AssetWallet::where('wallet_id', $wallet->id)->where('asset_id', $asset->id)->first();
+                        $detaches = [];
+                        foreach ($asset_wallet->transactions as $transaction) {
+                            if ($transaction->status == 0 and $transaction->integrated == 1) {
+                                $url = "/api/v3/order";
+                                $params = [
+                                    'symbol' => $asset->binance_symbol,
+                                    'orderId' => $transaction->order_id,
+                                ];
+                                $type = "DELETE";
+                                $delete_order = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
 
-                            $detaches[] = $transaction;
+                                $detaches[] = $transaction;
+                            }
+                        }
+
+                        foreach ($detaches as $key => $value) {
+                            // dd($value);
+                            $asset_wallet->transactions()->where('id', $value->id)->delete();
                         }
                     }
+                } else if ($request->binance_api_key != $wallet->binance_api_key) {
+                    Binance::auth($request->binance_api_key, $request->binance_secret_key);
+                    $url = "/sapi/v1/account/status";
+                    $params = [];
+                    $type = "GET";
+                    $account_status = Binance::call(false, "SPOT", $url, $params, $type);
 
-                    foreach ($detaches as $key => $value) {
-                        // dd($value);
-                        $asset_wallet->transactions()->where('id', $value->id)->delete();
-                    }
-                }
-            } else if ($request->binance_api_key != $wallet->binance_api_key) {
-                Binance::auth($request->binance_api_key, $request->binance_secret_key);
-                $url = "/sapi/v1/account/status";
-                $params = [];
-                $type = "GET";
-                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
-
-                if (array_key_exists("msg", $account_status)) {
-                    if (str_contains($account_status['msg'], 'Invalid')) {
-                        $request['demo'] = true;
+                    if (array_key_exists("msg", $account_status)) {
+                        if (str_contains($account_status['msg'], 'Invalid')) {
+                            $request['demo'] = true;
+                        } else {
+                            $request['demo'] = false;
+                        }
                     } else {
                         $request['demo'] = false;
                     }
-                } else {
-                    $request['demo'] = false;
+
+                    $wallet->assets()->detach();
                 }
+            } else {
+                if ($request->binance_api_key != '') {
+                    Binance::auth($request->binance_api_key, $request->binance_secret_key);
+                    $url = "/sapi/v1/account/status";
+                    $params = [];
+                    $type = "GET";
+                    $account_status = Binance::call(false, "SPOT", $url, $params, $type);
 
-                $wallet->assets()->detach();
-            }
-        } else {
-            if ($request->binance_api_key != '') {
-                Binance::auth($request->binance_api_key, $request->binance_secret_key);
-                $url = "/sapi/v1/account/status";
-                $params = [];
-                $type = "GET";
-                $account_status = Binance::call(false, "SPOT", $url, $params, $type);
-
-                if (array_key_exists("msg", $account_status)) {
-                    if (str_contains($account_status['msg'], 'Invalid')) {
-                        $request['demo'] = true;
+                    if (array_key_exists("msg", $account_status)) {
+                        if (str_contains($account_status['msg'], 'Invalid')) {
+                            $request['demo'] = true;
+                        } else {
+                            $request['demo'] = false;
+                        }
                     } else {
                         $request['demo'] = false;
                     }
-                } else {
-                    $request['demo'] = false;
+
+                    $wallet->assets()->detach();
                 }
-
-                $wallet->assets()->detach();
             }
-        }
 
 
-        $success = $wallet->update($request->all());
-        if ($success) {
-            return redirect()->back()->withSuccess('Dompet berhasil diubah');
+            $success = $wallet->update($request->all());
+            if ($success) {
+                return redirect()->back()->withSuccess('Dompet berhasil diubah');
+            } else {
+                return redirect()->back()->withError('Dompet gagal diubah');
+            }
         } else {
-            return redirect()->back()->withError('Dompet gagal diubah');
+            abort(403);
         }
     }
 
@@ -933,21 +949,29 @@ class WalletController extends Controller
      */
     public function destroy(Wallet $wallet)
     {
-        $delete = $wallet->delete();
-        if ($delete) {
-            return redirect()->back()->withSuccess('Dompet berhasil dinonaktifkan');
+        if (Auth::user()->hasPermissionTo('portfolio-hapus')) {
+            $delete = $wallet->delete();
+            if ($delete) {
+                return redirect()->back()->withSuccess('Dompet berhasil dinonaktifkan');
+            } else {
+                return redirect()->back()->withError('Dompet gagal dinonaktifkan');
+            }
         } else {
-            return redirect()->back()->withError('Dompet gagal dinonaktifkan');
+            abort(403);
         }
     }
 
     public function restore(Wallet $wallet)
     {
-        $restore = $wallet->restore();
-        if ($restore) {
-            return redirect()->back()->withSuccess('Dompet berhasil diaktifkan');
+        if (Auth::user()->hasPermissionTo('portfolio-hapus')) {
+            $restore = $wallet->restore();
+            if ($restore) {
+                return redirect()->back()->withSuccess('Dompet berhasil diaktifkan');
+            } else {
+                return redirect()->back()->withError('Dompet gagal diaktifkan');
+            }
         } else {
-            return redirect()->back()->withError('Dompet gagal diaktifkan');
+            abort(403);
         }
     }
 }
