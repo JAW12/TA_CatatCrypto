@@ -39,6 +39,31 @@ class UserTableSeeder extends Seeder
                 'status' => 'active',
                 'membership_since' => $today,
                 'membership_till' => $date,
+            ],
+            [
+                'first_name' => 'Jem',
+                'last_name' => 'Angkasa 2',
+                'email' => 'user2@example.com',
+                'password' => bcrypt('password'),
+                'phone_number' => '+12398190255',
+                'email_verified_at' => now(),
+                'user_type' => 'trial',
+                'status' => 'active',
+                'membership_since' => $today,
+                'membership_till' => $date,
+            ]
+            ,
+            [
+                'first_name' => 'Jem',
+                'last_name' => 'Angkasa 3',
+                'email' => 'user3@example.com',
+                'password' => bcrypt('password'),
+                'phone_number' => '+12398190255',
+                'email_verified_at' => now(),
+                'user_type' => 'trial',
+                'status' => 'active',
+                'membership_since' => $today,
+                'membership_till' => $date,
             ]
         ];
         foreach ($users as $key => $value) {

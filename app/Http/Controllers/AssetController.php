@@ -189,7 +189,7 @@ class AssetController extends Controller
 
     public function load(Request $request){
 
-        $exchanges_available = ['binance', 'bingx', 'bitget', 'bitfinex', 'bitflyer', 'bithumb', 'bitkub', 'bitmex', 'bitpanda', 'bitrue', 'btse', 'bitso', 'bitstamp' , 'bittrex', 'bybit_spot', 'cex', 'gdax', 'coinex', 'currency', 'delta_spot', 'deribit', 'dydx', 'exmo', 'gate', 'gemini', 'honeyswap', 'honeyswap_polygon', 'huobi', 'korbit', 'kraken', 'kucoin', 'maiar', 'mercado', 'mxc', 'okcoin', 'okex', 'pangolin', 'pancakeswap_ethereum', 'pancakeswap_new', 'phemex', 'poloniex', 'spookyswap', 'sushiswap, ', 'therocktrading', 'traderjoe', 'uniswap_v2', 'uniswap_v3', 'uniswap_v3_arbitrum', 'uniswap_v3_polygon_pos', 'upbit', 'whitebit', 'wootrade'];
+        $exchanges_available = ['binance', 'bingx', 'bitget', 'bitfinex', 'bitflyer', 'bithumb', 'bitkub', 'bitmex', 'bitrue', 'btse', 'bitso', 'bitstamp' , 'bittrex', 'bybit_spot', 'cex', 'coinex', 'currency', 'delta_spot', 'deribit', 'dydx', 'exmo', 'gate', 'gemini', 'honeyswap', 'honeyswap_polygon', 'huobi', 'korbit', 'kraken', 'kucoin', 'mercado', 'mxc', 'okcoin', 'okex', 'pangolin', 'pancakeswap_ethereum', 'pancakeswap_new', 'phemex', 'poloniex', 'spookyswap', 'sushiswap, ', 'therocktrading', 'traderjoe', 'uniswap_v2', 'uniswap_v3', 'uniswap_v3_arbitrum', 'uniswap_v3_polygon_pos', 'upbit', 'whitebit', 'wootrade'];
 
         $client = new CoinGeckoClient();
 
@@ -228,12 +228,56 @@ class AssetController extends Controller
                     foreach($exchanges_available as $exc){
                         if($ticker['market']['identifier'] == $exc and ($ticker['target'] == 'USDT' or $ticker['target'] == 'BUSD')){
                             if($exchange_found == null){
-                                $exchange_found = $exc;
+                                $exchange_found = strtoupper($exc);
                                 $targets_found = $ticker['target'];
                             }
                         }
                     }
                 }
+
+                if($exchange_found == "BYBIT_SPOT"){
+                    $exchange_found = "BYBIT";
+                }
+                if($exchange_found == "CEX"){
+                    $exchange_found = "CEXIO";
+                }
+                if($exchange_found == "CURRENCY"){
+                    $exchange_found = "CURRENCYCOM";
+                }
+                if($exchange_found == "DELTA_SPOT"){
+                    $exchange_found = "DELTA";
+                }
+                if($exchange_found == "GATE"){
+                    $exchange_found = "GATEIO";
+                }
+                if($exchange_found == "HONEYSWAP_POLYGON"){
+                    $exchange_found = "HONEYSWAPPOLYGON";
+                }
+                if($exchange_found == "MXC"){
+                    $exchange_found = "MEXC";
+                }
+                if($exchange_found == "PANCAKESWAP_ETHEREUM"){
+                    $exchange_found = "PANCAKESWAP";
+                }
+                if($exchange_found == "PANCAKESWAP_NEW"){
+                    $exchange_found = "PANCAKESWAP";
+                }
+                if($exchange_found == "UNISWAP_V2"){
+                    $exchange_found = "UNISWAP";
+                }
+                if($exchange_found == "UNISWAP_V3"){
+                    $exchange_found = "UNISWAP3ETH";
+                }
+                if($exchange_found == "UNISWAP_V3_ARBITRUM"){
+                    $exchange_found = "UNISWAP3ARBITRUM";
+                }
+                if($exchange_found == "UNISWAP_V3_POLYGON_POS"){
+                    $exchange_found = "UNISWAP3POLYGON";
+                }
+                if($exchange_found == "WOOTRADE"){
+                    $exchange_found = "WOO";
+                }
+
 
                 $asset = Asset::updateOrCreate([
                     'coin_gecko_id' => $data['coins'][0]['id'],
