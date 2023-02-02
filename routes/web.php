@@ -38,7 +38,6 @@ Route::get('/storage', function () {
 
 
 Route::get('', [HomeController::class, 'index'])->name('index');
-
 // Route::get('/asset/init', [AssetController::class, 'init']);
 
 // Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function() {
@@ -59,6 +58,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::patch('/{id}/password', [UserController::class, 'password_update'])->name('user.password.edit');
         Route::get('/{id}/membership', [MembershipController::class, 'list'])->name('user.membership.list');
         Route::get('/{id}/transaksi', [TransactionController::class, 'list'])->name('user.transaction.list');
+        Route::get('/{id}/transaksi/{id_order}', [TransactionController::class, 'detail'])->name('user.transaction.detail');
+        Route::get('/{id}/transaksi/{id_order}/batal', [TransactionController::class, 'cancel'])->name('user.transaction.cancel');
+
     });
 
     Route::group(['prefix' => 'dompet'], function () {
@@ -139,6 +141,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'membership'], function () {
         Route::get('/transaksi', [AdminController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/transaksi/pending', [AdminController::class, 'transactions_pending'])->name('admin.transactions.pending');
         Route::get('/transaksi/{id_order}', [AdminController::class, 'transaction_detail'])->name('admin.transaction.detail');
         Route::get('/transaksi/{id_order}/terima', [AdminController::class, 'transaction_accept'])->name('admin.transaction.accept');
         Route::get('/transaksi/{id_order}/tolak', [AdminController::class, 'transaction_deny'])->name('admin.transaction.deny');

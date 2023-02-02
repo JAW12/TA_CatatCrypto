@@ -31,7 +31,7 @@
                                         </ul>
                                     </div>
                                     <a href="{{ route('user.membership.payments', 1) }}" type="button"
-                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0) disabled @endif">Beli
+                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
                                         Basic</a>
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                                         </ul>
                                     </div>
                                     <a href="{{ route('user.membership.payments', 2) }}" type="button"
-                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0) disabled @endif">Beli
+                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
                                         Home</a>
                                 </div>
                             </div>
@@ -87,7 +87,7 @@
                                         </ul>
                                     </div>
                                     <a href="{{ route('user.membership.payments', 3) }}" type="button"
-                                        class="btn btn-primary @if (count(Auth::user()->membership) > 0) disabled @endif">Beli
+                                        class="btn btn-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
                                         Professional</a>
                                 </div>
                             </div>
@@ -115,7 +115,7 @@
                                         </ul>
                                     </div>
                                     <a href="{{ route('user.membership.payments', 4) }}"
-                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0) disabled @endif">Beli
+                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
                                         Business</a>
                                 </div>
                             </div>

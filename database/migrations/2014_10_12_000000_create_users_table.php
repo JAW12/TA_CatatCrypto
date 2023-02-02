@@ -34,6 +34,7 @@ return new class extends Migration
             // $table->integer('enable_notification')->default(0)->commment("0 - can't, 1 - can");
             $table->timestamp('membership_since')->nullable();
             $table->timestamp('membership_till')->nullable();
+            $table->timestamp('membership_update')->nullable();
             $table->decimal('spent', 19, 2, true)->default(0);
             $table->rememberToken();
             $table->timestamps();

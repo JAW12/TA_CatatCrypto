@@ -16,7 +16,7 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $today = date("Y-m-d");
-        $date = date('Y-m-d', strtotime($today. ' + 1 months'));
+        $date = date('Y-m-d', strtotime($today . ' + 1 months'));
         $users = [
             [
                 'first_name' => 'System',
@@ -37,6 +37,7 @@ class UserTableSeeder extends Seeder
                 'user_type' => 'trial',
                 'membership_since' => $today,
                 'membership_till' => $date,
+                'membership_update' => $today,
             ],
             [
                 'first_name' => 'Jem',
@@ -48,8 +49,8 @@ class UserTableSeeder extends Seeder
                 'user_type' => 'trial',
                 'membership_since' => $today,
                 'membership_till' => $date,
-            ]
-            ,
+                'membership_update' => $today,
+            ],
             [
                 'first_name' => 'Jem',
                 'last_name' => 'Angkasa 3',
@@ -60,15 +61,15 @@ class UserTableSeeder extends Seeder
                 'user_type' => 'trial',
                 'membership_since' => $today,
                 'membership_till' => $date,
+                'membership_update' => $today,
             ]
         ];
         foreach ($users as $key => $value) {
             $user = User::create($value);
 
-            if($value['user_type'] == "trial"){
+            if ($value['user_type'] == "trial") {
                 $user->assignRole("user");
-            }
-            else{
+            } else {
                 $user->assignRole($value['user_type']);
             }
         }

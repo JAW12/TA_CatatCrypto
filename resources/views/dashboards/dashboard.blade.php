@@ -1,5 +1,24 @@
 @section('title', 'Dashbor User')
 <x-app-layout :options="['loading']">
+
+    @if (date('Y-m-d', strtotime('+3days')) == date_format(date_create(auth()->user()->membership_till), 'Y-m-d'))
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 999999">
+            <div class="toast fade show bg-primary text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <svg class="bd-placeholder-img rounded me-2" width="20" height="20"
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice"
+                        focusable="false">
+                        <rect width="100%" height="100%" fill="#007aff"></rect>
+                    </svg>
+                    <strong class="me-auto">Catat Crypto</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Membership anda akan berakhir 3 hari lagi
+                </div>
+            </div>
+        </div>
+    @endif
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @elseif(Auth::user()->user_type != 'admin')
@@ -244,8 +263,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="bg-primary text-white rounded p-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                    class="bi bi-wallet" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    fill="currentColor" class="bi bi-wallet" viewBox="0 0 16 16">
                                     <path
                                         d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5V3zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a1.99 1.99 0 0 1-1-.268zM1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1z" />
                                 </svg>

@@ -53,6 +53,7 @@ class RegisteredUserController extends Controller
             'remaining_trades' => 100,
             'membership_since' => now(),
             'membership_till' => Carbon::now()->addMonth(),
+            'membership_update' => now(),
         ]));
 
         $user->assignRole("user");

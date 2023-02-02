@@ -33,13 +33,20 @@ class CheckMembershipStatus extends Command
 
         $users = User::where('user_type', '<>', 'admin')->get();
         foreach ($users as $key => $user) {
+            foreach ($user->transactions->where('status', 'pending') as $transaction) {
+                if (now() > date('d F Y H:i:s', strtotime($transaction->created_at . ' +1 day'))) {
+                    $transaction->status = 'cancel';
+                    $transaction->save();
+                }
+            }
+
             if (date('Y-m-d') > $user->membership_till) {
                 $user->user_type = "user";
                 $user->membership_since = null;
                 $user->membership_till = null;
                 $user->max_wallets = 0;
                 $user->max_journals = 0;
-                $user->trades_quantity_per_month = 0;
+                $user->trades_quantity_per_month = 100;
                 if ($user->remaining_trades = -1) {
                     $user->remaining_trades = 0;
                 }
@@ -55,6 +62,17 @@ class CheckMembershipStatus extends Command
 
                 if (count($user->membership) > 0) {
                     DB::table('membership_user')->where('user_id', $user->id)->where('membership_id', $user->membership[0]->id)->where('status', 1)->update(['status' => 0]);
+                }
+            }
+            else{
+                $date_update = date_create($user->membership_update);
+                $date_now = date_create(now());
+
+                $diff = date_diff($date_update, $date_now);
+                if($diff->m > 0){
+                    $user->remaining_trades = $user->trades_quantity_per_month;
+                    $user->membership_update = now();
+                    $user->save();
                 }
             }
         }

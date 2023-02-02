@@ -16,6 +16,13 @@ class AdminController extends Controller
         return view('admin.membership.list', compact('transactions'));
     }
 
+    public function transactions_pending()
+    {
+        $transactions = Transaction::where('status', 'pending')->get();
+        $pending = 1;
+        return view('admin.membership.list', compact('transactions', 'pending'));
+    }
+
     public function transaction_detail($id_order)
     {
         $transaction = Transaction::where('id_order', $id_order)->first();
@@ -39,14 +46,14 @@ class AdminController extends Controller
             $user->max_journals = $membership->max_journals;
             $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
 
-            if($user->remaining_trades < $user->trades_quantity_per_month){
-                $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
-            }
-            else if($membership->trades_quantity_per_month == -1){
+            $user->remaining_trades = $user->trades_quantity_per_month;
+
+            if($membership->trades_quantity_per_month == -1){
                 $user->remaining_trades = -1;
             }
             $user->membership_since = $today;
             $user->membership_till = $date;
+            $user->membership_update = $today;
             $user->spent = $user->spent + $transaction->gross_amount;
             $user->save();
 
@@ -85,6 +92,6 @@ class AdminController extends Controller
     {
         $transaction = Transaction::where('id_order', $id_order)->first();
         $transaction->status = "deny";
-        return $transaction->save() ? redirect()->route('admin.transactions')->withSuccess('Berhasil menerima pembayaran') : redirect()->route('admin.transactions')->withError('Gagal menerima pembayaran');
+        return $transaction->save() ? redirect()->route('admin.transactions')->withSuccess('Berhasil menolak pembayaran') : redirect()->route('admin.transactions')->withError('Gagal menolak pembayaran');
     }
 }

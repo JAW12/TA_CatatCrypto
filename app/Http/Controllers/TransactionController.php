@@ -99,14 +99,13 @@ class TransactionController extends Controller
             $user->max_wallets = $membership->max_wallets;
             $user->max_journals = $membership->max_journals;
             $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
-            if($user->remaining_trades < $user->trades_quantity_per_month){
-                $user->remaining_trades = $user->remaining_trades + $user->trades_quantity_per_month;
-            }
-            else if($membership->trades_quantity_per_month == -1){
+            $user->remaining_trades = $user->trades_quantity_per_month;
+            if($membership->trades_quantity_per_month == -1){
                 $user->remaining_trades = -1;
             }
             $user->membership_since = $today;
             $user->membership_till = $date;
+            $user->membership_update = $today;
             $user->spent = $user->spent + $transaction->gross_amount;
             $user->save();
 
@@ -145,6 +144,24 @@ class TransactionController extends Controller
         }
 
         return view('users.profile.transaction');
+    }
+
+    public function detail($id, $id_order)
+    {
+        if($id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            return redirect()->route('index');
+        }
+
+        $transaction = Transaction::where('id_order', $id_order)->first();
+        return view('users.profile.transaction_detail', compact('transaction'));
+    }
+
+    public function cancel($id, $id_order)
+    {
+        $transaction = Transaction::where('id_order', $id_order)->first();
+        $transaction->status = "cancel";
+        return $transaction->save() ? redirect()->route('user.transaction.list', ['id' => $id])->withSuccess('Berhasil membatalkan pembayaran') : redirect()->route('user.transaction.list', ['id' => $id])->withError('Gagal membatalkan pembayaran');
     }
 
     // public function payment_handler(Request $request)

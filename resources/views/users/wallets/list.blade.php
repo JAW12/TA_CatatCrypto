@@ -1,5 +1,32 @@
 @section('title', 'Daftar Dompet')
-
+@push('scripts')
+    <script>
+        $(function() {
+            $('#tambahDompet').submit(function(e) {
+                let binance_api_key = $("input[name=binance_api_key]");
+                if(binance_api_key.length){
+                    if(binance_api_key.val() != ""){
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Pastikan Benar',
+                            text: "Pastikan Binance API_Key dan SECRET_KEY benar dan hanya memiliki akses Enable Reading dan Enable Spot & Margin Trading",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Iya, sudah benar!',
+                            cancelButtonText: 'Tidak',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $("#tambahDompet").submit();
+                            }
+                        })
+                    }
+                }
+            });
+        });
+    </script>
+@endpush
 <x-app-layout :options="['loading', 'datatable']">
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
@@ -134,7 +161,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="">
-                            <form action="{{ route('user.wallet.add') }}" method="post">
+                            <form action="{{ route('user.wallet.add') }}" method="post" id="tambahDompet">
                                 @csrf
                                 <div class="form-group form-group-alt mb-2">
                                     <label for="name" class="form-label text-dark">Nama Dompet</label>

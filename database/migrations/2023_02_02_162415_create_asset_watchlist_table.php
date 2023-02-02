@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('asset_update_jobs', function (Blueprint $table) {
+        Schema::create('asset_watchlist', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id');
             $table->foreignId('asset_id');
-            $table->integer('updated')->default(0);
+            $table->timestamps();
 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
             $table->foreign('asset_id')->references('id')->on('assets')->onDelete('CASCADE');
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('asset_update_jobs');
+        Schema::dropIfExists('asset_watchlist');
     }
 };

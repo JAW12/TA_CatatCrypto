@@ -1,5 +1,27 @@
 @section('title', 'Profil Pengguna')
-
+@push('scripts')
+    <script>
+        $(function() {
+            $('#btnSimpan').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin dengan perubahan profil?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, simpan perubahan!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $(e.target).closest('form').submit() // Post the surrounding form
+                    }
+                })
+            });
+        });
+    </script>
+@endpush
 <x-app-layout :options="['loading']">
     <form method="POST">
         @csrf
@@ -759,14 +781,14 @@
                                 </div>
                                 <div class="mt-2 row g-2" id="inpNama" style="display:none">
                                     <div class="col-md-6">
-                                    <label for="first_name" class="form-label h6 mb-1">Nama Depan:</label>
-                                    <input type="text" class="form-control" name="first_name"
-                                        value="{{ $data->first_name }}">
+                                        <label for="first_name" class="form-label h6 mb-1">Nama Depan:</label>
+                                        <input type="text" class="form-control" name="first_name"
+                                            value="{{ $data->first_name }}">
                                     </div>
                                     <div class="col-md-6">
-                                    <label for="last_name" class="form-label h6 mb-1">Nama Belakang:</label>
-                                    <input type="text" class="form-control" name="last_name"
-                                        value="{{ $data->last_name }}">
+                                        <label for="last_name" class="form-label h6 mb-1">Nama Belakang:</label>
+                                        <input type="text" class="form-control" name="last_name"
+                                            value="{{ $data->last_name }}">
                                     </div>
                                 </div>
                                 <div class="mt-2">
@@ -788,9 +810,12 @@
                                 <div class="mt-2" id="inpJK" style="display:none">
                                     <label for="gender" class="form-label h6 mb-1">Jenis Kelamin:</label>
                                     <select name="gender" class="form-select">
-                                        <option value="m" @if ($data->gender == 'm') selected @endif>Pria</option>
-                                        <option value="f" @if ($data->gender == 'f') selected @endif>Wanita</option>
-                                        <option value="null" @if ($data->gender == '') selected @endif>-</option>
+                                        <option value="m" @if ($data->gender == 'm') selected @endif>Pria
+                                        </option>
+                                        <option value="f" @if ($data->gender == 'f') selected @endif>Wanita
+                                        </option>
+                                        <option value="null" @if ($data->gender == '') selected @endif>-
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="mt-2" id="txtEmail">
@@ -806,17 +831,18 @@
                                 </div>
                                 <div class="mt-2" id="inpEmail" style="display:none">
                                     <label for="email" class="form-label h6 mb-1">Alamat Email:</label>
-                                    <input type="email" class="form-control" name="email" value="{{ $data->email }}">
+                                    <input type="email" class="form-control" name="email"
+                                        value="{{ $data->email }}">
                                 </div>
                                 <div class="mt-2" id="txtTglLahir">
                                     <h6 class="mb-1">Tanggal Lahir:</h6>
-                                    <p>{{ $data->birthdate == null ? '-' : date('d F Y', strtotime($data->birthdate));
-                                    }}
+                                    <p>{{ $data->birthdate == null ? '-' : date('d F Y', strtotime($data->birthdate)) }}
                                     </p>
                                 </div>
                                 <div class="mt-2" id="inpTglLahir" style="display:none">
                                     <label for="birthdate" class="form-label h6 mb-1">Tanggal Lahir:</label>
-                                    <input type="date" class="form-control" name="birthdate" value="{{ $data->birthdate }}">
+                                    <input type="date" class="form-control" name="birthdate"
+                                        value="{{ $data->birthdate }}">
                                 </div>
                                 <div class="mt-2" id="txtTelp">
                                     <h6 class="mb-1">No. Telp:</h6>
@@ -824,7 +850,8 @@
                                 </div>
                                 <div class="mt-2" id="inpTelp" style="display:none">
                                     <label for="phone_number" class="form-label h6 mb-1">No. Telp:</label>
-                                    <input type="tel" class="form-control" name="phone_number" value="{{ $data->phone_number }}">
+                                    <input type="tel" class="form-control" name="phone_number"
+                                        value="{{ $data->phone_number }}">
                                 </div>
                             </div>
                         </div>
@@ -844,7 +871,8 @@
                                 <tbody>
                                     <tr>
                                         <th>Jenis Membership</th>
-                                        <td><span class="text-capitalize mt-1">{{ ucwords(count(auth()->user()->membership) == 0 ? auth()->user()->user_type == "user" ? "-" : auth()->user()->user_type : auth()->user()->membership->first()->name) }}</span>
+                                        <td><span
+                                                class="text-capitalize mt-1">{{ ucwords(count(auth()->user()->membership) == 0? (auth()->user()->user_type == 'user'? '-': auth()->user()->user_type): auth()->user()->membership->first()->name) }}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -859,39 +887,50 @@
                                     </tr>
                                     <tr>
                                         <th>Dompet tersedia</th>
-                                        @if($data->max_wallets >= 0)
-                                        <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
-                                            @if($data->max_wallets - $data->wallets->count() >= 0) {{$data->max_wallets - $data->wallets->count()}} Dompet
-                                            @else 0 Dompet @endif</td>
+                                        @if ($data->max_wallets >= 0)
+                                            <td>{{ $data->wallets->count() }} dari {{ $data->max_wallets }}, sisa
+                                                @if ($data->max_wallets - $data->wallets->count() >= 0)
+                                                    {{ $data->max_wallets - $data->wallets->count() }} Dompet
+                                                @else
+                                                    0 Dompet
+                                                @endif
+                                            </td>
                                         @else
-                                        <td>∞ Dompet</td>
+                                            <td>∞ Dompet</td>
                                         @endif
                                     </tr>
                                     <tr>
                                         <th>Jurnal tersedia</th>
-                                        @if($data->max_journals >= 0)
-                                        <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa @if($data->max_journals - $data->journals->count() >= 0){{$data->max_journals - $data->journals->count()}} Jurnal @else 0 Jurnal @endif</td>
+                                        @if ($data->max_journals >= 0)
+                                            <td>{{ $data->journals->count() }} dari {{ $data->max_journals }}, sisa
+                                                @if ($data->max_journals - $data->journals->count() >= 0)
+                                                    {{ $data->max_journals - $data->journals->count() }} Jurnal
+                                                @else
+                                                    0 Jurnal
+                                                @endif
+                                            </td>
                                         @else
-                                        <td>∞ Jurnal</td>
+                                            <td>∞ Jurnal</td>
                                         @endif
                                     </tr>
                                     <tr>
                                         <th>Catatan per bulan</th>
-                                        @if($data->trades_quantity_per_month >= 0)
-                                        <td>{{ $data->trades_quantity_per_month }} Catatan</td>
+                                        @if ($data->trades_quantity_per_month >= 0)
+                                            <td>{{ $data->trades_quantity_per_month }} Catatan</td>
                                         @else
-                                        <td>∞ Catatan</td>
+                                            <td>∞ Catatan</td>
                                         @endif
                                     </tr>
                                     <tr>
                                         <th>Catatan tersedia</th>
-                                        @if($data->remaining_trades >= 0)
-                                        <td>
-                                            {{ $data->remaining_trades }} Catatan
-                                            <button type="button" class="btn btn-primary btn-sm ms-2">Tambah</button>
-                                        </td>
+                                        @if ($data->remaining_trades >= 0)
+                                            <td>
+                                                {{ $data->remaining_trades }} Catatan
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm ms-2">Tambah</button>
+                                            </td>
                                         @else
-                                        <td>∞ Catatan</td>
+                                            <td>∞ Catatan</td>
                                         @endif
                                     </tr>
                                 </tbody>

@@ -748,6 +748,25 @@
                 selesai_table.search($(this).val()).draw();
             });
 
+            $('.btn-delete').click(function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan menghapus catatan ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, hapus!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $(e.target).closest('form')
+                        .submit() // Post the surrounding form
+                    }
+                })
+            });
+
 
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {

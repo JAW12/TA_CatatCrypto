@@ -216,31 +216,75 @@
                 })
             });
 
-            $("#btnKumpul").click(function(e) {
-                e.preventDefault();
-                let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
-                let new_binance_api_key = $("#binance_api_key").val();
-                // console.log(old_binance_api_key);
-                // console.log(new_binance_api_key);
-                if (old_binance_api_key != '' && new_binance_api_key == '') {
-                    Swal.fire({
-                        title: 'Apakah Anda yakin?',
-                        text: "Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Iya, hapus!',
-                        cancelButtonText: 'Tidak',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $(e.target).closest('form').submit() // Post the surrounding form
-                        }
-                    })
-                } else {
-                    $(e.target).closest('form').submit() // Post the surrounding form
+            $('#ubahDompet').submit(function(e) {
+                let binance_api_key = $("input[name=binance_api_key]");
+                if (binance_api_key.length) {
+                    let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
+                    let new_binance_api_key = $("#binance_api_key").val();
+
+                    if (old_binance_api_key != '' && new_binance_api_key == '') {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Apakah Anda yakin?',
+                            text: "Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Iya, hapus!',
+                            cancelButtonText: 'Tidak',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $(e.target).closest('form').submit() // Post the surrounding form
+                            }
+                        })
+                    } else if(old_binance_api_key != new_binance_api_key && new_binance_api_key != '') {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Pastikan Benar',
+                            text: "Pastikan Binance API_Key dan SECRET_KEY benar dan hanya memiliki akses Enable Reading dan Enable Spot & Margin Trading",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Iya, sudah benar!',
+                            cancelButtonText: 'Tidak',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $("#ubahDompet").submit();
+                            }
+                        })
+                    }
+                    else{
+                        $("#ubahDompet").submit();
+                    }
                 }
             });
+            // $("#btnKumpul").click(function(e) {
+            //     e.preventDefault();
+            //     let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
+            //     let new_binance_api_key = $("#binance_api_key").val();
+            //     // console.log(old_binance_api_key);
+            //     // console.log(new_binance_api_key);
+            //     if (old_binance_api_key != '' && new_binance_api_key == '') {
+            //         Swal.fire({
+            //             title: 'Apakah Anda yakin?',
+            //             text: "Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.",
+            //             icon: 'warning',
+            //             showCancelButton: true,
+            //             confirmButtonColor: '#3085d6',
+            //             cancelButtonColor: '#d33',
+            //             confirmButtonText: 'Iya, hapus!',
+            //             cancelButtonText: 'Tidak',
+            //         }).then((result) => {
+            //             if (result.isConfirmed) {
+            //                 $(e.target).closest('form').submit() // Post the surrounding form
+            //             }
+            //         })
+            //     } else {
+            //         $(e.target).closest('form').submit() // Post the surrounding form
+            //     }
+            // });
         });
     </script>
 @endpush
@@ -280,16 +324,16 @@
                                             </span>
                                         @endif
                                         @can('portfolio-ubah')
-                                        <a class="text-dark" data-bs-toggle="modal" data-bs-target="#ubahDompetModal"
-                                            style="cursor:pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                            </svg>
-                                        </a>
+                                            <a class="text-dark" data-bs-toggle="modal" data-bs-target="#ubahDompetModal"
+                                                style="cursor:pointer">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                                    <path fill-rule="evenodd"
+                                                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                                </svg>
+                                            </a>
                                         @endcan
                                         @if ($wallet->binance_api_key != '')
                                             <a href="" class="text-dark">
@@ -410,7 +454,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="">
-                            <form action="{{ route('user.wallet.update', $wallet->id) }}" method="post">
+                            <form action="{{ route('user.wallet.update', $wallet->id) }}" method="post"
+                                id="ubahDompet">
                                 @csrf
                                 <div class="form-group mb-2">
                                     <label for="name" class="form-label text-dark">Nama Dompet</label>
@@ -425,19 +470,19 @@
                                         value={{ $wallet->balance }}>
                                 </div>
                                 @can('portfolio-tambah-binance')
-                                <div class="form-group row gx-2 gy-0">
-                                    <label for="binance_api_key" class="form-label text-dark">Integrasi Binance
-                                        (Opsional)</label>
-                                    <div class="col-sm-12 col-md-6">
-                                        <input id="binance_api_key" type="text" class="form-control"
-                                            name="binance_api_key" placeholder="API Key"
-                                            value={{ $wallet->binance_api_key }}>
+                                    <div class="form-group row gx-2 gy-0">
+                                        <label for="binance_api_key" class="form-label text-dark">Integrasi Binance
+                                            (Opsional)</label>
+                                        <div class="col-sm-12 col-md-6">
+                                            <input id="binance_api_key" type="text" class="form-control"
+                                                name="binance_api_key" placeholder="API Key"
+                                                value={{ $wallet->binance_api_key }}>
+                                        </div>
+                                        <div class="col-sm-12 col-md-6">
+                                            <input type="text" class="form-control" name="binance_secret_key"
+                                                placeholder="Secret Key" value={{ $wallet->binance_secret_key }}>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-12 col-md-6">
-                                        <input type="text" class="form-control" name="binance_secret_key"
-                                            placeholder="Secret Key" value={{ $wallet->binance_secret_key }}>
-                                    </div>
-                                </div>
                                 @endcan
                                 <div class="form-group">
                                     <label for="description" class="form-label text-dark">Catatan</label>
