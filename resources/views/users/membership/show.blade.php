@@ -100,10 +100,18 @@
                             </div>
                         </div>
                         <div class="card-body">
+
                             <h6 class="text-muted">Rp</h6>
                             <h1 class="mb-3">{{ number_format($price, 2) }}</h1>
                             <h6 class="text-muted">atas nama</h6>
                             <h5>Jem Angkasa Wijaya</h5>
+                            <h6 class="text-muted mt-3">untuk pembelian @if($type > 0) paket @endif</h6>
+                            @if($type > 0)
+                            <h5>{{ucwords($membership->name)}} (Rp {{ number_format($membership->price, 2)}})</h5>
+                            @else
+                            <h5>Penambahan 100 Catatan Trading</h5>
+                            @endif
+                            <p class="text-muted"><small>dengan 3 digit kode unik {{str_pad($rand, 3, '0', STR_PAD_LEFT)}}</small></p>
                         </div>
                     </div>
                     <div class="card">

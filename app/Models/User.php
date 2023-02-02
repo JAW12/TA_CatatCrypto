@@ -73,7 +73,7 @@ class User extends Authenticatable
     }
 
     public function transactions(){
-        return $this->hasMany(Transaction::class, 'user_id', 'id')->orderBy('payment_time', 'desc');
+        return $this->hasMany(Transaction::class, 'user_id', 'id')->orderBy('created_at', 'desc');
     }
 
     public function memberships(){

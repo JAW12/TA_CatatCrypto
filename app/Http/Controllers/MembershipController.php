@@ -14,14 +14,25 @@ class MembershipController extends Controller
     }
 
     public function show($type){
-        $membership = Membership::find($type);
 
-        if(count(Auth::user()->membership) > 0){
-            return redirect()->back()->withError('Anda masih memiliki membership lain yang aktif saat ini');
+        if($type > 0){
+            $membership = Membership::find($type);
+
+            if(count(Auth::user()->membership) > 0){
+                return redirect()->back()->withError('Anda masih memiliki membership lain yang aktif saat ini');
+            }
+
+            $rand = rand(0, 999);
+            $price = $membership->price + $rand;
         }
-
-        $price = $membership->price + rand(0, 1000);
-        return view('users.membership.show', compact('membership', 'price'));
+        else{
+            $membership = collect();
+            $membership->id = 0;
+            $membership->name = "Penambahan 100 Catatan Trading";
+            $rand = rand(0, 999);
+            $price = 50000 + $rand;
+        }
+        return view('users.membership.show', compact('type', 'membership', 'price', 'rand'));
     }
 
     public function list($id)

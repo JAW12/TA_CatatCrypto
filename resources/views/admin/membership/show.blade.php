@@ -1,4 +1,45 @@
 @section('title', 'Detail Transaksi Pengguna')
+@push('scripts')
+    <script>
+        $(function() {
+            $('.btn-accept').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan mengkonfirmasi transaksi ini?",
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, konfirmasi!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = $(this).attr('href');
+                    }
+                })
+            });
+
+            $('.btn-deny').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan menolak transaksi ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, konfirmasi!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = $(this).attr('href');
+                    }
+                })
+            });
+        });
+    </script>
+@endpush
 <x-app-layout :options="['loading']">
     <x-back-button>{{ str_contains(url()->previous(), "pending") ? route('admin.transactions.pending') : route('admin.transactions') }}</x-back-button>
     <div class="row">
@@ -53,12 +94,12 @@
                         @if($transaction->payment_type != "automatic" && $transaction->payment_type != "credit_card" && $transaction->status == "pending")
                         <div class="d-md-flex justify-content-md-between">
                             <div class="mb-2 mb-md-0">
-                                <a href="{{route('admin.transaction.deny', ['id_order' => $transaction->id_order])}}" class="btn btn-block btn-danger w-100">
+                                <a href="{{route('admin.transaction.deny', ['id_order' => $transaction->id_order])}}" class="btn btn-block btn-danger w-100 btn-deny">
                                     Tidak Menerima Pembayaran?
                                 </a>
                             </div>
                             <div>
-                                <a href="{{route('admin.transaction.accept', ['id_order' => $transaction->id_order])}}" class="btn btn-block btn-success w-100">
+                                <a href="{{route('admin.transaction.accept', ['id_order' => $transaction->id_order])}}" class="btn btn-block btn-success w-100 btn-accept">
                                     Konfirmasi Pembayaran
                                 </a>
                             </div>

@@ -1,4 +1,45 @@
 @section('title', 'Daftar Transaksi Pengguna')
+@push('scripts')
+    <script>
+        $(function() {
+            $('.btn-accept').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan mengkonfirmasi transaksi ini?",
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, konfirmasi!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = $(this).attr('href');
+                    }
+                })
+            });
+
+            $('.btn-deny').click(function(e) {
+                e.preventDefault() // Don't post the form, unless confirmed
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Apakah anda yakin akan menolak transaksi ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Iya, konfirmasi!',
+                    cancelButtonText: 'Tidak',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = $(this).attr('href');
+                    }
+                })
+            });
+        });
+    </script>
+@endpush
 <x-app-layout :options="['loading', 'datatable']">
     <div class="row">
         <div class="col-lg-12">
@@ -80,7 +121,7 @@
                                                             </svg>
                                                         </span>
                                                     </a>
-                                                    <a href="{{ route('admin.transaction.accept', ['id_order' => $transaction->id_order]) }}" type="button" class="btn btn-sm btn-icon btn-success">
+                                                    <a href="{{ route('admin.transaction.accept', ['id_order' => $transaction->id_order]) }}" type="button" class="btn btn-sm btn-icon btn-success btn-accept">
                                                         <span class="btn-inner">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor" class="bi bi-check"
@@ -90,7 +131,7 @@
                                                             </svg>
                                                         </span>
                                                     </a>
-                                                    <a href="{{ route('admin.transaction.deny', ['id_order' => $transaction->id_order]) }}" type="button" class="btn btn-sm btn-icon btn-danger">
+                                                    <a href="{{ route('admin.transaction.deny', ['id_order' => $transaction->id_order]) }}" type="button" class="btn btn-sm btn-icon btn-danger btn-deny">
                                                         <span class="btn-inner">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor" class="bi bi-x"

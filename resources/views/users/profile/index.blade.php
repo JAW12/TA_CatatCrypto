@@ -926,8 +926,8 @@
                                         @if ($data->remaining_trades >= 0)
                                             <td>
                                                 {{ $data->remaining_trades }} Catatan
-                                                <button type="button"
-                                                    class="btn btn-primary btn-sm ms-2">Tambah</button>
+                                                <a href="{{route('user.membership.payments', ['type' => 0])}}" type="button"
+                                                    class="btn btn-primary btn-sm ms-2">Tambah 100</a>
                                             </td>
                                         @else
                                             <td>∞ Catatan</td>
