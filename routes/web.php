@@ -144,6 +144,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/{id}/like', [LibraryController::class, 'like'])->name('user.library.like');
         Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
+        Route::post('/tambah', [LibraryController::class, 'store']);
+        Route::get('/{id}/hapus', [LibraryController::class, 'delete'])->name('user.library.delete');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
 
