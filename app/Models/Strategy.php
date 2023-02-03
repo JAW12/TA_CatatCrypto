@@ -20,4 +20,8 @@ class Strategy extends Model
     public function trades(){
         return $this->belongsToMany(Trade::class, 'strategy_trade', 'strategy_id', 'trade_id');
     }
+
+    public function users(){
+        return $this->belongsToMany(User::class, 'strategy_favorite', 'strategy_id', 'user_id')->withTimestamps();
+    }
 }

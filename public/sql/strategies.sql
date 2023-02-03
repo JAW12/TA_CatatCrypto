@@ -204,16 +204,15 @@ INSERT INTO `strategies` (`id`, `user_id`, `category_id`, `name`, `description`,
 (176, NULL, 5, 'Average True Range', NULL, NULL, NULL, NULL, NULL),
 (177, NULL, 5, 'Bollinger Bands', NULL, NULL, NULL, NULL, NULL),
 (178, NULL, 5, 'Moving Average Convergence Divergence', NULL, NULL, NULL, NULL, NULL),
-(179, NULL, 5, 'Money Flow Index', NULL, NULL, NULL, NULL, NULL),
-(180, NULL, 5, 'Parabolic Sar', NULL, NULL, NULL, NULL, NULL),
-(181, NULL, 5, 'Relative Strength Index', NULL, NULL, NULL, NULL, NULL),
-(182, NULL, 5, 'Simple Moving Average', NULL, NULL, NULL, NULL, NULL),
-(183, NULL, 5, 'Stochastic', NULL, NULL, NULL, NULL, NULL),
-(184, NULL, 5, 'Stochastic RSI', NULL, NULL, NULL, NULL, NULL),
-(185, NULL, 5, 'Trading Volume', NULL, NULL, NULL, NULL, NULL),
-(186, NULL, 5, 'Volume Profile', NULL, NULL, NULL, NULL, NULL),
-(187, NULL, 5, 'Volume Weighed Average Price', NULL, NULL, NULL, NULL, NULL),
-(188, NULL, 5, 'Zigzag', NULL, NULL, NULL, NULL, NULL);
+(179, NULL, 5, 'Parabolic Sar', NULL, NULL, NULL, NULL, NULL),
+(180, NULL, 5, 'Relative Strength Index', NULL, NULL, NULL, NULL, NULL),
+(181, NULL, 5, 'Simple Moving Average', NULL, NULL, NULL, NULL, NULL),
+(182, NULL, 5, 'Stochastic', NULL, NULL, NULL, NULL, NULL),
+(183, NULL, 5, 'Stochastic RSI', NULL, NULL, NULL, NULL, NULL),
+(184, NULL, 5, 'Trading Volume', NULL, NULL, NULL, NULL, NULL),
+(185, NULL, 5, 'Volume Profile', NULL, NULL, NULL, NULL, NULL),
+(186, NULL, 5, 'Volume Weighed Average Price', NULL, NULL, NULL, NULL, NULL),
+(187, NULL, 5, 'Zigzag', NULL, NULL, NULL, NULL, NULL);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

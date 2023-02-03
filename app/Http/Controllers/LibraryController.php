@@ -5,82 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\Library;
 use App\Http\Requests\StoreLibraryRequest;
 use App\Http\Requests\UpdateLibraryRequest;
+use App\Models\Strategy;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LibraryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        $favorit = 0;
+        return view('users.strategies.index', compact('favorit'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    public function favorite(){
+        $favorit = 1;
+        return view('users.strategies.index', compact('favorit'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreLibraryRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreLibraryRequest $request)
-    {
-        //
+    public function search(Request $request){
+        $user_id = Auth::id();
+
+        $results = Strategy::select('id', 'category_id', 'name', 'description', 'url_picture')->with('users', function($query) use ($user_id){
+            $query->where('users.id', $user_id);
+        });
+
+        $favorit = $request->input('favorit');
+        if($favorit == "1"){
+            $results->whereHas('users', function($query) use ($user_id){
+                $query->where('users.id', $user_id);
+            });
+        }
+
+        $search = $request->input('search');
+        if($search){
+            $results->where(function($query) use ($search){
+                $query->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+        $results = $results->orderBy('name', 'ASC')->get();
+
+        return response()->json($results);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Library  $library
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Library $library)
-    {
-        //
+    public function like($id){
+        $user = Auth::user();
+
+        $strategy = Strategy::findOrFail($id);
+
+        $user->favorite()->attach($strategy);
+
+        return redirect()->back()->withSuccess('Berhasil ditambahkan ke pustaka favorit');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Library  $library
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Library $library)
-    {
-        //
+    public function unlike($id){
+        $user = Auth::user();
+
+        $strategy = Strategy::findOrFail($id);
+
+        $user->favorite()->detach($strategy);
+
+        return redirect()->back()->withSuccess('Berhasil dihapus dari pustaka favorit');
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateLibraryRequest  $request
-     * @param  \App\Models\Library  $library
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateLibraryRequest $request, Library $library)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Library  $library
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Library $library)
-    {
-        //
-    }
 }

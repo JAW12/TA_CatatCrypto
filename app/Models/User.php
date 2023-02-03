@@ -87,4 +87,8 @@ class User extends Authenticatable
     public function watchlist(){
         return $this->belongsToMany(Asset::class, 'asset_watchlist', 'user_id', 'asset_id')->withTimestamps();
     }
+
+    public function favorite(){
+        return $this->belongsToMany(Strategy::class, 'strategy_favorite', 'user_id', 'strategy_id')->withTimestamps();
+    }
 }

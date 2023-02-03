@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\TransactionController;
@@ -133,14 +134,16 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/{id}/favorit', [AssetController::class, 'favorit'])->name('user.coins.favorite');
         Route::get('/{id}/unfavorit', [AssetController::class, 'unfavorit'])->name('user.coins.unfavorite');
         Route::get('/{id}/load', [AssetController::class, 'load'])->name('user.coins.load');
-
     });
 
     // belum
     Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
+        Route::get('/cari', [LibraryController::class, 'search'])->name('user.library.search');
+        Route::get('/favorit', [LibraryController::class, 'favorite'])->name('user.library.favorite');
+        Route::get('/{id}/like', [LibraryController::class, 'like'])->name('user.library.like');
+        Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
-        Route::get('/favorit', [LibraryController::class, 'favoritePage'])->name('user.library.favorite');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
 
