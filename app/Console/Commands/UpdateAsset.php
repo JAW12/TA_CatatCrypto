@@ -37,14 +37,14 @@ class UpdateAsset extends Command
         // cek apakah job nya sudah selesai
         $total = AssetUpdateJob::count();
         $updated = AssetUpdateJob::where('updated', 1)->count();
-        if($total == $updated){
+        if ($total == $updated) {
             info("Update Asset Sudah Selesai");
             AssetUpdateJob::truncate();
         }
 
         // masukkin ke table job buat update
         $assets = Asset::has('wallets')->orderBy('id')->get();
-        foreach($assets as $asset){
+        foreach ($assets as $asset) {
             AssetUpdateJob::firstOrCreate([
                 'asset_id' => $asset->id,
             ]);
@@ -73,6 +73,9 @@ class UpdateAsset extends Command
                     'total_supply' => $data['market_data']['total_supply'],
                     'circulating_supply' => $data['market_data']['circulating_supply'],
                     'current_price' => $data['market_data']['current_price']['usd'],
+                    'price_change_percentage_1h' => $data['market_data']['price_change_percentage_1h_in_currency']['usd'],
+                    'price_change_percentage_24h' => $data['market_data']['price_change_percentage_24h'],
+                    'price_change_percentage_7d' => $data['market_data']['price_change_percentage_7d'],
                     'thumb' => $data['image']['small'],
                 ]);
 
@@ -89,7 +92,7 @@ class UpdateAsset extends Command
         // ubah harga yang ada binancenya
         Binance::auth(env('BINANCE_DEMO_API_KEY'), env('BINANCE_DEMO_SECRET_KEY'));
         $binance_assets = Asset::has('wallets')->whereNotNull('binance_symbol')->orderBy('id')->get();
-        foreach($binance_assets as $asset){
+        foreach ($binance_assets as $asset) {
             DB::beginTransaction();
             try {
                 $url = "/api/v3/ticker/price";

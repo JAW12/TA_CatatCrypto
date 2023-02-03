@@ -86,7 +86,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
                     Route::delete('/hapus', [AssetWalletController::class, 'destroy'])->name('user.wallet.asset.delete');
                     Route::get('/load', [AssetWalletController::class, 'load'])->name('user.wallet.asset.detail.load');
                     Route::get('/info', [AssetWalletController::class, 'info'])->name('user.wallet.asset.detail.info');
-                    Route::get('/checkSymbol/{symbol}', [AssetTransactionController::class, 'checkSymbol']);
+                    // Route::get('/checkSymbol/{symbol}', [AssetTransactionController::class, 'checkSymbol']);
                     Route::post('/ubah', [AssetTransactionController::class, 'add_update'])->name('user.wallet.asset.detail.add');
                     Route::delete('/hapus/{asset_transaction}', [AssetTransactionController::class, 'destroy'])->name('user.wallet.asset.detail.delete');
                 });
@@ -126,6 +126,16 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::post('/post_pembayaran', [TransactionController::class, 'payment_post'])->name('user.membership.payment_post');
     });
 
+    Route::group(['prefix' => 'koin'], function(){
+        Route::get('', [AssetController::class, 'list'])->name('user.coins');
+        Route::get('/watchlist', [AssetController::class, 'list_watchlist'])->name('user.coins.watchlist');
+        Route::get('/{id}', [AssetController::class, 'info'])->name('user.coins.info');
+        Route::get('/{id}/favorit', [AssetController::class, 'favorit'])->name('user.coins.favorite');
+        Route::get('/{id}/unfavorit', [AssetController::class, 'unfavorit'])->name('user.coins.unfavorite');
+        Route::get('/{id}/load', [AssetController::class, 'load'])->name('user.coins.load');
+
+    });
+
     // belum
     Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
@@ -133,6 +143,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/favorit', [LibraryController::class, 'favoritePage'])->name('user.library.favorite');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
+
     Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
     Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
 });

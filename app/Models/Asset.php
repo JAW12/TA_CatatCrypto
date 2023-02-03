@@ -16,4 +16,8 @@ class Asset extends Model
     public function wallets(){
         return $this->belongsToMany(Wallet::class, 'asset_wallet', 'asset_id', 'wallet_id');
     }
+
+    public function users(){
+        return $this->belongsToMany(User::class, 'asset_watchlist', 'asset_id', 'user_id')->withTimestamps();
+    }
 }

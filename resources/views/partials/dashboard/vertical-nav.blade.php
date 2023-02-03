@@ -49,7 +49,7 @@
             </a>
             <ul class="sub-nav collapse" id="sidebar-koin" data-bs-parent="#sidebar-koin">
                 <li class=" nav-item">
-                    <a class="nav-link" href="{{ route('user.wallet') }}">
+                    <a class="nav-link {{ activeRoute(route('user.coins')) }}" href="{{ route('user.coins') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-list" viewBox="0 0 16 16">
@@ -68,7 +68,7 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link" href="{{ route('user.wallet') }}">
+                    <a class="nav-link {{ activeRoute(route('user.coins.watchlist')) }}" href="{{ route('user.coins.watchlist') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-star-fill" viewBox="0 0 16 16">

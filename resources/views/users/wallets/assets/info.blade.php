@@ -321,6 +321,14 @@
                     });
 
                     $("#asetDetail").fadeIn();
+                },
+                error: function(response) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!!!',
+                        text: 'Load gagal',
+                        confirmButtonColor: "#3a57e8"
+                    });
                 }
             });
         }

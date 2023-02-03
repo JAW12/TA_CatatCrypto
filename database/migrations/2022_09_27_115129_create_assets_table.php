@@ -27,6 +27,9 @@ return new class extends Migration
             $table->bigInteger('market_cap', false, false);
             $table->bigInteger('total_volume', false, false);
             $table->bigInteger('market_cap_24h', false, false)->nullable();
+            $table->bigInteger('price_change_percentage_1h', false, false)->nullable();
+            $table->bigInteger('price_change_percentage_24h', false, false)->nullable();
+            $table->bigInteger('price_change_percentage_7d', false, false)->nullable();
             $table->bigInteger('total_supply', false, false)->nullable();
             $table->bigInteger('circulating_supply', false, false);
             $table->decimal('current_price', 19, 8, true);

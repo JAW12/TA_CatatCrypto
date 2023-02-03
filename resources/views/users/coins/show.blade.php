@@ -1,17 +1,7 @@
-@section('title', 'Tambah Aset')
+@section('title', 'Informasi Koin')
+
 @push('styles')
     <style>
-        .ui-autocomplete {
-            max-height: 25vh;
-            overflow-y: auto;
-            /* prevent horizontal scrollbar */
-            overflow-x: ;
-        }
-
-        * html .ui-autocomplete {
-            height: 25vh;
-        }
-
         a.btn-social,
         .btn-social {
             border-radius: 50%;
@@ -143,42 +133,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
 @endpush
 @push('scripts')
-    {{-- <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-<script>
-    $(function(){
-        $("#inputAset").keyup(function(){
-            $("#asetResult").empty();
-
-            var query = $(this).val();
-            if(query != ''){
-                var _token = $('input[name="_token"]').val();
-                $.ajax({
-                    url:"{{route('user.wallet.asset.list.autocomplete', $wallet->id)}}",
-                    method:"POST",
-                    data:{query:query, _token:_token},
-                    success:function(data){
-                        $("#asetResult").fadeIn();
-                        data.forEach(element => {
-                            // console.log(element['name']);
-                            $("#asetResult").append(
-                                `<li class="aset-item"><a class="dropdown-item" href="#">${element['name']}</a></li>`
-                            );
-                        });
-                    }
-                })
-            }
-        })
-
-        $(document).on('click', '.aset-item', function(){
-            // alert('tes');
-            $("#inputAset").val($(this).text());
-            $("#asetResult").fadeOut(function(){
-                $(this).empty();
-            });
-        });
-    });
-</script> --}}
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -186,44 +140,17 @@
         function capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
-        // $(document).ready(function() {
-
-        //     $("#inputAset").autocomplete({
-        //         source: function(request, response) {
-        //             // Fetch data
-        //             $.ajax({
-        //                 url: "{{ route('user.wallet.asset.list.autocomplete', $wallet->id) }}",
-        //                 type: 'get',
-        //                 dataType: "json",
-        //                 data: {
-        //                     query: request.term
-        //                 },
-        //                 success: function(data) {
-        //                     // console.log(data);
-        //                     response(data);
-        //                 }
-        //             });
-        //         },
-        //         select: function(event, ui) {
-        //             // // Set selection
-        //             console.log(ui.item)
-        //             // $('#employee_search').val(ui.item.label); // display the selected text
-        //             // $('#employeeid').val(ui.item.value); // save selected id to input
-        //             return false;
-        //         }
-        //     });
-
-        // });
 
         function load(query) {
             $.ajax({
-                url: "{{ route('user.wallet.asset.load', $wallet->id) }}",
+                url: "{{ route('user.coins.load', ['id' => $asset->id]) }}",
                 type: "get",
                 dataType: "json",
                 data: {
                     query: query
                 },
                 success: function(data) {
+                    console.log(data);
                     $("#twitter_timeline").empty();
                     $("#facebook_url").hide();
                     $("#github_url").hide();
@@ -237,8 +164,7 @@
                     $("#thumbnail").attr("src", data.thumb);
                     $("#name").text(data.name);
                     if (data.market_cap_rank != null) {
-                        $("#market_cap_rank").text("#" + data.market_cap_rank.toLocaleString(
-                            'en-US'));
+                        $("#market_cap_rank").text("#" + data.market_cap_rank.toLocaleString('en-US'));
                     } else {
                         $("#market_cap_rank").hide();
                     }
@@ -364,68 +290,36 @@
                         }
                     });
 
-                    if (data.binance_symbol != null) {
-                        $(".tradingview-widget-container").html(
-                            `
+                    $(".tradingview-widget-container").html(
+                        `
                         <div id="tradingview_7f87e" style="height: 100vh"></div>
                         <div class="tradingview-widget-copyright">
-                            <a href="https://id.tradingview.com/symbols/${data.binance_symbol}/?exchange=BINANCE}"                                                         rel="noopener" target="_blank">
+                            <a href="https://id.tradingview.com/symbols/${data.binance_symbol}/?exchange=BINANCE"                                                         rel="noopener" target="_blank">
                                 <span class="blue-text">Chart ${data.binance_symbol}</span>
                             </a> oleh TradingView
                         </div>`);
 
-                        var tradingview = new TradingView.widget({
-                            "autosize": true,
-                            "symbol": `BINANCE:${data.binance_symbol}`,
-                            "interval": "60",
-                            "timezone": "Asia/Jakarta",
-                            "theme": "light",
-                            "style": "1",
-                            "locale": "id",
-                            "toolbar_bg": "#f1f3f6",
-                            "allow_symbol_change": true,
-                            "enable_publishing": false,
-                            "withdateranges": true,
-                            "hide_side_toolbar": false,
-                            "details": true,
-                            "studies": [
-                                "MACD@tv-basicstudies",
-                                "RSI@tv-basicstudies",
-                                "Stochastic@tv-basicstudies"
-                            ],
-                            "container_id": "tradingview_7f87e"
-                        });
-                    } else {
-                        $(".tradingview-widget-container").html(
-                            `
-                        <div id="tradingview_7f87e" style="height: 100vh"></div>
-                        <div class="tradingview-widget-copyright">
-                            <a href="https://id.tradingview.com/symbols/${data.symbol}${data.special_targets}/?exchange=${data.exchanges}"                                                         rel="noopener" target="_blank">
-                                <span class="blue-text">Chart ${data.binance_symbol}</span>
-                            </a> oleh TradingView
-                        </div>`);
+                    new TradingView.widget({
+                        "autosize": true,
+                        "symbol": `BINANCE:${data.binance_symbol}`,
+                        "interval": "60",
+                        "timezone": "Asia/Jakarta",
+                        "theme": "light",
+                        "style": "1",
+                        "locale": "id",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "withdateranges": true,
+                        "hide_side_toolbar": false,
+                        "details": true,
+                        "studies": [
+                            "MACD@tv-basicstudies",
+                            "RSI@tv-basicstudies",
+                            "Stochastic@tv-basicstudies"
+                        ],
+                        "container_id": "tradingview_7f87e"
+                    });
 
-                        var tradingview = new TradingView.widget({
-                            "autosize": true,
-                            "symbol": `${data.exchanges}:${data.symbol}${data.special_targets}`,
-                            "interval": "60",
-                            "timezone": "Asia/Jakarta",
-                            "theme": "light",
-                            "style": "1",
-                            "locale": "id",
-                            "toolbar_bg": "#f1f3f6",
-                            "enable_publishing": false,
-                            "withdateranges": true,
-                            "hide_side_toolbar": false,
-                            "details": true,
-                            "studies": [
-                                "MACD@tv-basicstudies",
-                                "RSI@tv-basicstudies",
-                                "Stochastic@tv-basicstudies"
-                            ],
-                            "container_id": "tradingview_7f87e"
-                        });
-                    }
                     $("#asetDetail").fadeIn();
                 },
                 error: function(response) {
@@ -439,80 +333,38 @@
             });
         }
 
-        $("#inputAset").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "{{ route('user.wallet.asset.list.autocomplete', $wallet->id) }}",
-                    type: "get",
-                    dataType: "json",
-                    data: {
-                        query: request.term
-                    },
-                    success: function(data) {
-                        // console.log(data);
-                        // var resp = $.map(data,function(obj){
-                        //     return obj.label;
-                        // });
-                        // response(resp);
-                        response($.map(data, function(el) {
-                            return {
-                                label: el.label,
-                                value: el.value
-                            };
-                        }));
-                    }
-                });
-            },
-            select: function(event, ui) {
-                // console.log(ui.item)
-                $('#inputAset').val(ui.item.label);
-                $("#btnTambah").val(ui.item.value);
-                load(ui.item.value);
-                return false;
-            },
-
-            open: function() {
-                $('ul.ui-autocomplete').hide().fadeIn("fast")
-            },
-            close: function() {
-                $('ul.ui-autocomplete').show().fadeOut("fast")
-            }
-        });
-
-        $("#inputAset").bind("keypress", {}, keypressInBox);
-
-        function keypressInBox(e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) { //Enter keycode
-                load($("#inputAset").val());
-            }
-        };
+        load("{{ $asset->coin_gecko_id }}");
     </script>
 @endpush
+@push('styles')
+    <style>
+        .star {
+            color: grey;
+        }
 
+        .star:hover {
+            filter: brightness(50%);
+        }
+
+        .yellowstar {
+            color: #FFDF00;
+        }
+
+        .yellowstar:hover {
+            color: #FDCC0D;
+        }
+    </style>
+@endpush
 <x-app-layout :options="['loading']">
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
-        <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
+    <x-back-button>{{ str_contains(url()->previous(), "watchlist") ? route('user.coins.watchlist') : route('user.coins') }}</x-back-button>
         <div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card">
-                        <div class="card-header d-md-flex justify-content-between">
-                            <div class="header-title">
-                                <h4 class="card-title">Tambah Aset</h4>
-                            </div>
-                        </div>
                         <div class="card-body min-vh-100">
-                            <div class="ui-widget">
-                                <input type="text" name="inputAset" id="inputAset" class="form-control"
-                                    placeholder="Masukkan aset yang ingin Anda tambahkan">
-                                {{-- <ul id="asetResult" class="dropdown-menu"
-                                style="display:block; position: relative;width:100%">
-
-                            </ul> --}}
-                            </div>
                             <div id="asetDetail" class="mt-3" style="display: none">
                                 <div class="row justify-content-around">
                                     <div class="col-sm-12 col-md-4 row justify-content-center align-items-center">
@@ -523,6 +375,27 @@
                                             <h5 class="card-title"><span id="name"></span>
                                                 <span class="badge rounded-pill bg-soft-primary"
                                                     id="market_cap_rank"></span>
+                                                @if (count($asset->users) > 0)
+                                                    <a href="{{ route('user.coins.unfavorite', ['id' => $asset->id]) }}"
+                                                        class="yellowstar">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                                            height="20" fill="currentColor" class="bi bi-star-fill"
+                                                            viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" />
+                                                        </svg>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('user.coins.favorite', ['id' => $asset->id]) }}"
+                                                        class="star">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                                            height="20" fill="currentColor" class="bi bi-star"
+                                                            viewBox="0 0 16 16">
+                                                            <path
+                                                                d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z" />
+                                                        </svg>
+                                                    </a>
+                                                @endif
                                             </h5>
                                             <p>Harga Sekarang: <span id="current_price"></span></p>
                                         </div>
@@ -647,16 +520,7 @@
                                         </p>
                                     </div>
                                     <div class="col-sm-12 col-md-4" id="twitter-timeline">
-
-
                                     </div>
-                                </div>
-                                <div class="justify-content-end mt-3 mx-1">
-                                    <form action="{{ route('user.wallet.asset.add', $wallet->id) }}" method="post">
-                                        @csrf
-                                        <button id="btnTambah" name="id" class="btn btn-primary">Tambah
-                                            Aset</button>
-                                    </form>
                                 </div>
                             </div>
                         </div>

@@ -261,7 +261,7 @@ class WalletController extends Controller
                                             ]);
                                         }
                                     } catch (\Throwable $th) {
-                                        throw $th;
+                                        // throw $th;
                                     }
                                     // $order['time'] = date('d-m-Y H:i:s', $order['time'] / 1000);
                                     // print_r("NEW " . $order['time'] . " : " . $order['side'] . ' ' . $order['origQty'] . ' x ' . $order['price'] . ' = ' . $order['origQty'] * $order['price'] . '<br><br>');
@@ -307,7 +307,7 @@ class WalletController extends Controller
                                             ]);
                                         }
                                     } catch (\Throwable $th) {
-                                        throw $th;
+                                        // throw $th;
                                     }
                                 }
                                 // $myTrades['time'] = date('d-m-Y H:i:s', $myTrades['time'] / 1000);
