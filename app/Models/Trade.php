@@ -26,7 +26,7 @@ class Trade extends Model
     }
 
     public function strategies(){
-        return $this->belongsToMany(Strategy::class, 'strategy_trade', 'trade_id', 'strategy_id')->withTimestamps();
+        return $this->belongsToMany(Strategy::class, 'strategy_trade', 'trade_id', 'strategy_id')->withTimestamps()->withTrashed();
     }
 
     public function targets(){

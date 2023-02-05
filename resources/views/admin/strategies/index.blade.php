@@ -46,17 +46,15 @@
         function loadData() {
             let search = $("#search").val();
             $.ajax({
-                url: "{{ route('user.library.search') }}",
+                url: "{{ route('admin.library.search') }}",
                 type: 'get',
                 data: {
                     search: search,
-                    favorit: '{{ $favorit }}'
                 },
                 success: function(data) {
                     $("#entry_strategies").html("");
                     $("#pattern").html("");
                     $("#indicator").html("");
-                    $("#private").html("");
 
                     var user_id = {{ Auth::id() }};
 
@@ -66,17 +64,27 @@
                         let indicator = [];
                         let private = [];
                         data.forEach(element => {
-                            // console.log(element, ":", element.user_id, user_id, "=", element.user_id == user_id);
-                            if (element.category_id == 1 && element.user_id != user_id) {
-                                entry_strategies.push(element);
-                            } else if (element.category_id > 1 && element.category_id < 5 && element
-                                .user_id != user_id) {
-                                pattern.push(element);
-                            } else if (element.category_id == 5 && element.user_id != user_id) {
-                                indicator.push(element);
-                            } else if (element.user_id == user_id) {
-                                private.push(element);
+                            console.log(element);
+
+                            if(element.user == null){
+                                if (element.category_id == 1) {
+                                    entry_strategies.push(element);
+                                } else if (element.category_id > 1) {
+                                    pattern.push(element);
+                                } else if (element.category_id == 5) {
+                                    indicator.push(element);
+                                }
                             }
+                            else{
+                                if (element.category_id == 1 && element.user.user_type == "admin") {
+                                    entry_strategies.push(element);
+                                } else if (element.category_id > 1 && element.user.user_type == "admin") {
+                                    pattern.push(element);
+                                } else if (element.category_id == 5 && element.user.user_type == "admin") {
+                                    indicator.push(element);
+                                }
+                            }
+                            // console.log(element, ":", element.user_id, user_id, "=", element.user_id == user_id);
                         });
 
                         let counter = 0;
@@ -93,33 +101,25 @@
                                     element.description = "";
                                 }
 
-                                let favButton = "";
-                                if (element.users.length > 0) {
-                                    let route = `<?php echo route('user.library.unlike', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                                        </svg>
-                                        </a>`;
-                                } else {
-                                    let route = `<?php echo route('user.library.like', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                        </svg>
-                                        </a>`;
-                                }
-
-                                let routeDetail = `<?php echo route('user.library.detail', ['id' => ':id']); ?>`;
+                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
                                 routeDetail = routeDetail.replace(':id', element.id);
+
+                                let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                                routeDelete = routeDelete.replace(':id', element.id);
+                                let deleteButton = `<a href="${routeDelete}" class="delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                </svg>
+                                            </a>`;
 
                                 let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
-                                        ${favButton}
+                                        <div style="position:absolute; top: 0.5em; right:0.5em;">
+                                            ${deleteButton}
+                                        </div>
                                     </div>
                                 <div class="card-body">
                                     <h5 class="card-title">${element.name}</h5>
@@ -154,33 +154,25 @@
                                     element.description = "";
                                 }
 
-                                let favButton = "";
-                                if (element.users.length > 0) {
-                                    let route = `<?php echo route('user.library.unlike', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                                        </svg>
-                                        </a>`;
-                                } else {
-                                    let route = `<?php echo route('user.library.like', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                        </svg>
-                                        </a>`;
-                                }
-
-                                let routeDetail = `<?php echo route('user.library.detail', ['id' => ':id']); ?>`;
+                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
                                 routeDetail = routeDetail.replace(':id', element.id);
+
+                                let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                                routeDelete = routeDelete.replace(':id', element.id);
+                                let deleteButton = `<a href="${routeDelete}" class="delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                </svg>
+                                            </a>`;
 
                                 let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
-                                        ${favButton}
+                                        <div style="position:absolute; top: 0.5em; right:0.5em;">
+                                            ${deleteButton}
+                                        </div>
                                     </div>
                                 <div class="card-body">
                                     <h5 class="card-title">${element.name}</h5>
@@ -215,33 +207,25 @@
                                     element.description = "";
                                 }
 
-                                let favButton = "";
-                                if (element.users.length > 0) {
-                                    let route = `<?php echo route('user.library.unlike', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                                        </svg>
-                                        </a>`;
-                                } else {
-                                    let route = `<?php echo route('user.library.like', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite" style="position:absolute; top: 0.5em; right: 0.5em;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                        </svg>
-                                        </a>`;
-                                }
-
-                                let routeDetail = `<?php echo route('user.library.detail', ['id' => ':id']); ?>`;
+                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
                                 routeDetail = routeDetail.replace(':id', element.id);
+
+                                let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                                routeDelete = routeDelete.replace(':id', element.id);
+                                let deleteButton = `<a href="${routeDelete}" class="delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                </svg>
+                                            </a>`;
 
                                 let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
-                                        ${favButton}
+                                        <div style="position:absolute; top: 0.5em; right:0.5em;">
+                                            ${deleteButton}
+                                        </div>
                                     </div>
                                 <div class="card-body">
                                     <h5 class="card-title">${element.name}</h5>
@@ -261,84 +245,10 @@
                         if (indicator.length == 0) {
                             $("#indicator").html("<p>Hasil tidak ditemukan</p>");
                         }
-
-                        counter = 0;
-                        private.forEach(element => {
-                            if (counter < 8) {
-                                let src = `<?php echo asset('url'); ?>`;
-                                if (element.url != "") {
-                                    src = src.replace('url', element.url_picture);
-                                } else {
-                                    src = "{{ asset('images/no-image.webp') }}";
-                                }
-
-                                if (element.description == null) {
-                                    element.description = "";
-                                }
-
-                                let favButton = "";
-                                if (element.users.length > 0) {
-                                    let route = `<?php echo route('user.library.unlike', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
-                                        </svg>
-                                        </a>`;
-                                } else {
-                                    let route = `<?php echo route('user.library.like', ['id' => ':id']); ?>`;
-                                    route = route.replace(':id', element.id);
-                                    favButton = `<a href="${route}" class="favorite">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                        </svg>
-                                        </a>`;
-                                }
-
-                                let routeDelete = `<?php echo route('user.library.delete', ['id' => ':id']); ?>`;
-                                routeDelete = routeDelete.replace(':id', element.id);
-                                let routeDetail = `<?php echo route('user.library.detail', ['id' => ':id']); ?>`;
-                                routeDetail = routeDetail.replace(':id', element.id);
-
-                                let deleteButton = `<a href="${routeDelete}" class="delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                                </svg>
-                                            </a>`;
-
-                                let cardHTML = `<div class="col">
-                                <div class="card h-100">
-                                    <div class="position-relative">
-                                        <img src="${src}" class="card-img-top" alt="${element.name}">
-                                        <div style="position:absolute; top: 0.5em; right:0.5em;">
-                                            ${favButton}
-                                            ${deleteButton}
-                                        </div>
-                                    </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">${element.name} <span class="h6 text-muted"><small>${element.category.name}</small></span></h5>
-                                    <p class="card-text">${element.description}</p>
-                                </div>
-                                <div class="card-footer">
-                                    <a href="${routeDetail}" class="btn btn-primary">Lihat Detail</a>
-                                </div>
-                            </div>
-                        </div>`;
-
-                                $("#private").append(cardHTML);
-                                counter++;
-                            }
-                        });
-
-                        if (private.length == 0) {
-                            $("#private").html("<p>Hasil tidak ditemukan</p>");
-                        }
                     } else {
                         $("#entry_strategies").html("<p>Hasil tidak ditemukan</p>");
                         $("#pattern").html("<p>Hasil tidak ditemukan</p>");
                         $("#indicator").html("<p>Hasil tidak ditemukan</p>");
-                        $("#private").html("<p>Hasil tidak ditemukan</p>");
                     }
                 }
             });
@@ -357,7 +267,7 @@
                 let delete_button = $(this);
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
-                    text: "Apakah anda yakin akan menghapus pustaka pribadi ini?",
+                    text: "Apakah anda yakin akan menghapus pustaka ini?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -384,14 +294,12 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="header-title col-sm-12 col-md-3">
-                                    <h4 class="card-title">Daftar Pustaka @if ($favorit == 1)
-                                            Favorit
-                                        @endif
+                                    <h4 class="card-title">Daftar Pustaka
                                     </h4>
                                 </div>
                                 <div class="col-sm-12 col-md-9 mt-3 mt-md-0">
                                     <div class="row g-2">
-                                        <div class="col-sm-12 col-md-9">
+                                        <div class="col-sm-12 col-md-8">
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <svg width="18" viewBox="0 0 24 24" fill="none"
@@ -408,9 +316,9 @@
                                                     id="search">
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-3">
+                                        <div class="col-sm-12 col-md-4">
                                             <button type="button" class="btn btn-dark w-100">Lihat Laporan
-                                                Metrik</button>
+                                                Pustaka</button>
                                         </div>
                                     </div>
                                 </div>
@@ -433,12 +341,6 @@
                             <hr>
                             <div class="mb-5">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="indicator">
-                                </div>
-                            </div>
-                            <h5>Strategi Pribadi</h5>
-                            <hr>
-                            <div>
-                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="private">
                                 </div>
                             </div>
                         </div>

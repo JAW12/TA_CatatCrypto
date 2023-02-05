@@ -141,10 +141,13 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
         Route::get('/cari', [LibraryController::class, 'search'])->name('user.library.search');
         Route::get('/favorit', [LibraryController::class, 'favorite'])->name('user.library.favorite');
-        Route::get('/{id}/like', [LibraryController::class, 'like'])->name('user.library.like');
-        Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::post('/tambah', [LibraryController::class, 'store']);
+        Route::get('/{id}', [LibraryController::class, 'show'])->name('user.library.detail');
+        Route::get('/{id}/edit', [LibraryController::class, 'edit'])->name('user.library.edit');
+        Route::post('/{id}/edit', [LibraryController::class, 'update']);
+        Route::get('/{id}/like', [LibraryController::class, 'like'])->name('user.library.like');
+        Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/{id}/hapus', [LibraryController::class, 'delete'])->name('user.library.delete');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
@@ -171,8 +174,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     });
 
     Route::group(['prefix' => 'pustaka'], function () {
-        Route::get('', [LibraryController::class, 'index'])->name('admin.library');
-        Route::get('/tambah', [LibraryController::class, 'addPage'])->name('admin.library.add');
+        Route::get('', [AdminController::class, 'libraries'])->name('admin.library');
+        Route::get('/cari', [AdminController::class, 'libraries_search'])->name('admin.library.search');
+        Route::get('/tambah', [AdminController::class, 'library_addPage'])->name('admin.library.add');
+        Route::post('/tambah', [AdminController::class, 'library_store']);
+        Route::get('/{id}', [AdminController::class, 'library_show'])->name('admin.library.detail');
+        Route::get('/{id}/edit', [AdminController::class, 'library_edit'])->name('admin.library.edit');
+        Route::post('/{id}/edit', [AdminController::class, 'library_update']);
+        Route::get('/{id}/hapus', [AdminController::class, 'library_delete'])->name('admin.library.delete');
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('admin.library.reports');
     });
 });

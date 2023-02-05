@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Validation\ValidationException;
 
 class LibraryController extends Controller
 {
@@ -48,6 +48,13 @@ class LibraryController extends Controller
         $results = $results->orderBy('name', 'ASC')->get();
 
         return response()->json($results);
+    }
+
+    public function show($id)
+    {
+        $strategy = Strategy::findOrFail($id);
+
+        return view('users.strategies.show', compact('strategy'));
     }
 
     public function like($id)
@@ -118,10 +125,15 @@ class LibraryController extends Controller
     public function delete($id)
     {
 
+
         DB::beginTransaction();
         try {
 
             $strategy = Strategy::findOrFail($id);
+
+            if($strategy->user_id != Auth::id()){
+                throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            }
 
             if ($strategy->url_picture != "") {
                 $image_path = public_path("\\") . $strategy->url_picture;
@@ -139,6 +151,64 @@ class LibraryController extends Controller
             //throw $th;
             DB::rollBack();
             return redirect()->back()->withError('Gagal menghapus pustaka pribadi tersebut');
+        }
+    }
+
+    public function edit($id){
+        $strategy = Strategy::findOrFail($id);
+
+        if($strategy->user_id != Auth::id()){
+            throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+        }
+
+        $categories = Category::all();
+        return view('users.strategies.edit', compact('strategy', 'categories'));
+    }
+
+    public function update($id, Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'category_id' => 'required',
+            'url_picture' => 'file|image'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $strategy = Strategy::findOrFail($id);
+
+            if($strategy->user_id != Auth::id()){
+                throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
+            }
+
+            $strategy->name = $request->get('name');
+            $strategy->category_id = $request->get('category_id');
+            $strategy->description = $request->get('description');
+
+            $url_picture = $request->file('url_picture');
+            if ($url_picture) {
+                if ($strategy->url_picture != "") {
+                    $image_path = public_path("\\") . $strategy->url_picture;
+                    if (File::exists($image_path)) {
+                        File::delete($image_path);
+                    }
+                }
+
+                $fileName = Auth::id() . '-' . $strategy->name . '-' . time() . '.' . $url_picture->extension();
+                $destinationPath = 'images';
+                $url_picture->storeAs('strategies', $fileName, 'public');
+                $strategy->url_picture = "storage/strategies/" . $fileName;
+            }
+
+            $strategy->save();
+            DB::commit();
+
+            return redirect()->route('user.library.detail', ['id' => $strategy->id])->withSuccess('Berhasil mengubah pustaka pribadi');
+        } catch (\Throwable $th) {
+
+            DB::rollback();
+            throw $th;
+            return redirect()->route('user.library.detail', ['id' => $strategy->id])->withError('Gagal mengubah pustaka pribadi');
         }
     }
 }
