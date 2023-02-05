@@ -406,7 +406,7 @@
             </a>
         </li>
     @else
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a class="nav-link {{ activeRoute(route('index')) }}" aria-current="page" href="{{ route('index') }}">
                 <i class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -417,7 +417,7 @@
                 </i>
                 <span class="item-name">Dashbor</span>
             </a>
-        </li>
+        </li> --}}
         <li class="nav-item">
             <a class="nav-link" data-bs-toggle="collapse" href="#sidebar-pengguna" role="button"
                 aria-expanded="false" aria-controls="sidebar-pengguna">

@@ -1,3 +1,4 @@
+@section('title', 'Ubah Pustaka Pribadi')
 @push('scripts')
     <script>
         $(function() {

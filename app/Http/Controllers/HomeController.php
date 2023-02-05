@@ -11,7 +11,12 @@ class HomeController extends Controller
 
     public function index(Request $request){
         if(Auth::check()){
-            return view('dashboards.dashboard');
+            if(Auth::user()->user_type == "admin"){
+                return redirect()->route('admin.users');
+            }
+            else{
+                return view('dashboards.dashboard');
+            }
         }
         else{
             return redirect()->route('login');

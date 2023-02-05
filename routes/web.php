@@ -169,8 +169,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 
     Route::group(['prefix' => 'pengguna'], function () {
-        Route::get('', [UserController::class, 'index'])->name('admin.users');
-        Route::get('/demografi', [UserController::class, 'demography'])->name('admin.users.demography');
+        Route::get('', [AdminController::class, 'users'])->name('admin.users');
+        Route::get('{id_user}', [AdminController::class, 'user_show'])->name('admin.user.detail');
+        Route::get('{id_user}/ban', [AdminController::class, 'user_ban'])->name('admin.user.ban');
+        Route::get('{id_user}/kembalikan', [AdminController::class, 'user_restore'])->name('admin.user.restore');
+        Route::get('/demografi', [AdminController::class, 'demography'])->name('admin.users.demography');
     });
 
     Route::group(['prefix' => 'pustaka'], function () {

@@ -248,4 +248,25 @@ class AdminController extends Controller
             return redirect()->route('admin.library')->withError('Gagal menambahkan pustaka');
         }
     }
+
+    public function users(){
+        $users = User::where('user_type', '<>', 'admin')->withTrashed()->get();
+        return view('admin.users.list', compact('users'));
+    }
+
+    public function user_ban($id){
+        $user = User::findOrFail($id);
+        return $user->delete() ? redirect()->route('admin.users')->withSuccess('Berhasil ban pengguna ini') : redirect()->route('admin.users')->withError('Gagal ban pengguna ini');
+
+    }
+
+    public function user_restore($id){
+        $user = User::withTrashed()->findOrFail($id);
+        return $user->restore() ? redirect()->route('admin.users')->withSuccess('Berhasil kembalikan pengguna ini') : redirect()->route('admin.users')->withError('Gagal kembalikan pengguna ini');
+    }
+
+    public function user_show($id){
+        $user = User::withTrashed()->findOrFail($id);
+        return view('admin.users.show', compact('user'));
+    }
 }

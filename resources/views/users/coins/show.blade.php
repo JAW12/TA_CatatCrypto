@@ -1,5 +1,4 @@
 @section('title', 'Informasi Koin')
-
 @push('styles')
     <style>
         a.btn-social,

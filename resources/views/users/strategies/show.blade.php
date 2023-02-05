@@ -1,3 +1,4 @@
+@section('title', 'Detail Pustaka')
 @push('styles')
     <style>
         .card-img-top {

@@ -29,7 +29,7 @@
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Iya, konfirmasi!',
+                    confirmButtonText: 'Iya, tolak!',
                     cancelButtonText: 'Tidak',
                 }).then((result) => {
                     if (result.isConfirmed) {

@@ -134,7 +134,7 @@
                     return;
                 }
 
-                console.log('API row values : ', table.row(this).data());
+                // console.log('API row values : ', table.row(this).data());
 
                 let route = `<?php echo route('user.coins.info', ['id' => ':id']); ?>`;
                 route = route.replace(':id', table.row(this).data().id);
