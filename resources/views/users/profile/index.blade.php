@@ -19,6 +19,23 @@
                     }
                 })
             });
+
+            $("#btnUbah").click(function() {
+                $(this).hide();
+                $("#txtNama").hide();
+                $("#txtJK").hide();
+                $("#txtEmail").hide();
+                $("#txtTglLahir").hide();
+                $("#txtTelp").hide();
+
+
+                $("#btnSimpan").show();
+                $("#inpNama").show();
+                $("#inpJK").show();
+                $("#inpEmail").show();
+                $("#inpTglLahir").show();
+                $("#inpTelp").show();
+            });
         });
     </script>
 @endpush
@@ -852,7 +869,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-title">
-                            <h4 class="card-title">Detil Membership</h4>
+                            <h4 class="card-title">Detail Membership</h4>
                         </div>
                     </div>
                     <div class="card-body">
@@ -1213,24 +1230,4 @@
 
     </form>
     {{-- @include('partials.components.share-offcanvas') --}}
-    @push('scripts')
-        <script>
-            $("#btnUbah").click(function() {
-                $(this).hide();
-                $("#txtNama").hide();
-                $("#txtJK").hide();
-                $("#txtEmail").hide();
-                $("#txtTglLahir").hide();
-                $("#txtxTelp").hide();
-
-
-                $("#btnSimpan").show();
-                $("#inpNama").show();
-                $("#inpJK").show();
-                $("#inpEmail").show();
-                $("#inpTglLahir").show();
-                $("#inpxTelp").show();
-            });
-        </script>
-    @endpush
 </x-app-layout>

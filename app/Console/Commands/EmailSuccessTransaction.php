@@ -71,7 +71,7 @@ class EmailSuccessTransaction extends Command
                         $user->notify(new SendTransactionSuccessNotification($transaction));
                     }
                 } catch (\Throwable $th) {
-                    throw $th;
+                    // throw $th;
                     DB::rollBack();
                 }
 
@@ -93,8 +93,10 @@ class EmailSuccessTransaction extends Command
         ];
         $type = 'GET';
         $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
-        if($response['status'] == 'FILLED'){
-            return true;
+        if($response != null){
+            if($response['status'] == 'FILLED'){
+                return true;
+            }
         }
         return false;
     }

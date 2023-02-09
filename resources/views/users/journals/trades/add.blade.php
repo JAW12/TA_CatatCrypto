@@ -212,7 +212,13 @@
                 }
                 if (right_direction == true) {
                     let max_loss = risk / 100 * balances;
-                    let quantity = Math.round(max_loss / Math.abs(sl1 - open_price));
+                    let quantity = max_loss / Math.abs(sl1 - open_price);
+                    if(quantity > 1){
+                        quantity = Math.round(quantity);
+                    }
+                    else{
+                        quantity = Math.round(quantity * 10000) / 10000;
+                    }
                     $("#openQuantityInline").html(`Disarankan <strong>${quantity}</strong> sesuai risk ${risk}%`);
                     $("#openQuantityInline").fadeIn();
                 } else {
@@ -356,7 +362,12 @@
 
             if (tp1_pnl != "" && sl1_pnl != "") {
                 let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl));
-                $("#rr_expected").html(rr.toFixed(2));
+                if(rr >= 2){
+                    $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
+                }
+                else{
+                    $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+                }
                 $("#input_rr_expected").val(rr);
             }
         }
@@ -585,7 +596,7 @@
                         loop: false,
                     });
                     viewers.push(new_viewer);
-                    console.table(viewers);
+                    // console.table(viewers);
                 }
             });
 
@@ -850,7 +861,7 @@
                                     <div class="col-sm-12 col-md-8">
                                         <div class="form-group row gx-1">
                                             <label for="entry_strategy"
-                                                class="col-4 col-md-2 col-form-label text-dark">Strategi Entry</label>
+                                                class="col-4 col-md-2 col-form-label text-dark">Strategi Entri</label>
                                             <div class="col-8 col-md-10">
                                                 <select name="entry_strategy[]" id="entry_strategy"
                                                     class="form-control" multiple="multiple">

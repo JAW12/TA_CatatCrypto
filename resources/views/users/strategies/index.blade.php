@@ -409,7 +409,7 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-12 col-md-3">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan
+                                            <button type="button" class="btn btn-dark w-100">Laporan
                                                 Metrik</button>
                                         </div>
                                     </div>
@@ -423,13 +423,13 @@
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="entry_strategies">
                                 </div>
                             </div>
-                            <h5>Pattern</h5>
+                            <h5>Pola</h5>
                             <hr>
                             <div class="mb-4">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="pattern">
                                 </div>
                             </div>
-                            <h5>Indicator</h5>
+                            <h5>Indikator</h5>
                             <hr>
                             <div class="mb-5">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="indicator">

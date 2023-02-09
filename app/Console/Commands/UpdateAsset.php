@@ -52,7 +52,7 @@ class UpdateAsset extends Command
 
         // kerjain job update
         $client = new CoinGeckoClient();
-        print_r("<pre>");
+        // print_r("<pre>");
         $asset_jobs = AssetUpdateJob::where('updated', 0)->take(15)->get();
         foreach ($asset_jobs as $job) {
 

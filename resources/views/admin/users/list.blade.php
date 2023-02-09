@@ -88,7 +88,7 @@
                                         </td>
                                         <td>{{ $user->wallets->count() }} Dompet</td>
                                         <td>{{ $user->journals->count() }} Jurnal</td>
-                                        <td>{{ $user->journals->sum('count_of_trades') }} Jurnal</td>
+                                        <td>{{ $user->journals->sum('count_of_trades') }} Catatan</td>
                                         <td>Rp {{ number_format($user->spent, 0) }}</td>
                                         <td>
                                             @if ($user->deleted_at == null)

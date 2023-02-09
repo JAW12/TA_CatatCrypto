@@ -20,7 +20,7 @@
                                 <div class="col-sm-12 col-md-5 mt-3 mt-md-0">
                                     <div class="row g-2">
                                         <div class="col-sm-12 col-md-6">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan
+                                            <button type="button" class="btn btn-dark w-100">Laporan
                                                 Metrik</button>
                                         </div>
                                         <div class="col-sm-12 col-md-6">
@@ -74,9 +74,10 @@
                                     data-toggle="data-table">
                                     <thead>
                                         <tr class="light">
-                                            <th>Status</th>
+                                            <th>#</th>
                                             <th>Nama</th>
                                             <th>Deskripsi</th>
+                                            <th>Status</th>
                                             <th>Saldo</th>
                                             <th>Jumlah Catatan</th>
                                             <th>WR (%)</th>
@@ -87,6 +88,9 @@
                                         @foreach ($data->journals as $key => $journal)
                                             <tr onclick="window.location='{{ route('user.journal.detail', $journal->id) }}'"
                                                 style="cursor: pointer;">
+                                                <td>{{$loop->iteration}}</td>
+                                                <td>{{ $journal->name }}</td>
+                                                <td>{{ $journal->description == '' ? '-' : $journal->description }}</td>
                                                 <td>
                                                     @if ($journal->deleted_at == '')
                                                         <span class="badge rounded-pill bg-primary">Aktif</span>
@@ -94,8 +98,6 @@
                                                         <span class="badge rounded-pill bg-secondary">Nonaktif</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ $journal->name }}</td>
-                                                <td>{{ $journal->description == '' ? '-' : $journal->description }}</td>
                                                 <td>${{ (float) $journal->balances }}</td>
                                                 <td>{{ count($journal->trades) }}</td>
                                                 <td>{{ (float) $journal->winrate }}%</td>

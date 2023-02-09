@@ -105,7 +105,6 @@ class LibraryController extends Controller
             $url_picture = $request->file('url_picture');
             if ($url_picture) {
                 $fileName = Auth::id() . '-' . $strategy->name . '-' . time() . '.' . $url_picture->extension();
-                $destinationPath = 'images';
                 $url_picture->storeAs('strategies', $fileName, 'public');
                 $strategy->url_picture = "storage/strategies/" . $fileName;
             }
@@ -117,7 +116,7 @@ class LibraryController extends Controller
         } catch (\Throwable $th) {
 
             DB::rollback();
-            throw $th;
+            // throw $th;
             return redirect()->route('user.library')->withError('Gagal menambahkan pustaka pribadi');
         }
     }

@@ -603,7 +603,7 @@
                                 <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0">
                                     <div class="row g-2">
                                         <div class="col-sm-12 col-md-4">
-                                            @if ($wallet->binance_api_key == null)
+                                            @if ($wallet->binance_api_key == null or count($asset_wallet->transactions) == 0)
                                                 <form
                                                     action="{{ route('user.wallet.asset.delete', ['wallet' => $wallet->id, 'asset' => $asset->id]) }}"
                                                     method="post" class="w-100">
@@ -615,7 +615,7 @@
                                             @endif
                                         </div>
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                            <button type="button" class="btn btn-dark w-100">Laporan Aset</button>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
                                             <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"
@@ -1050,8 +1050,8 @@
                                         <div class="form-group form-group-alt mb-2">
                                             <label for="price" class="form-label text-dark">Jenis Transfer</label>
                                             <select class="form-control form-select" name="type">
-                                                <option value="3">Transfer Keluar</option>
-                                                <option value="4">Transfer Masuk</option>
+                                                <option value="2">Transfer Keluar</option>
+                                                <option value="3">Transfer Masuk</option>
                                             </select>
                                         </div>
                                         <div class="form-group form-group-alt row gx-2 gy-0">

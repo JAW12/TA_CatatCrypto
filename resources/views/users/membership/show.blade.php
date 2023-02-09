@@ -109,7 +109,7 @@
                             @if($type > 0)
                             <h5>{{ucwords($membership->name)}} (Rp {{ number_format($membership->price, 2)}})</h5>
                             @else
-                            <h5>Penambahan 100 Catatan Trading</h5>
+                            <h5>Penambahan 100 Catatan Trading (Rp 50,000.00)</h5>
                             @endif
                             <p class="text-muted"><small>dengan 3 digit kode unik {{str_pad($rand, 3, '0', STR_PAD_LEFT)}}</small></p>
                         </div>

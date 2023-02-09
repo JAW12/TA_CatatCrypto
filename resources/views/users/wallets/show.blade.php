@@ -216,7 +216,7 @@
                 })
             });
 
-            $('#ubahDompet').submit(function(e) {
+            $("#btnKumpul").click(function(){
                 let binance_api_key = $("input[name=binance_api_key]");
                 if (binance_api_key.length) {
                     let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
@@ -235,7 +235,7 @@
                             cancelButtonText: 'Tidak',
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                $(e.target).closest('form').submit() // Post the surrounding form
+                                $("#ubahDompet").submit();
                             }
                         })
                     } else if(old_binance_api_key != new_binance_api_key && new_binance_api_key != '') {
@@ -373,7 +373,7 @@
                                             @endif
                                         @endcan
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                            <button type="button" class="btn btn-dark w-100">Laporan Aset</button>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
                                             <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"

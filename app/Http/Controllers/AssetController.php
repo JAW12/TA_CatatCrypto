@@ -119,7 +119,6 @@ class AssetController extends Controller
             ]);
 
             return response()->json($asset);
-
         } else {
             $data = $client->search()->getSearchResult(["query" => $request->get('query')]);
             if (count($data['coins']) > 0) {
@@ -204,15 +203,6 @@ class AssetController extends Controller
 
 
                 return response()->json($asset);
-                // try {
-
-                //     print_r($asset);
-                //     if($asset){
-                //         return response()->json($asset);
-                //     }
-                // } catch (\Throwable $th) {
-                //     //throw $th;
-                // }
             }
         }
         return null;

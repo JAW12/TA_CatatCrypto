@@ -2,11 +2,10 @@
 @push('scripts')
     <script>
         $(function() {
-            $('#tambahDompet').submit(function(e) {
+            $("#btnKumpul").click(function(e){
                 let binance_api_key = $("input[name=binance_api_key]");
                 if(binance_api_key.length){
                     if(binance_api_key.val() != ""){
-                        e.preventDefault();
                         Swal.fire({
                             title: 'Pastikan Benar',
                             text: "Pastikan Binance API_Key dan SECRET_KEY benar dan hanya memiliki akses Enable Reading dan Enable Spot & Margin Trading",
@@ -23,6 +22,9 @@
                         })
                     }
                 }
+                else{
+                    $("#tambahDompet").submit();
+                }
             });
         });
     </script>
@@ -37,7 +39,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
-                                <div class="header-title col-sm-12 col-md-7">
+                                <div class="header-title col-sm-12 col-md-5">
                                     <h4 class="card-title">Daftar Dompet</h4>
                                     @if ($data->max_wallets >= 0)
                                         <h6 class="text-muted"><small>{{ $data->wallets->count() }} /
@@ -47,11 +49,14 @@
                                                 yang bisa ditambahkan</small></h6>
                                     @endif
                                 </div>
-                                <div class="col-sm-12 col-md-5 justify-content-md-end mt-3 mt-md-0 row g-2">
-                                    <div class="col-sm-12 col-md-6">
-                                        <button type="button" class="btn btn-dark w-100">Lihat Laporan</button>
+                                <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0 row g-2">
+                                    <div class="col-sm-12 col-md-4">
+                                        <button type="button" class="btn btn-dark w-100">Demografi Dompet</button>
                                     </div>
-                                    <div class="col-sm-12 col-md-6">
+                                    <div class="col-sm-12 col-md-4">
+                                        <button type="button" class="btn btn-dark w-100">Demografi Aset</button>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4">
                                         @can('portfolio-tambah')
                                             <button type="button" class="btn btn-primary w-100"
                                                 @if ($data->max_wallets > 0 and $data->wallets->count() >= $data->max_wallets) disabled @endif data-bs-toggle="modal"
@@ -83,10 +88,7 @@
                                             <td
                                                 class="@if ($data->wallets->sum('pnl') > 0) text-success @elseif($data->wallets->sum('pnl') < 0) text-danger @endif">
                                                 <strong>
-                                                    @if ($data->wallets->sum('pnl') < 0)
-                                                        -
-                                                    @endif
-                                                    ${{ number_format(abs((float) $data->wallets->sum('pnl')), 2, '.', ',') }}
+                                                    @if ($data->wallets->sum('pnl') < 0)-@endif${{ number_format(abs((float) $data->wallets->sum('pnl')), 2, '.', ',') }}
                                                 </strong>
                                             </td>
                                         </tr>
@@ -102,6 +104,7 @@
                                     data-toggle="data-table">
                                     <thead>
                                         <tr class="light">
+                                            <th>#</th>
                                             <th>Nama</th>
                                             <th>Deskripsi</th>
                                             <th>Status</th>
@@ -114,6 +117,7 @@
                                         @foreach ($data->wallets as $key => $wallet)
                                             <tr onclick="window.location='{{ route('user.wallet.detail', $wallet->id) }}'"
                                                 style="cursor: pointer;">
+                                                <td>{{ $loop->iteration }} </td>
                                                 <td>{{ $wallet->name }}
                                                     @if ($wallet->binance_api_key != '')
                                                         <span class="badge rounded-pill"
@@ -136,10 +140,7 @@
                                                 </td>
                                                 <td
                                                     class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
-                                                    @if ($wallet->pnl < 0)
-                                                        -
-                                                    @endif
-                                                    ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
+                                                    @if ($wallet->pnl < 0)-@endif${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -194,7 +195,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <button type="reset" class="btn btn-danger">Reset</button>
-                                    <button type="submit" class="btn btn-primary">Kumpul</button>
+                                    <button id="btnKumpul" type="button" class="btn btn-primary">Kumpul</button>
                                 </div>
                             </form>
                         </div>

@@ -17,7 +17,7 @@ class CategoryTableSeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Strategi Entry',
+                'name' => 'Strategi Entri',
             ],
             [
                 'name' => 'Pola Fibonacci',

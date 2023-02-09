@@ -11,6 +11,7 @@
                 "lengthChange": false,
                 pageLength: 10,
                 ordering: false,
+                responsive: true,
                 columns: [{
                         data: 'users',
                         render: function(data, type, row) {

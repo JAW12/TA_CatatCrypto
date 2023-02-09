@@ -8,6 +8,7 @@ use App\Models\Timeframe;
 use App\Models\Trade;
 use App\Models\TradeTarget;
 use App\Models\TradeTransaction;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,11 +35,60 @@ class TradeController extends Controller
     {
         if (Auth::user()->hasPermissionTo('notes-tambah')) {
             $timeframes = Timeframe::all();
-            $entry_strategies = Strategy::where('category_id', 1)->get();
-            $fibonacci_strategies = Strategy::where('category_id', 2)->get();
-            $candlestick_strategies = Strategy::where('category_id', 3)->get();
-            $chart_strategies = Strategy::where('category_id', 4)->get();
-            $indicator_strategies = Strategy::where('category_id', 5)->get();
+            // $entry_strategies = Strategy::where('category_id', 1)->get();
+            $entry_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 1)->get();
+
+            $fibonacci_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 2)->get();
+
+            $candlestick_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 3)->get();
+
+            $chart_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 4)->get();
+
+            $indicator_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 5)->get();
+            // $fibonacci_strategies = Strategy::where('category_id', 2)->get();
+            // $candlestick_strategies = Strategy::where('category_id', 3)->get();
+            // $chart_strategies = Strategy::where('category_id', 4)->get();
+            // $indicator_strategies = Strategy::where('category_id', 5)->get();
             return view('users.journals.trades.add', compact('journal', 'timeframes', 'entry_strategies', 'fibonacci_strategies', 'candlestick_strategies', 'chart_strategies', 'indicator_strategies'));
         } else {
             abort(403);
@@ -66,6 +116,7 @@ class TradeController extends Controller
                 'rr_expected' => 'required|numeric|gt:0',
                 'timeframe' => 'required|min:1',
                 'timeframe.*' => 'required',
+                'ss.*' => 'required',
             ]);
 
 
@@ -127,7 +178,6 @@ class TradeController extends Controller
                         } else {
                             $tf = Timeframe::find($timeframe[$i]);
                             $fileName = $trade->id . '-' . $tf->name . '-' . time() . '.' . $ss[$i]->extension();
-                            $destinationPath = 'images';
                             $ss[$i]->storeAs('uploads', $fileName, 'public');
                             $trade->timeframes()->attach($timeframe[$i], [
                                 'picture_type' => 1,
@@ -165,7 +215,7 @@ class TradeController extends Controller
                 }
 
                 $chart_strategy = $request->get('chart_strategy');
-                if ($entry_strategy != null) {
+                if ($chart_strategy != null) {
                     if (count($chart_strategy) > 0) {
                         foreach ($chart_strategy as $key => $value) {
                             $trade->strategies()->attach($value);
@@ -190,12 +240,15 @@ class TradeController extends Controller
                 $user->save();
 
                 DB::commit();
-                return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withSuccess('Catatan berhasil ditambahkan');
+
+                // return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withSuccess('Catatan berhasil ditambahkan');
+                return redirect()->route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id])->withSuccess('Catatan berhasil ditambahkan');
+
             } catch (\Throwable $th) {
 
                 DB::rollback();
-                throw $th;
-                // return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withError('Transaksi gagal ditambahkan');
+                // throw $th;
+                return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withError('Catatan gagal ditambahkan');
             }
         } else {
             abort(403);
@@ -206,11 +259,60 @@ class TradeController extends Controller
     {
         if (Auth::user()->hasPermissionTo('notes-daftar')) {
             $timeframes = Timeframe::all();
-            $entry_strategies = Strategy::where('category_id', 1)->get();
-            $fibonacci_strategies = Strategy::where('category_id', 2)->get();
-            $candlestick_strategies = Strategy::where('category_id', 3)->get();
-            $chart_strategies = Strategy::where('category_id', 4)->get();
-            $indicator_strategies = Strategy::where('category_id', 5)->get();
+            $entry_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 1)->get();
+
+            $fibonacci_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 2)->get();
+
+            $candlestick_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 3)->get();
+
+            $chart_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 4)->get();
+
+            $indicator_strategies = Strategy::where(function ($query){
+                $query->whereNull('user_id')
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn('user_id', function ($query) {
+                    $query->select('id')
+                            ->from((new User)->getTable())
+                            ->where('user_type', 'admin');
+                });
+            })->where('category_id', 5)->get();
+            // $entry_strategies = Strategy::where('category_id', 1)->get();
+            // $fibonacci_strategies = Strategy::where('category_id', 2)->get();
+            // $candlestick_strategies = Strategy::where('category_id', 3)->get();
+            // $chart_strategies = Strategy::where('category_id', 4)->get();
+            // $indicator_strategies = Strategy::where('category_id', 5)->get();
             return view('users.journals.trades.show', compact('journal', 'trade', 'timeframes', 'entry_strategies', 'fibonacci_strategies', 'candlestick_strategies', 'chart_strategies', 'indicator_strategies'));
         } else {
             abort(403);
@@ -493,70 +595,15 @@ class TradeController extends Controller
             $request['transaction_time'] = now();
         }
 
-        if ($request->get('transaction_id') == null) {
+        DB::beginTransaction();
 
-
-            if ($request->get('transaction_type') == 1) {
-                $request['transaction_quantity'] = -$request['transaction_quantity'];
-            }
-
-            $trade_transaction = new TradeTransaction();
-            $trade_transaction->type = $request->get('transaction_type');
-            $trade_transaction->price = $request->get('transaction_price');
-            $trade_transaction->quantity = $request->get('transaction_quantity');
-            $trade_transaction->total = $request->get('transaction_price') * $request->get('transaction_quantity');
-            $trade_transaction->fee = $request->get('transaction_fee');
-            $trade_transaction->time = $request->get('transaction_time');
-
-
-            if (count($trade->transactions) == 0 && $request->get('transaction_type') == 1) {
-                return redirect()->back()->withError('Transaksi gagal ditambahkan');
-            } else if ($request->get('transaction_type') == 1 && abs($request->get('transaction_quantity')) > $trade->quantity_remaining) {
-                return redirect()->back()->withError('Transaksi gagal ditambahkan');
-            } else if ($request->get('transaction_type') == 1) {
-                $direction = $trade->type;
-                $close_price = $request->get('transaction_price');
-                $qty = $request->get('transaction_quantity');
-                $profit = 0;
-                $average_price = $trade->average_price;
-                if ($direction == 1) {
-                    if ($close_price > $average_price) {
-                        $profit = abs(($average_price - $close_price) * abs($qty));
-                    } else {
-                        $profit = ($close_price - $average_price) * abs($qty);
-                    }
-                } else if ($direction == 0) {
-                    if ($close_price < $average_price) {
-                        $profit = abs(($close_price - $average_price) * abs($qty));
-                    } else {
-                        $profit = ($average_price - $close_price) * abs($qty);
-                    }
+        try{
+            if ($request->get('transaction_id') == null) {
+                if ($request->get('transaction_type') == 1) {
+                    $request['transaction_quantity'] = -$request['transaction_quantity'];
                 }
-                $trade_transaction->pnl = $profit;
-            }
 
-            $journal->balances = $journal->balances - $trade->nett_pnl;
-            $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
-            $journal->save();
-
-            $save = $trade->transactions()->save($trade_transaction);
-        } else {
-
-            $trade_transaction = TradeTransaction::findOrFail($request->get('transaction_id'));
-
-            if ($request->get('transaction_type') == 1) {
-                $request['transaction_quantity'] = -$request['transaction_quantity'];
-            }
-
-            $quantity = $trade->quantity_remaining - $trade_transaction->quantity + $request->get('transaction_quantity');
-
-            if ($quantity < 0) {
-                return redirect()->back()->withError('Transaksi gagal diubah');
-            } else {
-                $journal->balances = $journal->balances - $trade->nett_pnl;
-                $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
-                $journal->save();
-
+                $trade_transaction = new TradeTransaction();
                 $trade_transaction->type = $request->get('transaction_type');
                 $trade_transaction->price = $request->get('transaction_price');
                 $trade_transaction->quantity = $request->get('transaction_quantity');
@@ -564,7 +611,12 @@ class TradeController extends Controller
                 $trade_transaction->fee = $request->get('transaction_fee');
                 $trade_transaction->time = $request->get('transaction_time');
 
-                if ($request->get('transaction_type') == 1) {
+
+                if (count($trade->transactions) == 0 && $request->get('transaction_type') == 1) {
+                    return redirect()->back()->withError('Transaksi gagal ditambahkan');
+                } else if ($request->get('transaction_type') == 1 && abs($request->get('transaction_quantity')) > $trade->quantity_remaining) {
+                    return redirect()->back()->withError('Transaksi gagal ditambahkan');
+                } else if ($request->get('transaction_type') == 1) {
                     $direction = $trade->type;
                     $close_price = $request->get('transaction_price');
                     $qty = $request->get('transaction_quantity');
@@ -584,131 +636,194 @@ class TradeController extends Controller
                         }
                     }
                     $trade_transaction->pnl = $profit;
-                } else {
-                    $trade_transaction->pnl = 0;
-                }
-                $trade_transaction->save();
-            }
-        }
-
-        $trade = Trade::find($trade->id);
-        if (count($trade->transactions) > 0) {
-            if (count($trade->transactions) == 1 && $request->get('transaction_type') == 0) {
-                $trade->open_time = $request->get('transaction_time');
-                $trade->status = 1;
-            }
-
-            // hitung quantity remaining
-            $trade->quantity_remaining = $trade->transactions->sum('quantity');
-
-            // hitung average price
-            $sumAmountBought = $trade->transactions()->where('type', 0)->sum('quantity');
-            $sumTotalBought = $trade->transactions()->where('type', 0)->sum('total');
-            if ($sumTotalBought > 0 and $sumAmountBought > 0) {
-                $average_price = $sumTotalBought / $sumAmountBought;
-                $trade->average_price = $average_price;
-            }
-
-            // hitung margin
-            $margin = $trade->quantity_remaining * $trade->average_price / $trade->leverage;
-            $trade->margin = $margin;
-
-            // hitung total fees
-            $sumTotalFee = $trade->transactions()->sum('fee');
-            $trade->total_fees = $sumTotalFee;
-            $trade->save();
-
-            // hitung total pnl dan nett pnl
-            $sumTotalPNL = $trade->transactions()->sum('pnl');
-            $trade->pnl = $sumTotalPNL;
-            $trade->nett_pnl = $trade->pnl - $trade->total_fees;
-
-            // kalau selesai
-            if ($request->get('transaction_type') == 1 && $trade->quantity_remaining == 0) {
-                $trade->close_time = $request->get('transaction_time');
-                $trade->close_price = $request->get('transaction_price');
-                $trade->status = 2;
-
-                // hitung ril rr
-                $nett_pnl = $trade->nett_pnl;
-                $loss = $trade->targets()->where('type', 0)->first()->pnl;
-                $real_rr = $nett_pnl / $loss;
-                $trade->real_rr = $real_rr;
-
-                // ganti open time sama transaksi paling pertama
-                $first_transaction = $trade->transactions->last();
-                $trade->open_price = $first_transaction->price;
-                $trade->open_quantity = $first_transaction->quantity;
-
-                $initial_margin = $trade->open_quantity * $trade->open_price / $trade->leverage;
-                $trade->open_margin = $initial_margin;
-
-                // hitung perbedaan tanggal
-                $from = Carbon::parse($trade->open_time);
-                $to = Carbon::parse($request->get('transaction_time'));
-                $days = $to->diffInDays($from);
-                $hours = $to->diffInHours($from) % 24;
-                $minutes = $to->diffInMinutes($from) % 60;
-                $seconds = $to->diffInSeconds($from) % 60;
-
-                $trade->diff_days = $days;
-                $trade->diff_hours = $hours;
-                $trade->diff_minutes = $minutes;
-                $trade->diff_seconds = $seconds;
-
-                // hitung roe dan wl dan closed at
-                $sumTotalSold = abs($trade->transactions()->where('type', 1)->sum('total'));
-                $margin_sold = $sumTotalSold / $trade->leverage;
-                $roe = ($nett_pnl / $margin_sold * 100);
-                $trade->roe = $roe;
-
-                if ($nett_pnl == 0) {
-                    $trade->wl = 0;
-                } else if ($nett_pnl > 0) {
-                    $trade->wl = 1;
-                } else if ($nett_pnl < 0) {
-                    $trade->wl = -1;
                 }
 
-                $closed_at = null;
-                if ($trade->wl == 1) {
-                    $tp_targets = $trade->targets()->where('type', '1')->get();
-                    foreach ($tp_targets as $key => $value) {
-                        if ($direction == 1 && $request->get('transaction_price') >= $value->price) {
-                            $closed_at = "TP " . ($key + 1);
-                        } else if ($direction == 0 && $request->get('transaction_price') <= $value->price) {
-                            $closed_at = "TP " . ($key + 1);
-                        }
-                    }
-                } else if ($trade->wl == -1) {
-                    $sl_targets = $trade->targets()->where('type', '0')->get();
-                    foreach ($sl_targets as $key => $value) {
-                        if ($direction == 1 && $request->get('transaction_price') <= $value->price) {
-                            $closed_at = "SL " . ($key + 1);
-                        } else if ($direction == 0 && $request->get('transaction_price') >= $value->price) {
-                            $closed_at = "SL " . ($key + 1);
-                        }
-                    }
-                }
+                $journal->balances = $journal->balances - $trade->nett_pnl;
+                $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+                $journal->save();
 
-                $trade->closed_at = $closed_at;
-            } else if ($trade->quantity_remaining > 0) {
-                $trade->status = 1;
-            }
-
-            $trade->save();
-
-            $journal->balances = $journal->balances + $trade->nett_pnl;
-            $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
-            $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
-            $journal->save();
-
-            if ($request->get('transaction_id') == null) {
-                return redirect()->back()->withSuccess('Transaksi berhasil ditambahkan');
+                $save = $trade->transactions()->save($trade_transaction);
             } else {
-                return redirect()->back()->withSuccess('Transaksi berhasil diubah');
+
+                $trade_transaction = TradeTransaction::findOrFail($request->get('transaction_id'));
+
+                if ($request->get('transaction_type') == 1) {
+                    $request['transaction_quantity'] = -$request['transaction_quantity'];
+                }
+
+                $quantity = $trade->quantity_remaining - $trade_transaction->quantity + $request->get('transaction_quantity');
+
+                if ($quantity < 0) {
+                    return redirect()->back()->withError('Transaksi gagal diubah');
+                } else {
+                    $journal->balances = $journal->balances - $trade->nett_pnl;
+                    $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+                    $journal->save();
+
+                    $trade_transaction->type = $request->get('transaction_type');
+                    $trade_transaction->price = $request->get('transaction_price');
+                    $trade_transaction->quantity = $request->get('transaction_quantity');
+                    $trade_transaction->total = $request->get('transaction_price') * $request->get('transaction_quantity');
+                    $trade_transaction->fee = $request->get('transaction_fee');
+                    $trade_transaction->time = $request->get('transaction_time');
+
+                    if ($request->get('transaction_type') == 1) {
+                        $direction = $trade->type;
+                        $close_price = $request->get('transaction_price');
+                        $qty = $request->get('transaction_quantity');
+                        $profit = 0;
+                        $average_price = $trade->average_price;
+                        if ($direction == 1) {
+                            if ($close_price > $average_price) {
+                                $profit = abs(($average_price - $close_price) * abs($qty));
+                            } else {
+                                $profit = ($close_price - $average_price) * abs($qty);
+                            }
+                        } else if ($direction == 0) {
+                            if ($close_price < $average_price) {
+                                $profit = abs(($close_price - $average_price) * abs($qty));
+                            } else {
+                                $profit = ($average_price - $close_price) * abs($qty);
+                            }
+                        }
+                        $trade_transaction->pnl = $profit;
+                    } else {
+                        $trade_transaction->pnl = 0;
+                    }
+                    $trade_transaction->save();
+                }
+            }
+
+            $trade = Trade::find($trade->id);
+            if (count($trade->transactions) > 0) {
+                if (count($trade->transactions) == 1 && $request->get('transaction_type') == 0) {
+                    $trade->open_time = $request->get('transaction_time');
+                    $trade->status = 1;
+                }
+
+                // hitung quantity remaining
+                $trade->quantity_remaining = $trade->transactions->sum('quantity');
+
+                // hitung average price
+                $sumAmountBought = $trade->transactions()->where('type', 0)->sum('quantity');
+                $sumTotalBought = $trade->transactions()->where('type', 0)->sum('total');
+                if ($sumTotalBought > 0 and $sumAmountBought > 0) {
+                    $average_price = $sumTotalBought / $sumAmountBought;
+                    $trade->average_price = $average_price;
+                }
+
+                // hitung margin
+                $margin = $trade->quantity_remaining * $trade->average_price / $trade->leverage;
+                $trade->margin = $margin;
+
+                // hitung total fees
+                $sumTotalFee = $trade->transactions()->sum('fee');
+                $trade->total_fees = $sumTotalFee;
+                $trade->save();
+
+                // hitung total pnl dan nett pnl
+                $sumTotalPNL = $trade->transactions()->sum('pnl');
+                $trade->pnl = $sumTotalPNL;
+                $trade->nett_pnl = $trade->pnl - $trade->total_fees;
+
+                // kalau selesai
+                if ($request->get('transaction_type') == 1 && $trade->quantity_remaining == 0) {
+                    $trade->close_time = $request->get('transaction_time');
+                    $trade->close_price = $request->get('transaction_price');
+                    $trade->status = 2;
+
+                    // hitung ril rr
+                    $nett_pnl = $trade->nett_pnl;
+                    $loss = $trade->targets()->where('type', 0)->first()->pnl;
+                    $real_rr = $nett_pnl / $loss;
+                    $trade->real_rr = $real_rr;
+
+                    // ganti open time sama transaksi paling pertama
+                    $first_transaction = $trade->transactions->last();
+                    $trade->open_price = $first_transaction->price;
+                    $trade->open_quantity = $first_transaction->quantity;
+
+                    $initial_margin = $trade->open_quantity * $trade->open_price / $trade->leverage;
+                    $trade->open_margin = $initial_margin;
+
+                    // hitung perbedaan tanggal
+                    $from = Carbon::parse($trade->open_time);
+                    $to = Carbon::parse($request->get('transaction_time'));
+                    $days = $to->diffInDays($from);
+                    $hours = $to->diffInHours($from) % 24;
+                    $minutes = $to->diffInMinutes($from) % 60;
+                    $seconds = $to->diffInSeconds($from) % 60;
+
+                    $trade->diff_days = $days;
+                    $trade->diff_hours = $hours;
+                    $trade->diff_minutes = $minutes;
+                    $trade->diff_seconds = $seconds;
+
+                    // hitung roe dan wl dan closed at
+                    $sumTotalSold = abs($trade->transactions()->where('type', 1)->sum('total'));
+                    $margin_sold = $sumTotalSold / $trade->leverage;
+                    $roe = ($nett_pnl / $margin_sold * 100);
+                    $trade->roe = $roe;
+
+                    if ($nett_pnl == 0) {
+                        $trade->wl = 0;
+                    } else if ($nett_pnl > 0) {
+                        $trade->wl = 1;
+                    } else if ($nett_pnl < 0) {
+                        $trade->wl = -1;
+                    }
+
+                    $closed_at = null;
+                    if ($trade->wl == 1) {
+                        $tp_targets = $trade->targets()->where('type', '1')->get();
+                        foreach ($tp_targets as $key => $value) {
+                            if ($direction == 1 && $request->get('transaction_price') >= $value->price) {
+                                $closed_at = "TP " . ($key + 1);
+                            } else if ($direction == 0 && $request->get('transaction_price') <= $value->price) {
+                                $closed_at = "TP " . ($key + 1);
+                            }
+                        }
+                    } else if ($trade->wl == -1) {
+                        $sl_targets = $trade->targets()->where('type', '0')->get();
+                        foreach ($sl_targets as $key => $value) {
+                            if ($direction == 1 && $request->get('transaction_price') <= $value->price) {
+                                $closed_at = "SL " . ($key + 1);
+                            } else if ($direction == 0 && $request->get('transaction_price') >= $value->price) {
+                                $closed_at = "SL " . ($key + 1);
+                            }
+                        }
+                    }
+
+                    $trade->closed_at = $closed_at;
+                } else if ($trade->quantity_remaining > 0) {
+                    $trade->status = 1;
+                }
+
+                $trade->save();
+
+                $journal->balances = $journal->balances + $trade->nett_pnl;
+                $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
+                $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
+                $journal->save();
+
+                DB::commit();
+
+                if ($request->get('transaction_id') == null) {
+                    return redirect()->back()->withSuccess('Transaksi berhasil ditambahkan');
+                } else {
+                    return redirect()->back()->withSuccess('Transaksi berhasil diubah');
+                }
+            }
+        } catch (\Throwable $th){
+            DB::rollBack();
+            if ($request->get('transaction_id') == null) {
+                return redirect()->back()->withError('Transaksi gagal ditambahkan');
+            } else {
+                return redirect()->back()->withError('Transaksi gagal diubah');
             }
         }
+
+
     }
 
     public function destroy_transaction(Journal $journal, Trade $trade, TradeTransaction $trade_transaction)
@@ -720,7 +835,10 @@ class TradeController extends Controller
         if ($quantity < 0) {
             return redirect()->back()->withError('Transaksi gagal dihapus');
         } else {
-            $journal->balances = $journal->balances - $trade->nett_pnl;
+            DB::beginTransaction();
+
+            try{
+                $journal->balances = $journal->balances - $trade->nett_pnl;
             $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
             $journal->save();
 
@@ -835,7 +953,13 @@ class TradeController extends Controller
             $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
             $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
             $journal->save();
+            DB::commit();
             return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
+            } catch (\Throwable $th){
+                DB::rollBack();
+                return redirect()->back()->withError('Transaksi gagal dihapus');
+            }
+
         }
     }
 
@@ -891,11 +1015,11 @@ class TradeController extends Controller
                 $user->save();
 
                 DB::commit();
-                return redirect()->back()->withSuccess('Catatan berhasil dihapus');
+                return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withSuccess('Catatan berhasil dihapus');
             } catch (\Throwable $th) {
                 //throw $th;
                 DB::rollBack();
-                return redirect()->back()->withError('Catatan gagal dihapus');
+                return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withError('Catatan gagal dihapus');
             }
         } else {
             abort(403);

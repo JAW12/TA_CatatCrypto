@@ -69,7 +69,7 @@
                             if(element.user == null){
                                 if (element.category_id == 1) {
                                     entry_strategies.push(element);
-                                } else if (element.category_id > 1) {
+                                } else if (element.category_id > 1 && element.category_id < 5) {
                                     pattern.push(element);
                                 } else if (element.category_id == 5) {
                                     indicator.push(element);
@@ -78,7 +78,7 @@
                             else{
                                 if (element.category_id == 1 && element.user.user_type == "admin") {
                                     entry_strategies.push(element);
-                                } else if (element.category_id > 1 && element.user.user_type == "admin") {
+                                } else if (element.category_id > 1 && element.category_id < 5 && element.user.user_type == "admin") {
                                     pattern.push(element);
                                 } else if (element.category_id == 5 && element.user.user_type == "admin") {
                                     indicator.push(element);
@@ -317,8 +317,8 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan
-                                                Pustaka</button>
+                                            {{-- <button type="button" class="btn btn-dark w-100">Lihat Laporan
+                                                Pustaka</button> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -331,13 +331,13 @@
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="entry_strategies">
                                 </div>
                             </div>
-                            <h5>Pattern</h5>
+                            <h5>Pola</h5>
                             <hr>
                             <div class="mb-4">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="pattern">
                                 </div>
                             </div>
-                            <h5>Indicator</h5>
+                            <h5>Indikator</h5>
                             <hr>
                             <div class="mb-5">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="indicator">

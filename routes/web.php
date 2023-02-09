@@ -33,9 +33,9 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-Route::get('/storage', function () {
-    Artisan::call('storage:link');
-});
+// Route::get('/storage', function () {
+//     Artisan::call('storage:link');
+// });
 
 
 Route::get('', [HomeController::class, 'index'])->name('index');
@@ -112,10 +112,10 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
             Route::group(['prefix' => '/catatan/{trade}'], function () {
                 Route::get('', [TradeController::class, 'show'])->name('user.journal.trade.edit')->withTrashed();
                 Route::post('', [TradeController::class, 'update'])->name('user.journal.trade.update')->withTrashed();
-                Route::post('/tambah', [TradeController::class, 'store_transaction'])->name('user.journal.trade.transaction.store');
                 Route::delete('/hapus', [TradeController::class, 'destroy'])->name('user.journal.trade.delete');
+                Route::post('/transaksi', [TradeController::class, 'store_transaction'])->name('user.journal.trade.transaction.store');
 
-                Route::get('/transaksi/{trade_transaction}', [TradeController::class, 'destroy_transaction'])->name('user.journal.trade.transaction.delete');
+                Route::get('/transaksi/hapus/{trade_transaction}', [TradeController::class, 'destroy_transaction'])->name('user.journal.trade.transaction.delete');
             });
         });
     });

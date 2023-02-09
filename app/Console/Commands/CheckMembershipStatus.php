@@ -48,7 +48,7 @@ class CheckMembershipStatus extends Command
                 $user->max_journals = 0;
                 $user->trades_quantity_per_month = 100;
                 if ($user->remaining_trades = -1) {
-                    $user->remaining_trades = 0;
+                    $user->remaining_trades = 100;
                 }
 
                 if ($user->hasPermissionTo('portfolio-tambah-binance')) {

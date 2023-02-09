@@ -37,7 +37,7 @@ class AssetTransactionController extends Controller
             $request['price'] = 0;
             $request['total'] = 0;
         }
-        if($request->type == 1 or $request->type == 3){
+        if($request->type == 1 or $request->type == 2){
             $request['amount'] = -$request['amount'];
             $request['total'] = -$request['total'];
         }

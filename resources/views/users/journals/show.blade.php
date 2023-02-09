@@ -222,22 +222,23 @@
                     }).data().count();
 
                     htmlRR = "";
-                    if (pageTotalRR > 0) {
+                    if (pageTotalRR >= 2) {
                         htmlRR = `<span class="text-success me-1">${pageTotalRR.toFixed(2)}</span>`;
                     } else if (pageTotalRR < 0) {
                         htmlRR =
                             `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
                     } else {
-                        htmlRR = "<span class='me-1'>0.00</span>";
+                        htmlRR = `<span class='text-danger me-1'>${pageTotalRR.toFixed(2)}</span>`;
                     }
 
-                    if (totalRR > 0) {
+                    if (totalRR >= 2) {
                         htmlRR += `<span class="text-success">(Total: ${totalRR.toFixed(2)})</span>`;
                     } else if (totalRR < 0) {
                         htmlRR +=
                             `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
                     } else {
-                        htmlRR += "(Total: 0.00)";
+                        htmlRR +=
+                            `<span class="text-danger">(Total: ${totalRR.toFixed(2)})</span>`;
                     }
 
 
@@ -675,22 +676,24 @@
                     }).data().count();
 
                     htmlRR = "";
-                    if (pageTotalRR > 0) {
+                    if (pageTotalRR >= 2) {
                         htmlRR = `<span class="text-success me-1">${pageTotalRR.toFixed(2)}</span>`;
                     } else if (pageTotalRR < 0) {
                         htmlRR =
                             `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
                     } else {
-                        htmlRR = "<span class='me-1'>0.00</span>";
+                        htmlRR =
+                            `<span class="text-danger me-1">${pageTotalRR.toFixed(2)}</span>`;
                     }
 
-                    if (totalRR > 0) {
+                    if (totalRR >= 2) {
                         htmlRR += `<span class="text-success">(Total: ${totalRR.toFixed(2)})</span>`;
                     } else if (totalRR < 0) {
                         htmlRR +=
                             `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
                     } else {
-                        htmlRR += "(Total: 0.00)";
+                        htmlRR +=
+                            `<span class="text-danger">(Total: ${totalRR.toFixed(2)})</span>`;
                     }
 
 
@@ -780,12 +783,7 @@
                         date = new Date(data[7]);
                     }
 
-                    if (
-                        ((min === null && max === null) ||
-                            (min === null && date <= max) ||
-                            (min <= date && max === null) ||
-                            (min <= date && date <= max))
-                    ) {
+                    if ((min === null && max === null) || (min === null && date <= max) || (min <= date && max === null) || (min <= date && date <= max)) {
                         return true;
                     }
                     return false;
@@ -846,7 +844,7 @@
                                     <div class="row g-2">
                                         @if ($journal->deleted_at == '')
                                             <form action="{{ route('user.journal.delete', $journal->id) }}"
-                                                method="post" class="col-sm-12 col-md-3">
+                                                method="post" class="col-sm-12 col-md-4">
                                                 @csrf
                                                 @method('delete')
                                                 <button type="submit" id="delete-journal"
@@ -854,17 +852,17 @@
                                             </form>
                                         @elseif($journal->deleted_at != '')
                                             <form action="{{ route('user.journal.restore', $journal->id) }}"
-                                                method="post" class="col-sm-12 col-md-3">
+                                                method="post" class="col-sm-12 col-md-4">
                                                 @csrf
                                                 <button type="submit" class="btn btn-success w-100">Aktifkan</button>
                                             </form>
                                         @endif
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan
+                                            <button type="button" class="btn btn-dark w-100">Laporan
                                                 Metrik</button>
                                         </div>
-                                        <div class="col-sm-12 col-md-5">
-                                            <button type="button" class="btn btn-dark w-100">Lihat Laporan
+                                        <div class="col-sm-12 col-md-4">
+                                            <button type="button" class="btn btn-dark w-100">Laporan
                                                 Riwayat</button>
                                         </div>
                                     </div>
@@ -1142,12 +1140,12 @@
                                                     <td>-</td>
                                                     <td>-</td>
                                                 @endif
-                                                <td>{{ $trade->rr_expected }}</td>
+                                                <td class="@if($trade->rr_expected >= 2) text-success @else text-danger @endif">{{ $trade->rr_expected }}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success">
+                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1175,7 +1173,7 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">
@@ -1346,7 +1344,7 @@
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success">
+                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1374,7 +1372,7 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">
@@ -1505,13 +1503,13 @@
                                                             (Kalah)</span>
                                                     </td>
                                                 @endif
-                                                <td>{{ $trade->real_rr }}</td>
+                                                <td class="@if($trade->real_rr >= 2) text-success @else text-danger @endif">{{ $trade->real_rr }}</td>
                                                 <td>{{ $trade->closed_at == '' ? '-' : $trade->closed_at }}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success">
+                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1539,7 +1537,7 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete"
+                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">

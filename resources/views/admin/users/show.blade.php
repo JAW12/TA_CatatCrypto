@@ -101,8 +101,7 @@
                                     @if ($user->email_verified_at != '')
                                         <span class="badge rounded-pill bg-success">Terverifikasi</span>
                                     @else
-                                        <a href="{{ route('verification.send') }}"><span
-                                                class="badge rounded-pill bg-primary">Verifikasi disini</span></a>
+                                        <span class="badge rounded-pill bg-primary">Belum Verifikasi</span>
                                     @endif
                                 </p>
                             </div>
@@ -226,7 +225,7 @@
                                                 <td>{{ $value->payment_type }}</td>
                                             @endif
                                             <td>{{ date_format(date_create($value->created_at), 'd F Y H:i:s') }}</td>
-                                            <td>{{ date('d F Y H:i:s', strtotime($value->created_at . ' +1 day')) }}
+                                            <td>@if($value->payment_type != "credit_card"){{ date('d F Y H:i:s', strtotime($value->created_at . ' +1 day')) }}@else - @endif
                                             </td>
                                             @if ($value->status == 'settlement' || $value->status == 'capture')
                                                 <td><span class="badge bg-success">Berhasil</span></td>
