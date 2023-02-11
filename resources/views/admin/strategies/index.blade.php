@@ -64,9 +64,16 @@
                         let indicator = [];
                         let private = [];
                         data.forEach(element => {
-                            console.log(element);
 
-                            if(element.user == null){
+                            if (element.user == null) {
+                                if (element.category_id == 1) {
+                                    entry_strategies.push(element);
+                                } else if (element.category_id > 1 && element.category_id < 5) {
+                                    pattern.push(element);
+                                } else if (element.category_id == 5) {
+                                    indicator.push(element);
+                                }
+                            } else {
                                 if (element.category_id == 1) {
                                     entry_strategies.push(element);
                                 } else if (element.category_id > 1 && element.category_id < 5) {
@@ -75,45 +82,48 @@
                                     indicator.push(element);
                                 }
                             }
-                            else{
-                                if (element.category_id == 1 && element.user.user_type == "admin") {
-                                    entry_strategies.push(element);
-                                } else if (element.category_id > 1 && element.category_id < 5 && element.user.user_type == "admin") {
-                                    pattern.push(element);
-                                } else if (element.category_id == 5 && element.user.user_type == "admin") {
-                                    indicator.push(element);
-                                }
-                            }
                             // console.log(element, ":", element.user_id, user_id, "=", element.user_id == user_id);
                         });
 
                         let counter = 0;
                         entry_strategies.forEach(element => {
-                            if (counter < 8) {
-                                let src = `<?php echo asset('url'); ?>`;
-                                if (element.url != "") {
-                                    src = src.replace('url', element.url_picture);
-                                } else {
-                                    src = "{{ asset('images/no-image.webp') }}";
-                                }
+                            let src = `<?php echo asset('url'); ?>`;
+                            if (element.url != "") {
+                                src = src.replace('url', element.url_picture);
+                            } else {
+                                src = "{{ asset('images/no-image.webp') }}";
+                            }
 
-                                if (element.description == null) {
-                                    element.description = "";
-                                }
+                            if (element.description == null) {
+                                element.description = "";
+                            }
 
-                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
-                                routeDetail = routeDetail.replace(':id', element.id);
+                            let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
+                            routeDetail = routeDetail.replace(':id', element.id);
 
-                                let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
-                                routeDelete = routeDelete.replace(':id', element.id);
-                                let deleteButton = `<a href="${routeDelete}" class="delete">
+                            let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                            routeDelete = routeDelete.replace(':id', element.id);
+                            let deleteButton = `<a href="${routeDelete}" class="delete">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                                                 </svg>
                                             </a>`;
 
-                                let cardHTML = `<div class="col">
+                            let author = "";
+                            if (element.user != null) {
+                                if (element.user.user_type == "admin") {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                                } else {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh ${element.user.full_name}</small></p>`;
+                                }
+                            } else {
+                                author = `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                            }
+
+                            let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
@@ -126,14 +136,13 @@
                                     <p class="card-text">${element.description}</p>
                                 </div>
                                 <div class="card-footer">
+                                    ${author}
                                     <a href="${routeDetail}" class="btn btn-primary">Lihat Detail</a>
                                 </div>
                             </div>
                         </div>`;
 
-                                $("#entry_strategies").append(cardHTML);
-                                counter++;
-                            }
+                            $("#entry_strategies").append(cardHTML);
                         });
 
                         if (entry_strategies.length == 0) {
@@ -142,31 +151,43 @@
 
                         counter = 0;
                         pattern.forEach(element => {
-                            if (counter < 8) {
-                                let src = `<?php echo asset('url'); ?>`;
-                                if (element.url != "") {
-                                    src = src.replace('url', element.url_picture);
-                                } else {
-                                    src = "{{ asset('images/no-image.webp') }}";
-                                }
+                            let src = `<?php echo asset('url'); ?>`;
+                            if (element.url != "") {
+                                src = src.replace('url', element.url_picture);
+                            } else {
+                                src = "{{ asset('images/no-image.webp') }}";
+                            }
 
-                                if (element.description == null) {
-                                    element.description = "";
-                                }
+                            if (element.description == null) {
+                                element.description = "";
+                            }
 
-                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
-                                routeDetail = routeDetail.replace(':id', element.id);
+                            let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
+                            routeDetail = routeDetail.replace(':id', element.id);
 
-                                let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
-                                routeDelete = routeDelete.replace(':id', element.id);
-                                let deleteButton = `<a href="${routeDelete}" class="delete">
+                            let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                            routeDelete = routeDelete.replace(':id', element.id);
+                            let deleteButton = `<a href="${routeDelete}" class="delete">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                                                 </svg>
                                             </a>`;
 
-                                let cardHTML = `<div class="col">
+                            let author = "";
+                            if (element.user != null) {
+                                if (element.user.user_type == "admin") {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                                } else {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh ${element.user.full_name}</small></p>`;
+                                }
+                            } else {
+                                author = `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                            }
+
+                            let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
@@ -179,14 +200,13 @@
                                     <p class="card-text">${element.description}</p>
                                 </div>
                                 <div class="card-footer">
+                                    ${author}
                                     <a href="${routeDetail}" class="btn btn-primary">Lihat Detail</a>
                                 </div>
                             </div>
                         </div>`;
 
-                                $("#pattern").append(cardHTML);
-                                counter++;
-                            }
+                            $("#pattern").append(cardHTML);
                         });
 
                         if (pattern.length == 0) {
@@ -195,31 +215,57 @@
 
                         counter = 0;
                         indicator.forEach(element => {
-                            if (counter < 8) {
-                                let src = `<?php echo asset('url'); ?>`;
-                                if (element.url != "") {
-                                    src = src.replace('url', element.url_picture);
-                                } else {
-                                    src = "{{ asset('images/no-image.webp') }}";
+                            let src = `<?php echo asset('url'); ?>`;
+                            if (element.url != "") {
+                                src = src.replace('url', element.url_picture);
+                            } else {
+                                src = "{{ asset('images/no-image.webp') }}";
+                            }
+
+                            if (element.description == null) {
+                                element.description = "";
+                            }
+
+                            let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
+                            routeDetail = routeDetail.replace(':id', element.id);
+
+                            let deleteButton = '';
+                            if (element.user != null) {
+                                if (element.user.user_type == "admin") {
+                                    let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
+                                    routeDelete = routeDelete.replace(':id', element.id);
+                                    deleteButton = `<a href="${routeDelete}" class="delete">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                        </svg>
+                                                    </a>`;
                                 }
-
-                                if (element.description == null) {
-                                    element.description = "";
-                                }
-
-                                let routeDetail = `<?php echo route('admin.library.detail', ['id' => ':id']); ?>`;
-                                routeDetail = routeDetail.replace(':id', element.id);
-
+                            } else {
                                 let routeDelete = `<?php echo route('admin.library.delete', ['id' => ':id']); ?>`;
                                 routeDelete = routeDelete.replace(':id', element.id);
-                                let deleteButton = `<a href="${routeDelete}" class="delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                                </svg>
-                                            </a>`;
+                                deleteButton = `<a href="${routeDelete}" class="delete">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                        </svg>
+                                                    </a>`;
+                            }
 
-                                let cardHTML = `<div class="col">
+                            let author = "";
+                            if (element.user != null) {
+                                if (element.user.user_type == "admin") {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                                } else {
+                                    author =
+                                        `<p class="text-muted"><small>Dibuat oleh ${element.user.full_name}</small></p>`;
+                                }
+                            } else {
+                                author = `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
+                            }
+
+                            let cardHTML = `<div class="col">
                                 <div class="card h-100">
                                     <div class="position-relative">
                                         <img src="${src}" class="card-img-top" alt="${element.name}">
@@ -232,14 +278,13 @@
                                     <p class="card-text">${element.description}</p>
                                 </div>
                                 <div class="card-footer">
+                                    ${author}
                                     <a href="${routeDetail}" class="btn btn-primary">Lihat Detail</a>
                                 </div>
                             </div>
                         </div>`;
 
-                                $("#indicator").append(cardHTML);
-                                counter++;
-                            }
+                            $("#indicator").append(cardHTML);
                         });
 
                         if (indicator.length == 0) {

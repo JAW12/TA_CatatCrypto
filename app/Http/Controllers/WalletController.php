@@ -32,22 +32,6 @@ class WalletController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreWalletRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreWalletRequest $request)
     {
         if (Auth::user()->hasPermissionTo('portfolio-tambah')) {
@@ -94,22 +78,6 @@ class WalletController extends Controller
         }
     }
 
-    // public function console_log($output, $with_script_tags = true)
-    // {
-    //     $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-    //         ');';
-    //     if ($with_script_tags) {
-    //         $js_code = '<script>' . $js_code . '</script>';
-    //     }
-    //     echo $js_code;
-    // }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
     public function show(Wallet $wallet)
     {
         if (Auth::user()->hasPermissionTo('portfolio-daftar')) {
@@ -854,13 +822,6 @@ class WalletController extends Controller
         return response()->json($data);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateWalletRequest  $request
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateWalletRequest $request, Wallet $wallet)
     {
         if (Auth::user()->hasPermissionTo('portfolio-ubah')) {
@@ -941,12 +902,6 @@ class WalletController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Wallet  $wallet
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Wallet $wallet)
     {
         if (Auth::user()->hasPermissionTo('portfolio-hapus')) {
@@ -970,6 +925,70 @@ class WalletController extends Controller
             } else {
                 return redirect()->back()->withError('Dompet gagal diaktifkan');
             }
+        } else {
+            abort(403);
+        }
+    }
+
+    public function demography(){
+        if (Auth::user()->hasPermissionTo('portfolio')) {
+
+            $data = User::findOrFail(Auth::id());
+
+            $dataPie = Wallet::select('name', 'amount_of_assets')
+                    ->where('user_id', $data->id)
+                    ->get();
+
+            $labelsPie = [];
+            $seriesPie = [];
+
+            foreach ($dataPie as $row) {
+                array_push($labelsPie, $row->name);
+                array_push($seriesPie, (int)$row->amount_of_assets);
+            }
+
+            $optionsPie = [
+                'series' => $seriesPie,
+                'chart' => [
+                    'type' => 'pie',
+                ],
+                'labels' => $labelsPie,
+                'responsive' => [
+                    [
+                        'breakpoint' => 480,
+                        'options' => [
+                            'legend' => [
+                                'position' => 'bottom'
+                            ]
+                        ]
+                    ]
+                ],
+                'legend' => [
+                    'position' => 'bottom',
+                ]
+            ];
+
+            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->orderBy('pnl', 'desc')->take(3)->get();
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row->name);
+                array_push($seriesBarTerbaik, (int)$row->pnl);
+            }
+
+            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->orderBy('pnl', 'asc')->take(3)->get();
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row->name);
+                array_push($seriesBarTerburuk, (int)$row->pnl);
+            }
+
+            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
+
+            return view('users.wallets.demography', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
         } else {
             abort(403);
         }

@@ -16,11 +16,11 @@
             color: #c72508;
         }
 
-        .icon {
+        .icon-detail {
             color: #323232;
         }
 
-        .icon:hover {
+        .icon-detail:hover {
             color: black
         }
     </style>
@@ -89,7 +89,7 @@
                                 @endif
 
                                 @if ($strategy->user_id == Auth::id())
-                                    <a href="{{ route('user.library.delete', ['id' => $strategy->id]) }}" class="icon"
+                                    <a href="{{ route('user.library.delete', ['id' => $strategy->id]) }}" class="icon-detail"
                                         id="delete">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                             fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -100,7 +100,7 @@
                                         </svg>
                                     </a>
 
-                                    <a href="{{route('user.library.edit', ['id' => $strategy->id])}}" class="icon" id="edit">
+                                    <a href="{{route('user.library.edit', ['id' => $strategy->id])}}" class="icon-detail" id="edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
                                             fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                             <path

@@ -168,8 +168,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a href="{{ request()->is('user/dompet/*') ? 'javascript:window.location.reload(true)' : route('user.wallet') }}"
-                        class="nav-link {{ request()->is('user/dompet/*') ? 'active' : '' }}" style="cursor:pointer">
+                    <a href="@if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false) javascript:window.location.reload(true) @else {{route('user.wallet')}} @endif"
+                        class="nav-link @if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false) active @endif" style="cursor:pointer">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
@@ -344,7 +344,7 @@
             </a>
             <ul class="sub-nav collapse" id="sidebar-pustaka" data-bs-parent="#sidebar-pustaka">
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.library')) }}" href="{{ route('user.library') }}">
+                    <a class="nav-link @if((@request()->is('user/pustaka') or request()->is('user/pustaka/*')) and request()->is('user/pustaka/*/') == false and request()->is('user/pustaka/tambah') == false and request()->is('user/pustaka/favorit') == false) active @endif" href="{{ route('user.library') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">

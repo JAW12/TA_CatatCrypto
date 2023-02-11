@@ -69,6 +69,10 @@ class User extends Authenticatable
         return $this->hasMany(Wallet::class)->withTrashed();
     }
 
+    public function active_wallets(){
+        return $this->hasMany(Wallet::class);
+    }
+
     public function journals(){
         return $this->hasMany(Journal::class)->withTrashed();
     }

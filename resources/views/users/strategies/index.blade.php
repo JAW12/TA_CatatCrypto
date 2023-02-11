@@ -50,7 +50,8 @@
                 type: 'get',
                 data: {
                     search: search,
-                    favorit: '{{ $favorit }}'
+                    favorit: '{{ $favorit }}',
+                    kategori: '{{ $category }}'
                 },
                 success: function(data) {
                     $("#entry_strategies").html("");
@@ -59,6 +60,7 @@
                     $("#private").html("");
 
                     var user_id = {{ Auth::id() }};
+                    var kategori = "{{ $category }}";
 
                     if (data.length > 0) {
                         let entry_strategies = [];
@@ -67,12 +69,12 @@
                         let private = [];
                         data.forEach(element => {
                             // console.log(element, ":", element.user_id, user_id, "=", element.user_id == user_id);
-                            if (element.category_id == 1 && element.user_id != user_id) {
+                            if (element.category_id == 1 && element.user_id != user_id && (kategori == "semua" || kategori == "strategi-entri")) {
                                 entry_strategies.push(element);
                             } else if (element.category_id > 1 && element.category_id < 5 && element
-                                .user_id != user_id) {
+                                .user_id != user_id && (kategori == "semua" || kategori == "pola")) {
                                 pattern.push(element);
-                            } else if (element.category_id == 5 && element.user_id != user_id) {
+                            } else if (element.category_id == 5 && element.user_id != user_id && (kategori == "semua" || kategori == "indikator")) {
                                 indicator.push(element);
                             } else if (element.user_id == user_id) {
                                 private.push(element);
@@ -81,7 +83,7 @@
 
                         let counter = 0;
                         entry_strategies.forEach(element => {
-                            if (counter < 8) {
+                            if (counter < 8 || kategori != "semua") {
                                 let src = `<?php echo asset('url'); ?>`;
                                 if (element.url != "") {
                                     src = src.replace('url', element.url_picture);
@@ -142,7 +144,7 @@
 
                         counter = 0;
                         pattern.forEach(element => {
-                            if (counter < 8) {
+                            if (counter < 8 || kategori != "semua") {
                                 let src = `<?php echo asset('url'); ?>`;
                                 if (element.url != "") {
                                     src = src.replace('url', element.url_picture);
@@ -203,7 +205,7 @@
 
                         counter = 0;
                         indicator.forEach(element => {
-                            if (counter < 8) {
+                            if (counter < 8 || kategori != "semua") {
                                 let src = `<?php echo asset('url'); ?>`;
                                 if (element.url != "") {
                                     src = src.replace('url', element.url_picture);
@@ -264,7 +266,7 @@
 
                         counter = 0;
                         private.forEach(element => {
-                            if (counter < 8) {
+                            if (counter < 8 || kategori != "semua") {
                                 let src = `<?php echo asset('url'); ?>`;
                                 if (element.url != "") {
                                     src = src.replace('url', element.url_picture);
@@ -317,7 +319,7 @@
                                         </div>
                                     </div>
                                 <div class="card-body">
-                                    <h5 class="card-title">${element.name} <span class="h6 text-muted"><small>${element.category.name}</small></span></h5>
+                                    <h5 class="card-title">${element.name} <br><span class="h6 text-muted"><small>${element.category.name}</small></span></h5>
                                     <p class="card-text">${element.description}</p>
                                 </div>
                                 <div class="card-footer">
@@ -377,6 +379,9 @@
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
+        @if($category != "semua")
+        <x-back-button>{{route('user.library')}}</x-back-button>
+        @endif
         <div>
             <div class="row">
                 <div class="col-sm-12">
@@ -417,30 +422,53 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <h5>Strategi Entri</h5>
+                            @if($category == "semua" || $category == "strategi-entri")
+                            <div class="d-md-flex justify-content-between">
+                                <h5>Strategi Entri</h5>
+                                @if($category == "semua" and $favorit == 0)
+                                <a href="{{route('user.library.category', ['category' => 'strategi-entri'])}}" class="btn btn-soft-primary">Lihat Selengkapnya</a>
+                                @endif
+                            </div>
                             <hr>
                             <div class="mb-4">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="entry_strategies">
                                 </div>
                             </div>
-                            <h5>Pola</h5>
+                            @endif
+                            @if($category == "semua" || $category == "pola")
+                            <div class="d-md-flex justify-content-between">
+                                <h5>Pola</h5>
+                                @if($category == "semua" and $favorit == 0)
+                                <a href="{{route('user.library.category', ['category' => 'pola'])}}" class="btn btn-soft-primary">Lihat Selengkapnya</a>
+                                @endif
+                            </div>
                             <hr>
                             <div class="mb-4">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="pattern">
                                 </div>
                             </div>
-                            <h5>Indikator</h5>
+                            @endif
+                            @if($category == "semua" || $category == "indikator")
+                            <div class="d-md-flex justify-content-between">
+                                <h5>Indikator</h5>
+                                @if($category == "semua" and $favorit == 0)
+                                <a href="{{route('user.library.category', ['category' => 'indikator'])}}" class="btn btn-soft-primary">Lihat Selengkapnya</a>
+                                @endif
+                            </div>
                             <hr>
                             <div class="mb-5">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="indicator">
                                 </div>
                             </div>
+                            @endif
+                            @if($category == "semua")
                             <h5>Strategi Pribadi</h5>
                             <hr>
                             <div>
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 gx-3 gy-4" id="private">
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>

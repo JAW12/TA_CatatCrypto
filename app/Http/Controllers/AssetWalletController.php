@@ -278,6 +278,16 @@ class AssetWalletController extends Controller
                 'pnl_percentage' => $pnlPercentage,
             ]);
 
+            $totalAsset = $wallet->assets->sum('pivot.total');
+            $totalPNL = $wallet->assets->sum('pivot.pnl');
+
+            if ($wallet->deleted_at == null) {
+                $wallet->update([
+                    'pnl' => $totalPNL,
+                    'amount_of_assets' => $totalAsset,
+                ]);
+            }
+
             $data = $asset_wallet;
             $data['transactions'] = $asset_wallet->transactions()->orderBy('time', 'desc')->get();
             return response()->json($data);

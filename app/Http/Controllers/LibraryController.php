@@ -15,13 +15,21 @@ class LibraryController extends Controller
     public function index()
     {
         $favorit = 0;
-        return view('users.strategies.index', compact('favorit'));
+        $category = "semua";
+        return view('users.strategies.index', compact('favorit', 'category'));
     }
 
     public function favorite()
     {
         $favorit = 1;
-        return view('users.strategies.index', compact('favorit'));
+        $category = "semua";
+        return view('users.strategies.index', compact('favorit', 'category'));
+    }
+
+    public function category($category)
+    {
+        $favorit = 0;
+        return view('users.strategies.index', compact('favorit', 'category'));
     }
 
     public function search(Request $request)
@@ -44,6 +52,25 @@ class LibraryController extends Controller
             $results->where(function ($query) use ($search) {
                 $query->where('name', 'LIKE', '%' . $search . '%');
             });
+        }
+
+        $category = $request->input('category');
+        if ($category) {
+            if($category == "strategi-entri"){
+                $results->where(function ($query) use ($search) {
+                    $query->where('category_id', 1);
+                });
+            }
+            else if($category == "pola"){
+                $results->where(function ($query) use ($search) {
+                    $query->where('category_id', '>', 1)->where('category_id', '<', 5);
+                });
+            }
+            else if($category == "indikator"){
+                $results->where(function ($query) use ($search) {
+                    $query->where('category_id', 5);
+                });
+            }
         }
         $results = $results->orderBy('name', 'ASC')->get();
 

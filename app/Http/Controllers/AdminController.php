@@ -40,10 +40,10 @@ class AdminController extends Controller
             $transaction = Transaction::where('id_order', $id_order)->first();
             $transaction->status = "settlement";
 
-            if($transaction->membership_id > 0){
+            if ($transaction->membership_id > 0) {
                 $membership = Membership::findOrFail($transaction->membership_id);
                 $today = date("Y-m-d");
-                $date = date('Y-m-d', strtotime($today. ' + ' . $membership->duration_months . ' months'));
+                $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
 
                 $user = User::find($transaction->user->id);
                 $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
@@ -53,7 +53,7 @@ class AdminController extends Controller
 
                 $user->remaining_trades = $user->trades_quantity_per_month;
 
-                if($membership->trades_quantity_per_month == -1){
+                if ($membership->trades_quantity_per_month == -1) {
                     $user->remaining_trades = -1;
                 }
                 $user->membership_since = $today;
@@ -62,22 +62,18 @@ class AdminController extends Controller
                 $user->spent = $user->spent + $transaction->gross_amount;
                 $user->save();
 
-                if($membership->enable_binance == 1){
+                if ($membership->enable_binance == 1) {
                     $user->givePermissionTo('portfolio-tambah-binance');
-                }
-                else{
+                } else {
                     $user->revokePermissionTo('portfolio-tambah-binance');
                 }
 
-                if($membership->enable_notification == 1){
+                if ($membership->enable_notification == 1) {
                     $user->givePermissionTo('assets-transactions-notifikasi');
-                }
-                else{
+                } else {
                     $user->revokePermissionTo('assets-transactions-notifikasi');
                 }
-
-            }
-            else{
+            } else {
                 $user = User::find($transaction->user->id);
                 $user->remaining_trades = $user->remaining_trades + 100;
                 $user->spent = $user->spent + $transaction->gross_amount;
@@ -85,8 +81,8 @@ class AdminController extends Controller
             }
             $transaction->save();
 
-            foreach($user->transactions as $trans){
-                if($trans->status == "pending"){
+            foreach ($user->transactions as $trans) {
+                if ($trans->status == "pending") {
                     $trans->status = "cancel";
                     $trans->save();
                 }
@@ -107,11 +103,13 @@ class AdminController extends Controller
         return $transaction->save() ? redirect()->route('admin.transactions')->withSuccess('Berhasil menolak pembayaran') : redirect()->route('admin.transactions')->withError('Gagal menolak pembayaran');
     }
 
-    public function libraries(){
+    public function libraries()
+    {
         return view('admin.strategies.index');
     }
 
-    public function libraries_search(Request $request){
+    public function libraries_search(Request $request)
+    {
 
         $results = Strategy::select('id', 'user_id', 'category_id', 'name', 'description', 'url_picture')->with('user')->with('category');
 
@@ -126,7 +124,8 @@ class AdminController extends Controller
         return response()->json($results);
     }
 
-    public function library_delete($id){
+    public function library_delete($id)
+    {
         DB::beginTransaction();
         try {
 
@@ -142,7 +141,6 @@ class AdminController extends Controller
 
             DB::commit();
             return redirect()->route('admin.strategies')->withSuccess('Berhasil menghapus pustaka tersebut');
-
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
@@ -150,13 +148,15 @@ class AdminController extends Controller
         }
     }
 
-    public function library_show($id){
+    public function library_show($id)
+    {
         $strategy = Strategy::findOrFail($id);
 
         return view('admin.strategies.show', compact('strategy'));
     }
 
-    public function library_edit($id){
+    public function library_edit($id)
+    {
         $strategy = Strategy::findOrFail($id);
 
         $categories = Category::all();
@@ -249,23 +249,26 @@ class AdminController extends Controller
         }
     }
 
-    public function users(){
+    public function users()
+    {
         $users = User::where('user_type', '<>', 'admin')->withTrashed()->get();
         return view('admin.users.list', compact('users'));
     }
 
-    public function user_ban($id){
+    public function user_ban($id)
+    {
         $user = User::findOrFail($id);
         return $user->delete() ? redirect()->route('admin.users')->withSuccess('Berhasil ban pengguna ini') : redirect()->route('admin.users')->withError('Gagal ban pengguna ini');
-
     }
 
-    public function user_restore($id){
+    public function user_restore($id)
+    {
         $user = User::withTrashed()->findOrFail($id);
         return $user->restore() ? redirect()->route('admin.users')->withSuccess('Berhasil kembalikan pengguna ini') : redirect()->route('admin.users')->withError('Gagal kembalikan pengguna ini');
     }
 
-    public function user_show($id){
+    public function user_show($id)
+    {
         $user = User::withTrashed()->findOrFail($id);
         return view('admin.users.show', compact('user'));
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,13 @@ class LoginRequest extends FormRequest
     public function authenticate()
     {
         $this->ensureIsNotRateLimited();
+
+        $user = User::where('email', $this->only('email'))->withTrashed()->first();
+        if($user){
+            if($user->deleted_at != null){
+                throw ValidationException::withMessages(['akses' => 'Akun anda telah dibanned.']);
+            }
+        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->filled('remember'))) {
             RateLimiter::hit($this->throttleKey());

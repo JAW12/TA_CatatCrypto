@@ -66,8 +66,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'dompet'], function () {
         Route::get('', [WalletController::class, 'index'])->name('user.wallet');
-        Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
         Route::get('/demografi', [WalletController::class, 'demography'])->name('user.wallet.demography');
+        Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
 
         Route::group(['prefix' => '{wallet}'], function () {
             Route::get('', [WalletController::class, 'show'])->name('user.wallet.detail')->withTrashed();
@@ -136,20 +136,20 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/{id}/load', [AssetController::class, 'load'])->name('user.coins.load');
     });
 
-    // belum
     Route::group(['prefix' => 'pustaka'], function () {
         Route::get('', [LibraryController::class, 'index'])->name('user.library');
         Route::get('/cari', [LibraryController::class, 'search'])->name('user.library.search');
         Route::get('/favorit', [LibraryController::class, 'favorite'])->name('user.library.favorite');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::post('/tambah', [LibraryController::class, 'store']);
-        Route::get('/{id}', [LibraryController::class, 'show'])->name('user.library.detail');
+        Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
+        Route::get('/{category}', [LibraryController::class, 'category'])->name('user.library.category');
+        Route::get('/{id}/detail', [LibraryController::class, 'show'])->name('user.library.detail');
         Route::get('/{id}/edit', [LibraryController::class, 'edit'])->name('user.library.edit');
         Route::post('/{id}/edit', [LibraryController::class, 'update']);
         Route::get('/{id}/like', [LibraryController::class, 'like'])->name('user.library.like');
         Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/{id}/hapus', [LibraryController::class, 'delete'])->name('user.library.delete');
-        Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
     });
 
     Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');

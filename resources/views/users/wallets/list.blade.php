@@ -2,7 +2,7 @@
 @push('scripts')
     <script>
         $(function() {
-            $("#btnKumpul").click(function(e){
+            $("#btnKumpul").click(function(){
                 let binance_api_key = $("input[name=binance_api_key]");
                 if(binance_api_key.length){
                     if(binance_api_key.val() != ""){
@@ -20,6 +20,9 @@
                                 $("#tambahDompet").submit();
                             }
                         })
+                    }
+                    else{
+                        $("#tambahDompet").submit();
                     }
                 }
                 else{

@@ -150,9 +150,6 @@ class AssetTransactionController extends Controller
                 return redirect()->back()->withError('Transaksi gagal diubah');
             }
         }
-
-
-
         // dd($asset_wallet);
     }
 

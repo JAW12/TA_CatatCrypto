@@ -493,7 +493,9 @@
 
                     // Check win loss
                     var checkWL = function(i) {
-                        return typeof i === 'string' ? i.includes("Menang") : typeof i ===
+                        // console.log(i, typeof i === 'string' ? + i.includes("Menang") : typeof i ===
+                        //     'number' ? 0 : 0);
+                        return typeof i === 'string' ? +i.includes("Menang") : typeof i ===
                             'number' ? 0 : 0;
                     };
 
@@ -608,8 +610,9 @@
                         })
                         .data()
                         .reduce(function(a, b) {
-                            return checkWL(a) + checkWL(b);
+                            return intVal(a) + checkWL(b);
                         }, 0);
+
 
                     totalWL = totalWL / api.column(13, {
                         filter: 'applied'
@@ -622,7 +625,7 @@
                         })
                         .data()
                         .reduce(function(a, b) {
-                            return checkWL(a) + checkWL(b);
+                            return intVal(a) + checkWL(b);
                         }, 0);
 
                     pageTotalWL = pageTotalWL / api.column(13, {
@@ -765,7 +768,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $(e.target).closest('form')
-                        .submit() // Post the surrounding form
+                            .submit() // Post the surrounding form
                     }
                 })
             });
@@ -783,7 +786,8 @@
                         date = new Date(data[7]);
                     }
 
-                    if ((min === null && max === null) || (min === null && date <= max) || (min <= date && max === null) || (min <= date && date <= max)) {
+                    if ((min === null && max === null) || (min === null && date <= max) || (min <= date &&
+                            max === null) || (min <= date && date <= max)) {
                         return true;
                     }
                     return false;
@@ -1079,22 +1083,24 @@
                                                         <span class="text-success">LONG</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ (float) $trade->open_quantity }}</td>
+                                                <td>{{ $trade->open_quantity > 999 ? number_format((float) $trade->open_quantity, 0) : (float) $trade->open_quantity }}</td>
                                                 <td>{{ $trade->leverage }}</td>
-                                                <td>${{ (float) $trade->open_margin }}</td>
-                                                <td>${{ (float) $trade->open_price }}</td>
+                                                <td>${{ $trade->open_margin > 999 ? number_format((float) $trade->open_margin, 0) : (float) $trade->open_margin }}</td>
+                                                <td>${{ $trade->open_price > 999 ? number_format((float) $trade->open_price, 0) :  (float) $trade->open_price }}</td>
                                                 @if (count($trade->targets->where('type', '0')) > 0)
-                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
+                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->price, 0) : (float) $trade->targets->where('type', '0')->first()->price }}
                                                     </td>
                                                     <td class="text-danger">
-                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->pnl, 0) : (float) $trade->targets->where('type', '0')->first()->pnl }}
                                                         @if (
                                                             $journal->risk > 0 and
                                                                 $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor"
                                                                 class="bi bi-exclamation-triangle-fill mb-1"
-                                                                viewBox="0 0 16 16">
+                                                                viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top"
+                                                                title="Resiko diatas {{ $journal->risk }}%">
                                                                 <path
                                                                     d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                                             </svg>
@@ -1105,22 +1111,22 @@
                                                     <td>-</td>
                                                 @endif
                                                 @if (count($trade->targets->where('type', '1')) > 0)
-                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->first()->price, 0) : (float) $trade->targets->where('type', '1')->first()->price }}
                                                     </td>
                                                     <td class="text-success">
-                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->first()->pnl, 0) : (float) $trade->targets->where('type', '1')->first()->pnl }}
                                                     </td>
                                                     @if (count($trade->targets->where('type', '1')) > 1)
-                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
+                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(1)->first()->price, 2) : (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
                                                         </td>
                                                         <td class="text-success">
-                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
+                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(1)->first()->pnl, 0) : (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
                                                         </td>
                                                         @if (count($trade->targets->where('type', '1')) > 2)
-                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
+                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(2)->first()->price, 0) : (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
                                                             </td>
                                                             <td class="text-success">
-                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
+                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(2)->first()->pnl, 0) : (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
                                                             </td>
                                                         @else
                                                             <td>-</td>
@@ -1140,12 +1146,15 @@
                                                     <td>-</td>
                                                     <td>-</td>
                                                 @endif
-                                                <td class="@if($trade->rr_expected >= 2) text-success @else text-danger @endif">{{ $trade->rr_expected }}</td>
+                                                <td
+                                                    class="@if ($trade->rr_expected >= 2) text-success @else text-danger @endif">
+                                                    {{ $trade->rr_expected }}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
+                                                                type="button"
+                                                                class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1173,7 +1182,8 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
+                                                                <button
+                                                                    class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">
@@ -1265,23 +1275,25 @@
                                                         <span class="text-success">LONG</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ (float) $trade->quantity_remaining }}</td>
+                                                <td>{{ $trade->quantity_remaining > 999 ? number_format((float) $trade->quantity_remaining, 0) : (float) $trade->quantity_remaining }}</td>
                                                 <td>{{ $trade->leverage }}</td>
-                                                <td>${{ (float) $trade->margin }}</td>
-                                                <td>${{ (float) $trade->open_price }}</td>
+                                                <td>${{ $trade->margin > 999 ? number_format((float) $trade->margin, 0) : (float) $trade->margin }}</td>
+                                                <td>${{ $trade->open_price > 999 ? number_format((float) $trade->open_price, 0) : (float) $trade->open_price }}</td>
                                                 <td>{{ $trade->open_time }}</td>
                                                 @if (count($trade->targets->where('type', '0')) > 0)
-                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price }}
+                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->price, 0) : (float) $trade->targets->where('type', '0')->first()->price }}
                                                     </td>
                                                     <td class="text-danger">
-                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->pnl, 0) : (float) $trade->targets->where('type', '0')->first()->pnl }}
                                                         @if (
                                                             $journal->risk > 0 and
                                                                 $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor"
                                                                 class="bi bi-exclamation-triangle-fill mb-1"
-                                                                viewBox="0 0 16 16">
+                                                                viewBox="0 0 16 16" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top"
+                                                                title="Resiko diatas {{ $journal->risk }}%">
                                                                 <path
                                                                     d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                                             </svg>
@@ -1292,22 +1304,22 @@
                                                     <td>-</td>
                                                 @endif
                                                 @if (count($trade->targets->where('type', '1')) > 0)
-                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price }}
+                                                    <td>${{ (float) $trade->targets->where('type', '1')->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->first()->price, 0) : (float) $trade->targets->where('type', '1')->first()->price }}
                                                     </td>
                                                     <td class="text-success">
-                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl }}
+                                                        ${{ (float) $trade->targets->where('type', '1')->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->first()->pnl, 0) : (float) $trade->targets->where('type', '1')->first()->pnl }}
                                                     </td>
                                                     @if (count($trade->targets->where('type', '1')) > 1)
-                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
+                                                        <td>${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(1)->first()->price, 0) : (float) $trade->targets->where('type', '1')->skip(1)->first()->price }}
                                                         </td>
                                                         <td class="text-success">
-                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
+                                                            ${{ (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(1)->first()->pnl, 2) : (float) $trade->targets->where('type', '1')->skip(1)->first()->pnl }}
                                                         </td>
                                                         @if (count($trade->targets->where('type', '1')) > 2)
-                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
+                                                            <td>${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->price > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(2)->first()->price, 0) : (float) $trade->targets->where('type', '1')->skip(2)->first()->price }}
                                                             </td>
                                                             <td class="text-success">
-                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
+                                                                ${{ (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '1')->skip(2)->first()->pnl, 2) : (float) $trade->targets->where('type', '1')->skip(2)->first()->pnl }}
                                                             </td>
                                                         @else
                                                             <td>-</td>
@@ -1329,11 +1341,11 @@
                                                 @endif
                                                 @if ($trade->nett_pnl > 0)
                                                     <td class="text-success">
-                                                        ${{ number_format((float) $trade->nett_pnl, 2) }}
+                                                        ${{ $trade->nett_pnl > 999 ? number_format((float) $trade->nett_pnl, 2) : (float) $trade->nett_pnl }}
                                                     </td>
                                                 @elseif($trade->nett_pnl < 0)
                                                     <td class="text-danger">
-                                                        -${{ number_format(abs((float) $trade->nett_pnl), 2) }}
+                                                        -${{ $trade->nett_pnl > 999 ? number_format((float) $trade->nett_pnl, 2) : (float) $trade->nett_pnl }}
                                                     </td>
                                                 @else
                                                     <td>
@@ -1344,7 +1356,8 @@
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
+                                                                type="button"
+                                                                class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1372,7 +1385,8 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
+                                                                <button
+                                                                    class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">
@@ -1465,14 +1479,14 @@
                                                         <span class="text-success">LONG</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ abs((float) $trade->transactions()->where('type', 1)->sum('quantity')) }}
+                                                <td>{{ abs((float) $trade->transactions()->where('type', 1)->sum('quantity')) > 999 ? number_format(abs((float) $trade->transactions()->where('type', 1)->sum('quantity')), 0) : abs((float) $trade->transactions()->where('type', 1)->sum('quantity')) }}
                                                 </td>
                                                 <td>{{ $trade->leverage }}</td>
-                                                <td>${{ abs($trade->transactions()->where('type', 0)->sum('total')) / $trade->leverage }}
+                                                <td>${{ abs($trade->transactions()->where('type', 0)->sum('total')) / $trade->leverage > 999 ? number_format(abs($trade->transactions()->where('type', 0)->sum('total')) / $trade->leverage, 0) : abs($trade->transactions()->where('type', 0)->sum('total')) / $trade->leverage }}
                                                 </td>
-                                                <td>${{ (float) $trade->open_price }}</td>
+                                                <td>${{ $trade->open_price > 999 ? number_format($trade->open_price, 0) : (float) $trade->open_price }}</td>
                                                 <td>{{ $trade->open_time }}</td>
-                                                <td>${{ (float) $trade->close_price }}</td>
+                                                <td>${{ $trade->close_price > 999 ? number_format($trade->close_price, 0) : (float) $trade->close_price }}</td>
                                                 <td>{{ $trade->close_time }}</td>
                                                 <td>{{ $trade->diff_days > 0 ? $trade->diff_days . ' hari ' : '' }}
                                                     {{ $trade->diff_hours > 0 ? $trade->diff_hours . ' jam ' : '' }}
@@ -1481,7 +1495,7 @@
                                                 </td>
                                                 @if ($trade->nett_pnl > 0)
                                                     <td class="text-success">
-                                                        ${{ number_format((float) $trade->nett_pnl, 2) }}
+                                                        ${{ $trade->nett_pnl > 999 ? number_format((float) $trade->nett_pnl, 2) : (float) $trade->nett_pnl }}
                                                     </td>
                                                     <td class="text-success">
                                                         {{ number_format((float) $trade->roe, 2) }}%
@@ -1493,7 +1507,7 @@
                                                     </td>
                                                 @else
                                                     <td class="text-danger">
-                                                        -${{ number_format(abs((float) $trade->nett_pnl), 2) }}
+                                                        -${{ abs((float) $trade->nett_pnl) > 999 ? number_format(abs((float) $trade->nett_pnl), 2) : abs((float) $trade->nett_pnl) }}
                                                     </td>
                                                     <td class="text-danger">
                                                         -{{ number_format(abs((float) $trade->roe), 2) }}%
@@ -1503,13 +1517,16 @@
                                                             (Kalah)</span>
                                                     </td>
                                                 @endif
-                                                <td class="@if($trade->real_rr >= 2) text-success @else text-danger @endif">{{ $trade->real_rr }}</td>
+                                                <td
+                                                    class="@if ($trade->real_rr >= 2) text-success @else text-danger @endif">
+                                                    {{ $trade->real_rr }}</td>
                                                 <td>{{ $trade->closed_at == '' ? '-' : $trade->closed_at }}</td>
                                                 <td>
                                                     <div class="flex align-items-center list-asset-transaction-action">
                                                         @can('notes-daftar')
                                                             <a href="{{ route('user.journal.trade.edit', ['journal' => $journal->id, 'trade' => $trade->id]) }}"
-                                                                type="button" class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
+                                                                type="button"
+                                                                class="btn btn-sm btn-icon btn-success @if ($journal->deleted_at != '') disabled @endif">
                                                                 <span class="btn-inner">
                                                                     <svg width="20" viewBox="0 0 24 24"
                                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1537,7 +1554,8 @@
                                                                 method="post" class="d-inline">
                                                                 @csrf
                                                                 @method('delete')
-                                                                <button class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
+                                                                <button
+                                                                    class="btn btn-sm btn-icon btn-danger btn-delete @if ($journal->deleted_at != '') disabled @endif"
                                                                     data-toggle="tooltip" data-placement="top"
                                                                     title="" data-original-title="Delete">
                                                                     <span class="btn-inner">

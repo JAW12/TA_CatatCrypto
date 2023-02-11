@@ -229,78 +229,77 @@ Namun, perlu diingat bahwa pola Bearish 5-0 161.8 224 bisa juga menjadi petunjuk
 (145, NULL, 4, 'Bullish Symmetrical Triangle Reversal', NULL, NULL, NULL, NULL, NULL),
 (146, NULL, 4, 'Bullish Three Dives', NULL, NULL, NULL, NULL, NULL),
 (147, NULL, 4, 'Cup and Handle', NULL, NULL, NULL, NULL, NULL),
-(148, NULL, 4, 'Deep Crab', NULL, NULL, NULL, NULL, NULL),
-(149, NULL, 4, 'Descending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
-(150, NULL, 4, 'Descending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
-(151, NULL, 4, 'Descending Triangle', NULL, NULL, NULL, NULL, NULL),
-(152, NULL, 4, 'Descending Triangle Reversal', NULL, NULL, NULL, NULL, NULL),
-(153, NULL, 4, 'Diamond Bottom', NULL, NULL, NULL, NULL, NULL),
-(154, NULL, 4, 'Diamond Top', NULL, NULL, NULL, NULL, NULL),
-(155, NULL, 4, 'Double Bottom', NULL, NULL, NULL, NULL, NULL),
-(156, NULL, 4, 'Double Top', NULL, NULL, NULL, NULL, NULL),
-(157, NULL, 4, 'Falling Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
-(158, NULL, 4, 'Falling Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
-(159, NULL, 4, 'Head and Shoulder', NULL, NULL, NULL, NULL, NULL),
-(160, NULL, 4, 'Inverse Cup and Handle', NULL, NULL, NULL, NULL, NULL),
-(161, NULL, 4, 'Inverse Head and Shoulder', NULL, NULL, NULL, NULL, NULL),
-(162, NULL, 4, 'Right Angled Ascending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
-(163, NULL, 4, 'Right Angled Ascending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
-(164, NULL, 4, 'Right Angled Descending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
-(165, NULL, 4, 'Right Angled Descending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
-(166, NULL, 4, 'Rising Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
-(167, NULL, 4, 'Rising Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
-(168, NULL, 4, 'Rounding Bottom', NULL, NULL, NULL, NULL, NULL),
-(169, NULL, 4, 'Triple Bottom', NULL, NULL, NULL, NULL, NULL),
-(170, NULL, 4, 'Triple Top', NULL, NULL, NULL, NULL, NULL),
-(171, NULL, 4, 'V Bottom Continuation', NULL, NULL, NULL, NULL, NULL),
-(172, NULL, 4, 'V Bottom Reversal', NULL, NULL, NULL, NULL, NULL),
-(173, NULL, 4, 'V Top', NULL, NULL, NULL, NULL, NULL),
-(174, NULL, 5, 'Accumulation Distribution Line', 'Accumulation Distribution Line (ADL) adalah indikator teknikal yang digunakan untuk mengukur sentimen pasar dalam pasar kripto. Indikator ini mengikuti pergerakan harga dan volume untuk membuat keputusan trading. ADL didasarkan pada teori bahwa harga dan volume saling berkaitan dan bahwa harga akan mencerminkan volume.
+(148, NULL, 4, 'Descending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
+(149, NULL, 4, 'Descending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
+(150, NULL, 4, 'Descending Triangle', NULL, NULL, NULL, NULL, NULL),
+(151, NULL, 4, 'Descending Triangle Reversal', NULL, NULL, NULL, NULL, NULL),
+(152, NULL, 4, 'Diamond Bottom', NULL, NULL, NULL, NULL, NULL),
+(153, NULL, 4, 'Diamond Top', NULL, NULL, NULL, NULL, NULL),
+(154, NULL, 4, 'Double Bottom', NULL, NULL, NULL, NULL, NULL),
+(155, NULL, 4, 'Double Top', NULL, NULL, NULL, NULL, NULL),
+(156, NULL, 4, 'Falling Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
+(157, NULL, 4, 'Falling Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
+(158, NULL, 4, 'Head and Shoulder', NULL, NULL, NULL, NULL, NULL),
+(159, NULL, 4, 'Inverse Cup and Handle', NULL, NULL, NULL, NULL, NULL),
+(160, NULL, 4, 'Inverse Head and Shoulder', NULL, NULL, NULL, NULL, NULL),
+(161, NULL, 4, 'Right Angled Ascending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
+(162, NULL, 4, 'Right Angled Ascending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
+(163, NULL, 4, 'Right Angled Descending Broadening Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
+(164, NULL, 4, 'Right Angled Descending Broadening Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
+(165, NULL, 4, 'Rising Wedge Continuation', NULL, NULL, NULL, NULL, NULL),
+(166, NULL, 4, 'Rising Wedge Reversal', NULL, NULL, NULL, NULL, NULL),
+(167, NULL, 4, 'Rounding Bottom', NULL, NULL, NULL, NULL, NULL),
+(168, NULL, 4, 'Triple Bottom', NULL, NULL, NULL, NULL, NULL),
+(169, NULL, 4, 'Triple Top', NULL, NULL, NULL, NULL, NULL),
+(170, NULL, 4, 'V Bottom Continuation', NULL, NULL, NULL, NULL, NULL),
+(171, NULL, 4, 'V Bottom Reversal', NULL, NULL, NULL, NULL, NULL),
+(172, NULL, 4, 'V Top', NULL, NULL, NULL, NULL, NULL),
+(173, NULL, 5, 'Accumulation Distribution Line', 'Accumulation Distribution Line (ADL) adalah indikator teknikal yang digunakan untuk mengukur sentimen pasar dalam pasar kripto. Indikator ini mengikuti pergerakan harga dan volume untuk membuat keputusan trading. ADL didasarkan pada teori bahwa harga dan volume saling berkaitan dan bahwa harga akan mencerminkan volume.
 
 Untuk menghitung ADL, trader menambahkan volume untuk setiap bar harga saat harga bergerak naik dan mengurangi volume saat harga bergerak turun. Hasil dari perhitungan ini adalah garis ADL yang mengukur aktivitas pembelian dan penjualan pada pasar kripto. Bila garis ADL meningkat, ini menunjukkan bahwa pembelian sedang dominan dan bahwa harga mungkin akan bergerak naik. Sebaliknya, bila garis ADL menurun, ini menunjukkan bahwa penjualan sedang dominan dan bahwa harga mungkin akan bergerak turun.
 
 Trader dapat memanfaatkan ADL untuk membantu menentukan kemana harga akan bergerak dan kapan waktu terbaik untuk membuka atau menutup posisi. ADL bisa digabungkan dengan indikator lain dan analisis grafik untuk memperkuat sinyal trading. Namun, perlu diingat bahwa ADL adalah indikator lagging dan tidak selalu akurat, oleh karena itu trader harus memastikan bahwa mereka memahami situasi pasar dan mempertimbangkan faktor fundamental sebelum membuat keputusan trading.', NULL, NULL, NULL, NULL),
-(175, NULL, 5, 'Average Directional Index', 'Average Directional Index (ADX) adalah indikator teknikal yang digunakan untuk mengukur kekuatan trend dalam pasar kripto. Indikator ini membantu trader menentukan apakah suatu pasar sedang mengalami trend bullish (naik) atau trend bearish (turun), dan seberapa kuat trend tersebut. ADX menggunakan rata-rata pergerakan harga untuk menentukan apakah suatu trend sedang membaik atau memburuk.
+(174, NULL, 5, 'Average Directional Index', 'Average Directional Index (ADX) adalah indikator teknikal yang digunakan untuk mengukur kekuatan trend dalam pasar kripto. Indikator ini membantu trader menentukan apakah suatu pasar sedang mengalami trend bullish (naik) atau trend bearish (turun), dan seberapa kuat trend tersebut. ADX menggunakan rata-rata pergerakan harga untuk menentukan apakah suatu trend sedang membaik atau memburuk.
 
 Indikator ADX terdiri dari tiga garis: ADX sendiri, garis positif (+DI) dan garis negatif (-DI). Garis positif (+DI) mengukur kekuatan uptrend, sementara garis negatif (-DI) mengukur kekuatan downtrend. Jika ADX berada di atas 20, itu menunjukkan bahwa pasar sedang mengalami trend kuat, baik uptrend atau downtrend. Namun, jika ADX berada di bawah 20, itu menunjukkan bahwa pasar sedang sideways dan trendnya lemah.
 
 ADX juga bisa digunakan untuk memprediksi pembalikan tren. Jika ADX meningkat dan berada di atas 20, itu menunjukkan bahwa trend saat ini akan terus berlangsung. Namun, jika ADX menurun setelah mencapai level tertentu, itu bisa menjadi tanda bahwa trend akan segera berbalik arah. Oleh karena itu, ADX adalah alat yang berguna bagi trader kripto yang ingin menentukan kekuatan trend dan memprediksi pembalikan tren.', NULL, NULL, NULL, NULL),
-(176, NULL, 5, 'Average True Range', 'Average True Range (ATR) adalah indikator volatilitas yang digunakan dalam analisis teknikal untuk menentukan tingkat pergerakan harga dalam suatu aset, termasuk mata uang kripto. ATR dikembangkan oleh Welles Wilder dan dipresentasikan dalam bentuk grafik yang berdampingan dengan harga.
+(175, NULL, 5, 'Average True Range', 'Average True Range (ATR) adalah indikator volatilitas yang digunakan dalam analisis teknikal untuk menentukan tingkat pergerakan harga dalam suatu aset, termasuk mata uang kripto. ATR dikembangkan oleh Welles Wilder dan dipresentasikan dalam bentuk grafik yang berdampingan dengan harga.
 
 ATR membantu trader menentukan volatilitas yang tepat dari suatu aset dan memberikan petunjuk mengenai tingkat risiko yang terkait dengan investasi tersebut. Indikator ini membantu trader memperkirakan jarak antara harga terendah dan harga tertinggi dalam periode waktu tertentu, dan memberikan informasi mengenai apakah harga sedang memiliki pergerakan yang kuat atau tidak.
 
 ATR dapat digunakan sebagai alat bantu dalam menentukan stop loss dan target profit. Jika ATR menunjukkan volatilitas yang tinggi, trader dapat mempertimbangkan untuk menempatkan stop loss pada jarak yang lebih besar dari harga saat ini. Sebaliknya, jika ATR menunjukkan volatilitas yang rendah, trader dapat mempertimbangkan untuk menempatkan stop loss pada jarak yang lebih pendek. ATR juga dapat digunakan untuk memperkirakan waktu yang dibutuhkan untuk mencapai target profit.', NULL, NULL, NULL, NULL),
-(177, NULL, 5, 'Bollinger Bands', 'Bollinger Bands adalah salah satu indikator teknikal populer yang digunakan dalam analisis pasar kripto. Indikator ini diciptakan oleh John Bollinger pada tahun 1980-an dan sejak saat itu telah menjadi alat yang banyak digunakan oleh trader dan investor untuk memahami volatilitas pasar. Bollinger Bands menggunakan moving average sebagai dasar dan menambahkan dua band yang bergerak seiring dengan pergerakan harga.
+(176, NULL, 5, 'Bollinger Bands', 'Bollinger Bands adalah salah satu indikator teknikal populer yang digunakan dalam analisis pasar kripto. Indikator ini diciptakan oleh John Bollinger pada tahun 1980-an dan sejak saat itu telah menjadi alat yang banyak digunakan oleh trader dan investor untuk memahami volatilitas pasar. Bollinger Bands menggunakan moving average sebagai dasar dan menambahkan dua band yang bergerak seiring dengan pergerakan harga.
 
 Bollinger Bands terdiri dari tiga komponen: garis tengah yang biasanya merupakan moving average sederhana, upper band yang merupakan garis atas, dan lower band yang merupakan garis bawah. Garis tengah ini memberikan informasi tentang trend pasar, sementara upper dan lower band membantu trader mengidentifikasi volatilitas pasar. Upper dan lower band ditempatkan pada jarak yang sama di atas dan di bawah garis tengah, dengan jarak yang ditentukan oleh deviasi standar harga.
 
 Indikator Bollinger Bands dapat digunakan untuk memahami volatilitas pasar dan mengidentifikasi peluang trading. Misalnya, jika harga kripto bergerak dekat dengan upper band, itu dapat menunjukkan bahwa pasar sedang overbought, yang berarti bahwa harga mungkin segera turun. Sebaliknya, jika harga bergerak dekat dengan lower band, itu dapat menunjukkan bahwa pasar sedang oversold, yang berarti bahwa harga mungkin segera naik. Namun, perlu diingat bahwa Bollinger Bands hanya merupakan alat bantu dan tidak dapat digunakan sebagai sinyal trading tunggal.', NULL, NULL, NULL, NULL),
-(178, NULL, 5, 'Moving Average Convergence Divergence', 'Moving Average Convergence Divergence (MACD) adalah indikator teknikal yang digunakan dalam analisis pasar kripto untuk menentukan momentum harga dan mengidentifikasi tren. Indikator ini terdiri dari tiga garis: garis MACD, garis sinyal, dan histogram.
+(177, NULL, 5, 'Moving Average Convergence Divergence', 'Moving Average Convergence Divergence (MACD) adalah indikator teknikal yang digunakan dalam analisis pasar kripto untuk menentukan momentum harga dan mengidentifikasi tren. Indikator ini terdiri dari tiga garis: garis MACD, garis sinyal, dan histogram.
 
 Garis MACD didapat dari perbedaan antara dua moving average (MA) yang berbeda periode, biasanya 26 dan 12 hari. Garis sinyal didapat dari 9-day exponential moving average (EMA) dari garis MACD. Histogram adalah visualisasi dari perbedaan antara garis MACD dan garis sinyal.
 
 Bila garis MACD bergerak di atas garis sinyal, ini dapat menunjukkan bahwa momentum harga sedang bullish dan memungkinkan untuk membuka posisi beli. Sebaliknya, bila garis MACD bergerak di bawah garis sinyal, ini dapat menunjukkan bahwa momentum harga sedang bearish dan memungkinkan untuk membuka posisi jual. Oleh karena itu, MACD sering digunakan sebagai alat bantu dalam proses pengambilan keputusan untuk melakukan transaksi beli atau jual.', NULL, NULL, NULL, NULL),
-(179, NULL, 5, 'Parabolic Sar', 'Parabolic SAR (Stop and Reverse) adalah indikator teknikal yang digunakan untuk memprediksi pergerakan harga di pasar kripto. Indikator ini diciptakan oleh Welles Wilder dan pertama kali diperkenalkan dalam bukunya, "New Concepts in Technical Trading Systems". Parabolic SAR menggunakan titik-titik yang berubah posisi dan jarak antar titik untuk menentukan tren pasar dan menentukan titik entry dan exit.
+(178, NULL, 5, 'Parabolic Sar', 'Parabolic SAR (Stop and Reverse) adalah indikator teknikal yang digunakan untuk memprediksi pergerakan harga di pasar kripto. Indikator ini diciptakan oleh Welles Wilder dan pertama kali diperkenalkan dalam bukunya, "New Concepts in Technical Trading Systems". Parabolic SAR menggunakan titik-titik yang berubah posisi dan jarak antar titik untuk menentukan tren pasar dan menentukan titik entry dan exit.
 
 Parabolic SAR bekerja dengan menentukan titik-titik pada grafik harga yang mengindikasikan pergerakan harga dalam tren yang berbeda. Titik-titik tersebut akan berubah posisi saat tren berubah. Jika tren menjadi bullish, titik-titik akan berubah posisi dan bergerak ke bawah. Sebaliknya, jika tren menjadi bearish, titik-titik akan berubah posisi dan bergerak ke atas.
 
 Penggunaan Parabolic SAR dalam analisis kripto sangat berguna karena membantu trader memahami pergerakan harga dan membuat keputusan trading yang lebih baik. Namun, indikator ini seharusnya tidak digunakan sebagai alat trading tunggal karena memiliki beberapa kelemahan, seperti memberikan sinyal yang terlambat dan tidak dapat mengidentifikasi tren secara tepat setiap waktu. Oleh karena itu, disarankan untuk menggabungkan Parabolic SAR dengan indikator teknikal lain untuk memperoleh hasil yang lebih baik.', NULL, NULL, NULL, NULL),
-(180, NULL, 5, 'Relative Strength Index', 'Relative Strength Index (RSI) adalah indikator teknikal yang digunakan untuk mengukur kekuatan suatu mata uang kripto dalam jangka pendek. RSI membandingkan antara kenaikan harga dengan penurunan harga, dan menghitung nilai RSI berdasarkan rasio antara rata-rata kenaikan dan rata-rata penurunan harga. Indeks ini mengukur kemungkinan overbought atau oversold dari sebuah mata uang kripto.
+(179, NULL, 5, 'Relative Strength Index', 'Relative Strength Index (RSI) adalah indikator teknikal yang digunakan untuk mengukur kekuatan suatu mata uang kripto dalam jangka pendek. RSI membandingkan antara kenaikan harga dengan penurunan harga, dan menghitung nilai RSI berdasarkan rasio antara rata-rata kenaikan dan rata-rata penurunan harga. Indeks ini mengukur kemungkinan overbought atau oversold dari sebuah mata uang kripto.
 
 RSI memiliki skala 0 hingga 100, di mana nilai di bawah 30 menunjukkan bahwa mata uang kripto tersebut sedang oversold, sementara nilai di atas 70 menunjukkan bahwa mata uang kripto tersebut sedang overbought. Trader dapat menggunakan informasi ini untuk menentukan waktu yang tepat untuk membeli atau menjual mata uang kripto.
 
 RSI bisa digunakan secara bersamaan dengan analisis grafik dan indikator teknikal lainnya untuk membantu trader dalam membuat keputusan trading. Namun, harus diingat bahwa RSI hanya memberikan gambaran dari momentum harga dan tidak memberikan informasi tentang tren jangka panjang atau fundamental mata uang kripto. Oleh karena itu, penting bagi trader untuk melakukan analisis dan menggabungkan beberapa indikator teknikal untuk membuat keputusan trading yang tepat.', NULL, NULL, NULL, NULL),
-(181, NULL, 5, 'Simple Moving Average', 'Simple Moving Average (SMA) adalah salah satu indikator teknikal paling populer dalam analisis pasar kripto. SMA mengukur rata-rata harga aset dalam periode waktu tertentu, membantu trader menentukan tren pasar dan memprediksi arah pergerakan harga.
+(180, NULL, 5, 'Simple Moving Average', 'Simple Moving Average (SMA) adalah salah satu indikator teknikal paling populer dalam analisis pasar kripto. SMA mengukur rata-rata harga aset dalam periode waktu tertentu, membantu trader menentukan tren pasar dan memprediksi arah pergerakan harga.
 
 SMA dapat digunakan untuk menentukan tren jangka panjang dan jangka pendek. Misalnya, jika SMA 50 memotong SMA 200 dari bawah ke atas, ini sering diinterpretasikan sebagai sinyal beli dan indikasi tren bullish. Begitu juga sebaliknya, jika SMA 50 memotong SMA 200 dari atas ke bawah, ini dapat diinterpretasikan sebagai sinyal jual dan indikasi tren bearish.
 
 Menggunakan SMA bersama dengan indikator teknikal lain dapat membantu trader membuat keputusan yang lebih baik dan memperkuat analisis pasar. Namun, perlu diingat bahwa SMA tidak selalu akurat dan tidak bisa digunakan sebagai satu-satunya metode dalam membuat keputusan trading. Trader harus mempertimbangkan faktor fundamental dan berbagai faktor pasar lainnya sebelum membuat keputusan trading berdasarkan SMA.', NULL, NULL, NULL, NULL),
-(182, NULL, 5, 'Stochastic', NULL, NULL, NULL, NULL, NULL),
-(183, NULL, 5, 'Stochastic RSI', NULL, NULL, NULL, NULL, NULL),
-(184, NULL, 5, 'Trading Volume', NULL, NULL, NULL, NULL, NULL),
-(185, NULL, 5, 'Volume Profile', NULL, NULL, NULL, NULL, NULL),
-(186, NULL, 5, 'Volume Weighed Average Price', NULL, NULL, NULL, NULL, NULL),
-(187, NULL, 5, 'Zigzag', NULL, NULL, NULL, NULL, NULL);
+(181, NULL, 5, 'Stochastic', NULL, NULL, NULL, NULL, NULL),
+(182, NULL, 5, 'Stochastic RSI', NULL, NULL, NULL, NULL, NULL),
+(183, NULL, 5, 'Trading Volume', NULL, NULL, NULL, NULL, NULL),
+(184, NULL, 5, 'Volume Profile', NULL, NULL, NULL, NULL, NULL),
+(185, NULL, 5, 'Volume Weighed Average Price', NULL, NULL, NULL, NULL, NULL),
+(186, NULL, 5, 'Zigzag', NULL, NULL, NULL, NULL, NULL);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
