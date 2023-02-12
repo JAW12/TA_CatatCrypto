@@ -34,7 +34,7 @@ class TransactionController extends Controller
                 'payment_time' => $request->transfer_time,
                 'id_order' => $order_id,
             ]);
-            return $transaction ? redirect()->route('index')->withSuccess('Transaksi berhasil') : redirect()->route('index')->withError('Transaksi gagal');
+            return $transaction ? redirect()->route('user.transaction.detail', ['id' => Auth::id(), 'id_order' => $transaction->id_order])->withSuccess('Transaksi berhasil') : redirect()->route('index')->withError('Transaksi gagal');
         } else {
             $transaction = Auth::user()->transactions()->create([
                 'membership_id' => $request->membership_id,

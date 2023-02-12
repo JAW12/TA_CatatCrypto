@@ -11,6 +11,7 @@
                             <div class="card mb-4 rounded-3 h-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div>
+                                        <h3 style="height:15%">Pemula</h3>
                                         <h1 class="card-title pricing-card-title">Rp 99k
                                         </h1>
                                         <h6 class="text-muted fw-light">untuk 1 bulan</h6>
@@ -40,6 +41,7 @@
                             <div class="card mb-4 rounded-3 h-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div>
+                                        <h3 style="height:15%">Standar</h3>
                                         <h1 class="card-title pricing-card-title">Rp 299k</h1>
                                         <h6 class="text-muted fw-light">untuk 2 bulan</h6>
                                         <h4 class="my-0 fw-normal mt-3">Home</h4>
@@ -68,6 +70,15 @@
                             <div class="card mb-4 rounded-3 h-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div>
+                                        <h3 style="height: 15%" class="text-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                fill="currentColor" class="bi bi-award-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="m8 0 1.669.864 1.858.282.842 1.68 1.337 1.32L13.4 6l.306 1.854-1.337 1.32-.842 1.68-1.858.282L8 12l-1.669-.864-1.858-.282-.842-1.68-1.337-1.32L2.6 6l-.306-1.854 1.337-1.32.842-1.68L6.331.864 8 0z" />
+                                                <path
+                                                    d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z" />
+                                            </svg> Terpopuler
+                                        </h3>
                                         <h1 class="card-title pricing-card-title">Rp 459k</h1>
                                         <h6 class="text-muted fw-light">untuk 4 bulan</h6>
                                         <h4 class="my-0 fw-normal mt-3">Professional</h4>
@@ -87,7 +98,7 @@
                                         </ul>
                                     </div>
                                     <a href="{{ route('user.membership.payments', 3) }}" type="button"
-                                        class="btn btn-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
+                                        class="btn btn-outline-primary @if (count(Auth::user()->membership) > 0 || count(Auth::user()->transactions->where('status', 'pending')) > 0) disabled @endif">Beli
                                         Professional</a>
                                 </div>
                             </div>
@@ -96,6 +107,15 @@
                             <div class="card mb-4 rounded-3 h-100">
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div>
+                                        <h3 style="height:15%">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                                fill="currentColor" class="bi bi-briefcase-fill" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v1.384l7.614 2.03a1.5 1.5 0 0 0 .772 0L16 5.884V4.5A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5z" />
+                                                <path
+                                                    d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z" />
+                                            </svg> Bisnis
+                                        </h3>
                                         <h1 class="card-title pricing-card-title">Rp 1.289k</h1>
                                         <h6 class="text-muted fw-light">untuk 6 bulan</h6>
                                         <h4 class="my-0 fw-normal mt-3">Business</h4>
@@ -148,7 +168,7 @@
                                                         </div>
                                                     </th>
                                                     <th class="text-center prc-wrap">
-                                                        <div class="prc-box active">
+                                                        <div class="prc-box">
                                                             <div class="h3 pt-4">Rp 114,75k<small
                                                                     class="h6">/bln</small>
                                                             </div> <span class="type">Professional</span>
@@ -172,7 +192,7 @@
                                                     <td class="text-center child-cell h4">
                                                         3
                                                     </td>
-                                                    <td class="text-center child-cell h4 active">
+                                                    <td class="text-center child-cell h4">
                                                         3
                                                     </td>
                                                     <td class="text-center child-cell h4">
@@ -187,7 +207,7 @@
                                                     <td class="text-center child-cell h4">
                                                         3
                                                     </td>
-                                                    <td class="text-center child-cell h4 active">
+                                                    <td class="text-center child-cell h4">
                                                         3
                                                     </td>
                                                     <td class="text-center child-cell h4">
@@ -202,7 +222,7 @@
                                                     <td class="text-center child-cell h4">
                                                         500
                                                     </td>
-                                                    <td class="text-center child-cell h4 active">
+                                                    <td class="text-center child-cell h4">
                                                         1500
                                                     </td>
                                                     <td class="text-center child-cell h4">
@@ -228,7 +248,7 @@
                                                                 stroke-linecap="round" />
                                                         </svg>
                                                     </td>
-                                                    <td class="text-center child-cell active">
+                                                    <td class="text-center child-cell">
                                                         <svg width="20" viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
                                                             <path id="Polygon 13"
@@ -265,7 +285,7 @@
                                                                 stroke-linecap="round" />
                                                         </svg>
                                                     </td>
-                                                    <td class="text-center child-cell active">
+                                                    <td class="text-center child-cell">
                                                         <svg width="20" viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
                                                             <path id="Polygon 13"

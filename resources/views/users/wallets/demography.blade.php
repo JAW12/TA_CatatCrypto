@@ -1,8 +1,5 @@
 @section('title', 'Demografi Dompet')
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@1.5.3/dist/jspdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js" integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
     <script>
         var optionsPie = <?php echo json_encode($optionsPie); ?>;
 
@@ -147,12 +144,6 @@
             paging: false,
             info: false,
         });
-
-        document.getElementById("export-pdf").addEventListener("click", function() {
-            $("#id").hide();
-            html2pdf().from(document.getElementById("target-element")).save();
-            $("#id").show();
-        });
     </script>
 @endpush
 <x-app-layout :options="['loading']">
@@ -170,8 +161,8 @@
                                     <h4 class="card-title">Demografi Dompet</h4>
                                 </div>
                                 <div class="col-sm-12 col-md-3 justify-content-md-end mt-3 mt-md-0">
-                                    <button type="button" class="btn btn-primary w-100" id="export-pdf">Cetak
-                                        Laporan</button>
+                                    <a href="#" type="button" class="btn btn-primary w-100" id="export-pdf">Cetak
+                                        Laporan</a>
                                 </div>
                             </div>
                         </div>
@@ -211,11 +202,11 @@
                                 <div class="col-sm-12 col-md-7">
                                     <div class="row">
                                         <div class="col-sm-12 col-md-6">
-                                            <p class="text-dark mb-2"><strong>Performa Terbaik</strong></p>
+                                            <p class="text-dark mb-2"><strong>3 Dompet Performa Terbaik</strong></p>
                                             <div id="barTerbaik" class="mb-3"></div>
                                         </div>
                                         <div class="col-sm-12 col-md-6">
-                                            <p class="text-dark mb-2"><strong>Performa Terburuk</strong></p>
+                                            <p class="text-dark mb-2"><strong>3 Dompet Performa Terburuk</strong></p>
                                             <div id="barTerburuk" class="mb-3"></div>
 
                                         </div>

@@ -3,12 +3,23 @@
     <script>
         $("#payment_type").change(function(e) {
             e.preventDefault();
+            let nomor = $('option:selected', this).attr('nomor');
+            let rekening = $('option:selected', this).attr('rekening');
+            let an = $('option:selected', this).attr('an');
             let value = $("#payment_type").val();
             if (value != 'automatic') {
+                $("#nomor").text(nomor);
+                $("#rekening").text(rekening);
+                $("#an").text(an);
+                $("#payment").fadeIn();
                 $("#bank_type").fadeIn();
                 $("#bank_name").fadeIn();
                 $("#transfer_time").fadeIn();
             } else {
+                $("#nomor").text("");
+                $("#rekening").text("");
+                $("#an").text("");
+                $("#payment").fadeOut();
                 $("#bank_type").fadeOut();
                 $("#bank_name").fadeOut();
                 $("#transfer_time").fadeOut();
@@ -24,7 +35,7 @@
         <form action="{{ route('user.membership.checkout') }}" method="post" class="form-row">
             @csrf
             <div class="row">
-                <div class="col-sm-12 col-lg-8 order-last order-md-first">
+                <div class="col-sm-12 col-lg-7 order-last order-md-first">
                     <div class="card">
                         <div class="card-header">
                             <div class="header-title">
@@ -56,16 +67,16 @@
                                 <select name="payment_type" id="payment_type" class="form-control">
                                     <option disabled selected>Pilih salah satu metode pembayaran</option>
                                     <optgroup label="Bank Transfer Manual">
-                                        <option value="Manual Transfer Bank BCA">BCA</option>
-                                        <option value="Manual Transfer Bank BNI">BNI</option>
-                                        <option value="Manual Transfer Bank BRI">BRI</option>
-                                        <option value="Manual Transfer Bank Mandiri">Mandiri</option>
-                                        <option value="Manual Transfer Bank Jago">Jago</option>
+                                        <option value="Manual Transfer Bank BCA" rekening="Bank BCA" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">BCA</option>
+                                        <option value="Manual Transfer Bank BNI" rekening="Bank BNI" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">BNI</option>
+                                        <option value="Manual Transfer Bank BRI" rekening="Bank BRI" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">BRI</option>
+                                        <option value="Manual Transfer Bank Mandiri" rekening="Bank Mandiri" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">Mandiri</option>
+                                        <option value="Manual Transfer Bank Jago" rekening="Bank Jago" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">Jago</option>
                                     </optgroup>
                                     <optgroup label="E-Wallet Transfer Manual">
-                                        <option value="Manual Transfer E-Wallet GoPay">GoPay</option>
-                                        <option value="Manual Transfer E-Wallet Dana">Dana</option>
-                                        <option value="Manual Transfer E-Wallet OVO">OVO</option>
+                                        <option value="Manual Transfer E-Wallet GoPay" rekening="GoPay" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">GoPay</option>
+                                        <option value="Manual Transfer E-Wallet Dana" rekening="Dana" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">Dana</option>
+                                        <option value="Manual Transfer E-Wallet OVO" rekening="OVO" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">OVO</option>
                                     </optgroup>
                                     <optgroup label="Pembayaran Otomatis">
                                         <option value="automatic">Midtrans</option>
@@ -92,7 +103,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-lg-4 order-first order-md-last">
+                <div class="col-sm-12 col-lg-5 order-first order-md-last">
                     <div class="card">
                         <div class="card-header">
                             <div class="header-title">
@@ -100,18 +111,53 @@
                             </div>
                         </div>
                         <div class="card-body">
-
-                            <h6 class="text-muted">Rp</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped-columns">
+                                    <tr>
+                                        @if ($type > 0)
+                                        <td>
+                                            Paket {{ ucwords($membership->name) }}
+                                        </td>
+                                        <td class="text-end">
+                                            Rp {{ number_format($membership->price, 2) }}
+                                        </td>
+                                        @else
+                                            <td>Penambahan 100 Catatan Trading</td>
+                                            <td class="text-end">Rp 50,000.00</td>
+                                        @endif
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            3 digit kode unik
+                                        </td>
+                                        <td class="text-end">
+                                            Rp {{ number_format(str_pad($rand, 3, '0', STR_PAD_LEFT), 2)}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Pembayaran</strong></td>
+                                        <td class="text-end"><strong>Rp {{ number_format($price, 2) }}</strong></td>
+                                    </tr>
+                                </table>
+                                <div id="payment" style="display:none">
+                                    <h6>Pembayaran dilakukan ke</h6>
+                                    <h4 id="nomor" class="mb-1"></h4>
+                                    <h6 class="text-muted mb-3" id="rekening"></h6>
+                                    <h6>Atas Nama</h6>
+                                    <h4 id="an"></h4>
+                                </div>
+                            </div>
+                            {{-- <h6 class="text-muted">Rp</h6>
                             <h1 class="mb-3">{{ number_format($price, 2) }}</h1>
                             <h6 class="text-muted">atas nama</h6>
                             <h5>Jem Angkasa Wijaya</h5>
-                            <h6 class="text-muted mt-3">untuk pembelian @if($type > 0) paket @endif</h6>
-                            @if($type > 0)
+                            <h6 class="text-muted mt-3">untuk pembelian @if ($type > 0) paket @endif</h6>
+                            @if ($type > 0)
                             <h5>{{ucwords($membership->name)}} (Rp {{ number_format($membership->price, 2)}})</h5>
                             @else
                             <h5>Penambahan 100 Catatan Trading (Rp 50,000.00)</h5>
                             @endif
-                            <p class="text-muted"><small>dengan 3 digit kode unik {{str_pad($rand, 3, '0', STR_PAD_LEFT)}}</small></p>
+                            <p class="text-muted"><small>dengan 3 digit kode unik {{str_pad($rand, 3, '0', STR_PAD_LEFT)}}</small></p> --}}
                         </div>
                     </div>
                     <div class="card">

@@ -968,7 +968,7 @@ class WalletController extends Controller
                 ]
             ];
 
-            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->orderBy('pnl', 'desc')->take(3)->get();
+            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>=', '0')->orderBy('pnl', 'desc')->take(3)->get();
             $labelsBarTerbaik = [];
             $seriesBarTerbaik = [];
 
@@ -977,7 +977,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerbaik, (int)$row->pnl);
             }
 
-            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->orderBy('pnl', 'asc')->take(3)->get();
+            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<=', '0')->orderBy('pnl', 'asc')->take(3)->get();
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 
@@ -989,6 +989,70 @@ class WalletController extends Controller
             $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
 
             return view('users.wallets.demography', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function demography_print(){
+        if (Auth::user()->hasPermissionTo('portfolio')) {
+
+            $data = User::findOrFail(Auth::id());
+
+            $dataPie = Wallet::select('name', 'amount_of_assets')
+                    ->where('user_id', $data->id)
+                    ->get();
+
+            $labelsPie = [];
+            $seriesPie = [];
+
+            foreach ($dataPie as $row) {
+                array_push($labelsPie, $row->name);
+                array_push($seriesPie, (int)$row->amount_of_assets);
+            }
+
+            $optionsPie = [
+                'series' => $seriesPie,
+                'chart' => [
+                    'type' => 'pie',
+                ],
+                'labels' => $labelsPie,
+                'responsive' => [
+                    [
+                        'breakpoint' => 480,
+                        'options' => [
+                            'legend' => [
+                                'position' => 'bottom'
+                            ]
+                        ]
+                    ]
+                ],
+                'legend' => [
+                    'position' => 'bottom',
+                ]
+            ];
+
+            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>=', '0')->orderBy('pnl', 'desc')->take(3)->get();
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row->name);
+                array_push($seriesBarTerbaik, (int)$row->pnl);
+            }
+
+            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<=', '0')->orderBy('pnl', 'asc')->take(3)->get();
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row->name);
+                array_push($seriesBarTerburuk, (int)$row->pnl);
+            }
+
+            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
+
+            return view('users.wallets.demography_print', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
         } else {
             abort(403);
         }
