@@ -148,8 +148,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.wallet.demography')) }}"
-                        href="{{ route('user.wallet.demography') }}">
+                    <a class="nav-link {{ activeRoute(route('user.asset.demography')) }}"
+                        href="{{ route('user.asset.demography') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-pie-chart-fill" viewBox="0 0 16 16">
@@ -168,8 +168,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a href="@if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false) javascript:window.location.reload(true) @else {{route('user.wallet')}} @endif"
-                        class="nav-link @if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false) active @endif" style="cursor:pointer">
+                    <a href="@if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false and request()->is('user/dompet/demografi/aset') == false) javascript:window.location.reload(true) @else {{route('user.wallet')}} @endif"
+                        class="nav-link @if(request()->is('user/dompet/*') and request()->is('user/dompet/demografi') == false and request()->is('user/dompet/demografi/aset') == false) active @endif" style="cursor:pointer">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">

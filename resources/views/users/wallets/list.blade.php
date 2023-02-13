@@ -54,10 +54,10 @@
                                 </div>
                                 <div class="col-sm-12 col-md-7 justify-content-md-end mt-3 mt-md-0 row g-2">
                                     <div class="col-sm-12 col-md-4">
-                                        <button type="button" class="btn btn-dark w-100">Demografi Dompet</button>
+                                        <a href="{{route('user.wallet.demography')}}" type="button" class="btn btn-dark w-100">Demografi Dompet</a>
                                     </div>
                                     <div class="col-sm-12 col-md-4">
-                                        <button type="button" class="btn btn-dark w-100">Demografi Aset</button>
+                                        <a href="{{route('user.asset.demography')}}" type="button" class="btn btn-dark w-100">Demografi Aset</a>
                                     </div>
                                     <div class="col-sm-12 col-md-4">
                                         @can('portfolio-tambah')

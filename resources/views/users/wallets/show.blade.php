@@ -309,7 +309,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
-                                <div class="header-title col-sm-12 col-md-6">
+                                <div class="header-title col-sm-12 col-md-5">
                                     <h4 class="card-title">{{ $wallet->name }}
                                         @if ($wallet->deleted_at == '')
                                             <span class="badge rounded-pill bg-primary">Aktif</span>
@@ -353,7 +353,7 @@
                                         </h6>
                                     </h4>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mt-3 mt-md-0">
+                                <div class="col-sm-12 col-md-7 mt-3 mt-md-0">
                                     <div class="row g-2">
                                         @can('portfolio-hapus')
                                             @if ($wallet->deleted_at == '')
@@ -373,7 +373,7 @@
                                             @endif
                                         @endcan
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Laporan Aset</button>
+                                            <a href="{{route('user.wallet.detail.demography', ['wallet' => $wallet->id])}}" type="button" class="btn btn-dark w-100">Laporan Demografi</a>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
                                             <a href="{{ route('user.wallet.asset.list', $wallet->id) }}"

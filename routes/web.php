@@ -66,7 +66,10 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
 
     Route::group(['prefix' => 'dompet'], function () {
         Route::get('', [WalletController::class, 'index'])->name('user.wallet');
-        Route::get('/demografi', [WalletController::class, 'demography'])->name('user.wallet.demography');
+        Route::get('/demografi/', [WalletController::class, 'demography'])->name('user.wallet.demography');
+        Route::get('/demografi/print', [WalletController::class, 'demography_print'])->name('user.wallet.demography.print');
+        Route::get('/demografi/aset', [AssetController::class, 'demography'])->name('user.asset.demography');
+        Route::get('/demografi/aset/print', [AssetController::class, 'demography_print'])->name('user.asset.demography.print');
         Route::post('/tambah', [WalletController::class, 'store'])->name('user.wallet.add');
 
         Route::group(['prefix' => '{wallet}'], function () {
@@ -75,6 +78,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
             Route::post('', [WalletController::class, 'update'])->name('user.wallet.update')->withTrashed();
             Route::delete('/nonaktifkan', [WalletController::class, 'destroy'])->name('user.wallet.delete');
             Route::post('/aktifkan', [WalletController::class, 'restore'])->name('user.wallet.restore')->withTrashed();
+            Route::get('/demografi', [WalletController::class, 'detail_demography'])->name('user.wallet.detail.demography');
+            Route::get('/demografi/print', [WalletController::class, 'detail_demography_print'])->name('user.wallet.detail.demography.print');
 
             Route::group(['prefix' => 'aset'], function () {
                 Route::get('', [AssetController::class, 'index'])->name('user.wallet.asset.list');

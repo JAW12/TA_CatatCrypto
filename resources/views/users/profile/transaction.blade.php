@@ -59,7 +59,7 @@
                                             <td>{{ ucwords($value->membership->name) }}</td>
                                         @endif
                                         <td>Rp {{ number_format($value->gross_amount, 2) }}</td>
-                                        @if ($value->payment_type == 'credit_card')
+                                        @if ($value->payment_type == 'credit_card' || $value->payment_type == 'automatic')
                                             <td>Credit Card (Midtrans)</td>
                                         @else
                                             <td>{{ $value->payment_type }}</td>

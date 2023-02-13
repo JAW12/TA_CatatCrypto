@@ -1,4 +1,4 @@
-@section('title', 'Demografi Dompet')
+@section('title', 'Demografi Aset ' . $wallet->name)
 @push('scripts')
     <script>
         var optionsPie = <?php echo json_encode($optionsPie); ?>;
@@ -150,7 +150,7 @@
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
-        <x-back-button>{{ route('user.wallet') }}</x-back-button>
+        <x-back-button>{{ route('user.wallet.detail', $wallet->id) }}</x-back-button>
         <div>
             <div class="row">
                 <div class="col-sm-12">
@@ -158,10 +158,11 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="header-title col-sm-12 col-md-9">
-                                    <h4 class="card-title">Demografi Dompet</h4>
+                                    <h4 class="card-title">Demografi Aset {{ $wallet->name }}</h4>
                                 </div>
                                 <div class="col-sm-12 col-md-3 justify-content-md-end mt-3 mt-md-0">
-                                    <a href="{{route('user.wallet.demography.print')}}" target="_blank" class="btn btn-primary w-100" id="export-pdf">Cetak
+                                    <a href="{{ route('user.wallet.detail.demography.print', ['wallet' => $wallet->id]) }}"
+                                        target="_blank" class="btn btn-primary w-100" id="export-pdf">Cetak
                                         Laporan</a>
                                 </div>
                             </div>
@@ -172,7 +173,7 @@
                                     <table class="text-dark">
                                         <tr>
                                             <td><strong>Jumlah Aset:</strong></td>
-                                            <td><strong>${{ number_format((float) $data->active_wallets->sum('amount_of_assets'), 2, '.', ',') }}</strong>
+                                            <td><strong>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}</strong>
                                             </td>
                                         </tr>
                                     </table>
@@ -182,12 +183,12 @@
                                         <tr>
                                             <td><strong>Total Keuntungan:</strong></td>
                                             <td
-                                                class="@if ($data->active_wallets->sum('pnl') > 0) text-success @elseif($data->active_wallets->sum('pnl') < 0) text-danger @endif">
+                                                class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
                                                 <strong>
-                                                    @if ($data->active_wallets->sum('pnl') < 0)
+                                                    @if ($wallet->pnl < 0)
                                                         -
                                                     @endif
-                                                    ${{ number_format(abs((float) $data->active_wallets->sum('pnl')), 2, '.', ',') }}
+                                                    ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
                                                 </strong>
                                             </td>
                                         </tr>
@@ -196,22 +197,22 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-12 col-md-5">
-                                    <p class="text-dark mb-2"><strong>Alokasi Dompet</strong></p>
+                                    <p class="text-dark mb-2"><strong>Alokasi Aset</strong></p>
                                     <div id="pie" class="mb-3"></div>
                                 </div>
                                 <div class="col-sm-12 col-md-7">
                                     <div class="row">
                                         <div class="col-sm-12 col-md-6">
-                                            <p class="text-dark mb-2"><strong>3 Dompet Performa Terbaik</strong></p>
+                                            <p class="text-dark mb-2"><strong>3 Aset Performa Terbaik</strong></p>
                                             <div id="barTerbaik" class="mb-3"></div>
                                         </div>
                                         <div class="col-sm-12 col-md-6">
-                                            <p class="text-dark mb-2"><strong>3 Dompet Performa Terburuk</strong></p>
+                                            <p class="text-dark mb-2"><strong>3 Aset Performa Terburuk</strong></p>
                                             <div id="barTerburuk" class="mb-3"></div>
 
                                         </div>
                                     </div>
-                                    <p class="text-dark mb-2"><strong>3 Dompet dengan Aset Terbanyak</strong></p>
+                                    <p class="text-dark mb-2"><strong>Daftar Aset</strong></p>
                                     <div class="table-responsive">
                                         <table id="wallets-list-table" class="table table-striped table-hover"
                                             role="grid" data-toggle="data-table">
@@ -219,22 +220,24 @@
                                                 <tr class="light">
                                                     <th>#</th>
                                                     <th>Nama</th>
-                                                    <th>Jumlah Aset</th>
+                                                    <th>Jumlah</th>
+                                                    <th>Nilai Aset</th>
                                                     <th>Keuntungan</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($walletAssetTerbanyak as $wallet)
+                                                @foreach ($terbanyak as $item)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $wallet->name }}</td>
-                                                        <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}
+                                                        <td>{{ $item['asset_name'] }}</td>
+                                                        <td>{{ number_format((float) $item['amount'], 2, '.', ',') }}
+                                                        <td>${{ number_format((float) $item['total'], 2, '.', ',') }}
                                                         <td
-                                                            class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
-                                                            @if ($wallet->pnl < 0)
+                                                            class="@if ($item['pnl'] > 0) text-success @elseif($item['pnl'] < 0) text-danger @endif">
+                                                            @if ($item['pnl'] < 0)
                                                                 -
                                                             @endif
-                                                            ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
+                                                            ${{ number_format(abs((float) $item['pnl']), 2, '.', ',') }}
                                                         </td>
                                                     </tr>
                                                 @endforeach

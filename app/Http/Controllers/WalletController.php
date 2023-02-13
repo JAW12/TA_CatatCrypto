@@ -11,17 +11,9 @@ use App\Libraries\Binance;
 use App\Models\Asset;
 use App\Models\AssetTransaction;
 use App\Models\AssetWallet;
-use Codenixsv\CoinGeckoApi\CoinGeckoClient;
-use Exception;
-use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (Auth::user()->hasPermissionTo('portfolio')) {
@@ -986,7 +978,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerburuk, (int)$row->pnl);
             }
 
-            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
+            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->get();
 
             return view('users.wallets.demography', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
         } else {
@@ -1015,18 +1007,11 @@ class WalletController extends Controller
                 'series' => $seriesPie,
                 'chart' => [
                     'type' => 'pie',
+                    'width' => '100%',
+                    'redrawOnWindowResize' => true,
+                    'redrawOnParentResize' => true,
                 ],
                 'labels' => $labelsPie,
-                'responsive' => [
-                    [
-                        'breakpoint' => 480,
-                        'options' => [
-                            'legend' => [
-                                'position' => 'bottom'
-                            ]
-                        ]
-                    ]
-                ],
                 'legend' => [
                     'position' => 'bottom',
                 ]
@@ -1053,6 +1038,160 @@ class WalletController extends Controller
             $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
 
             return view('users.wallets.demography_print', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function detail_demography(Wallet $wallet){
+        if (Auth::user()->hasPermissionTo('portfolio-daftar')) {
+
+            $data = User::findOrFail(Auth::id());
+
+            $assetWallets = $wallet->assets;
+            $assetAllocations = collect();
+
+            foreach ($assetWallets as $asset) {
+                // Hitung jumlah alokasi aset
+                $total = $asset->pivot->total;
+                $pnl = $asset->pivot->pnl;
+                $amount = $asset->pivot->amount;
+
+                // Tambahkan data aset dan jumlah ke array alokasi aset
+                $assetAllocations->push([
+                    'asset_name' => $asset->name,
+                    'amount' => $amount,
+                    'pnl' => $pnl,
+                    'total' => $total,
+                ]);
+            }
+
+            $labelsPie = [];
+            $seriesPie = [];
+            foreach ($assetAllocations as $row) {
+                array_push($labelsPie, $row['asset_name']);
+                array_push($seriesPie, (int)$row['total']);
+            }
+
+            $optionsPie = [
+                'series' => $seriesPie,
+                'chart' => [
+                    'type' => 'pie',
+                ],
+                'labels' => $labelsPie,
+                'responsive' => [
+                    [
+                        'breakpoint' => 480,
+                        'options' => [
+                            'legend' => [
+                                'position' => 'bottom'
+                            ]
+                        ]
+                    ]
+                ],
+                'legend' => [
+                    'position' => 'bottom',
+                ]
+            ];
+
+            $dataBarTerbaik = $assetAllocations->where('pnl', '>', '0')->sortByDesc('pnl')->take(3);
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row['asset_name']);
+                array_push($seriesBarTerbaik, (int)$row['pnl']);
+            }
+
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row['asset_name']);
+                array_push($seriesBarTerburuk, (int)$row['pnl']);
+            }
+
+            $terbanyak = $assetAllocations->sortByDesc('total');
+
+            return view('users.wallets.detail_demography', compact('wallet', 'data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'terbanyak'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function detail_demography_print(Wallet $wallet){
+        if (Auth::user()->hasPermissionTo('portfolio-daftar')) {
+
+            $data = User::findOrFail(Auth::id());
+
+            $assetWallets = $wallet->assets;
+            $assetAllocations = collect();
+
+            foreach ($assetWallets as $asset) {
+                // Hitung jumlah alokasi aset
+                $total = $asset->pivot->total;
+                $pnl = $asset->pivot->pnl;
+                $amount = $asset->pivot->amount;
+
+                // Tambahkan data aset dan jumlah ke array alokasi aset
+                $assetAllocations->push([
+                    'asset_name' => $asset->name,
+                    'amount' => $amount,
+                    'pnl' => $pnl,
+                    'total' => $total,
+                ]);
+            }
+
+            $labelsPie = [];
+            $seriesPie = [];
+            foreach ($assetAllocations as $row) {
+                array_push($labelsPie, $row['asset_name']);
+                array_push($seriesPie, (int)$row['total']);
+            }
+
+            $optionsPie = [
+                'series' => $seriesPie,
+                'chart' => [
+                    'type' => 'pie',
+                ],
+                'labels' => $labelsPie,
+                'responsive' => [
+                    [
+                        'breakpoint' => 480,
+                        'options' => [
+                            'legend' => [
+                                'position' => 'bottom'
+                            ]
+                        ]
+                    ]
+                ],
+                'legend' => [
+                    'position' => 'bottom',
+                ]
+            ];
+
+            $dataBarTerbaik = $assetAllocations->where('pnl', '>', '0')->sortByDesc('pnl')->take(3);
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row['asset_name']);
+                array_push($seriesBarTerbaik, (int)$row['pnl']);
+            }
+
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row['asset_name']);
+                array_push($seriesBarTerburuk, (int)$row['pnl']);
+            }
+
+            $terbanyak = $assetAllocations->sortByDesc('total');
+
+            return view('users.wallets.detail_demography_print', compact('wallet', 'data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'terbanyak'));
         } else {
             abort(403);
         }
