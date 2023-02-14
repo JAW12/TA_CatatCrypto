@@ -1013,7 +1013,7 @@ class WalletController extends Controller
                 ],
                 'labels' => $labelsPie,
                 'legend' => [
-                    'position' => 'bottom',
+                    'position' => 'right',
                 ]
             ];
 
@@ -1035,7 +1035,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerburuk, (int)$row->pnl);
             }
 
-            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->take(3)->get();
+            $walletAssetTerbanyak = Wallet::select('name', 'amount_of_assets', 'pnl')->where('user_id', $data->id)->orderBy('amount_of_assets', 'desc')->get();
 
             return view('users.wallets.demography_print', compact('data', 'optionsPie', 'seriesBarTerbaik', 'labelsBarTerbaik', 'seriesBarTerburuk', 'labelsBarTerburuk', 'walletAssetTerbanyak'));
         } else {
@@ -1056,13 +1056,17 @@ class WalletController extends Controller
                 $total = $asset->pivot->total;
                 $pnl = $asset->pivot->pnl;
                 $amount = $asset->pivot->amount;
-
+                $average_price = 0;
+                if($amount > 0 and $total > 0){
+                    $average_price = $total / $amount;
+                }
                 // Tambahkan data aset dan jumlah ke array alokasi aset
                 $assetAllocations->push([
                     'asset_name' => $asset->name,
                     'amount' => $amount,
                     'pnl' => $pnl,
                     'total' => $total,
+                    'average_price' => $average_price,
                 ]);
             }
 
@@ -1103,7 +1107,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerbaik, (int)$row['pnl']);
             }
 
-            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<', '0')->sortBy('pnl')->take(3);
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 
@@ -1133,6 +1137,10 @@ class WalletController extends Controller
                 $total = $asset->pivot->total;
                 $pnl = $asset->pivot->pnl;
                 $amount = $asset->pivot->amount;
+                $average_price = 0;
+                if($amount > 0 and $total > 0){
+                    $average_price = $total / $amount;
+                }
 
                 // Tambahkan data aset dan jumlah ke array alokasi aset
                 $assetAllocations->push([
@@ -1140,6 +1148,7 @@ class WalletController extends Controller
                     'amount' => $amount,
                     'pnl' => $pnl,
                     'total' => $total,
+                    'average_price' => $average_price,
                 ]);
             }
 
@@ -1154,20 +1163,13 @@ class WalletController extends Controller
                 'series' => $seriesPie,
                 'chart' => [
                     'type' => 'pie',
+                    'width' => '100%',
+                    'redrawOnWindowResize' => true,
+                    'redrawOnParentResize' => true,
                 ],
                 'labels' => $labelsPie,
-                'responsive' => [
-                    [
-                        'breakpoint' => 480,
-                        'options' => [
-                            'legend' => [
-                                'position' => 'bottom'
-                            ]
-                        ]
-                    ]
-                ],
                 'legend' => [
-                    'position' => 'bottom',
+                    'position' => 'right',
                 ]
             ];
 
@@ -1180,7 +1182,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerbaik, (int)$row['pnl']);
             }
 
-            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<', '0')->sortBy('pnl')->take(3);
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 

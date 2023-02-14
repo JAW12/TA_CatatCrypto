@@ -339,6 +339,10 @@ class AssetController extends Controller
                 $total = $group->sum('total');
                 $pnl = $group->sum('pnl');
                 $amount = $group->sum('amount');
+                $average_price = 0;
+                if($amount > 0 and $total > 0){
+                    $average_price = $total / $amount;
+                }
 
                 // Tambahkan data aset dan jumlah ke array alokasi aset
                 $assetAllocations->push([
@@ -346,6 +350,7 @@ class AssetController extends Controller
                     'amount' => $amount,
                     'pnl' => $pnl,
                     'total' => $total,
+                    'average_price' => $average_price,
                 ]);
             }
 
@@ -386,7 +391,7 @@ class AssetController extends Controller
                 array_push($seriesBarTerbaik, (int)$row['pnl']);
             }
 
-            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<', '0')->sortBy('pnl')->take(3);
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 
@@ -423,6 +428,10 @@ class AssetController extends Controller
                 $total = $group->sum('total');
                 $pnl = $group->sum('pnl');
                 $amount = $group->sum('amount');
+                $average_price = 0;
+                if($amount > 0 and $total > 0){
+                    $average_price = $total / $amount;
+                }
 
                 // Tambahkan data aset dan jumlah ke array alokasi aset
                 $assetAllocations->push([
@@ -430,6 +439,7 @@ class AssetController extends Controller
                     'amount' => $amount,
                     'pnl' => $pnl,
                     'total' => $total,
+                    'average_price' => $average_price,
                 ]);
             }
 
@@ -449,18 +459,8 @@ class AssetController extends Controller
                     'redrawOnParentResize' => true,
                 ],
                 'labels' => $labelsPie,
-                'responsive' => [
-                    [
-                        'breakpoint' => 480,
-                        'options' => [
-                            'legend' => [
-                                'position' => 'bottom'
-                            ]
-                        ]
-                    ]
-                ],
                 'legend' => [
-                    'position' => 'bottom',
+                    'position' => 'right',
                 ]
             ];
 
@@ -473,7 +473,7 @@ class AssetController extends Controller
                 array_push($seriesBarTerbaik, (int)$row['pnl']);
             }
 
-            $dataBarTerburuk = $assetAllocations->where('pnl', '<=', '0')->sortBy('pnl')->take(3);
+            $dataBarTerburuk = $assetAllocations->where('pnl', '<', '0')->sortBy('pnl')->take(3);
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 

@@ -94,6 +94,9 @@
                         }
                     }
                 }
+            },
+            legend:{
+                position: 'right',
             }
         };
 
@@ -150,6 +153,9 @@
                         }
                     }
                 }
+            },
+            legend:{
+                position: 'right',
             }
         };
 
@@ -211,56 +217,60 @@
                     ${{ number_format(abs((float) $data->active_wallets->sum('pnl')), 2, '.', ',') }}
                 </span></strong></p>
     </div>
-    <div class="d-flex justify-content-between mb-3">
-        <div style="width: 40%">
-            <h5 class="text-muted mb-2"><strong>Alokasi Dompet</strong></h5>
-            <hr>
-            <div id="pie" class="mb-3 w-100"></div>
-        </div>
-        <div style="width: 60%">
-            <h5 class="text-muted mb-2"><strong>3 Dompet dengan Aset Terbanyak</strong></h5>
-            <hr>
-            <div class="table-responsive">
-                <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
-                    data-toggle="data-table">
-                    <thead>
-                        <tr class="light">
-                            <th>#</th>
-                            <th>Nama</th>
-                            <th>Jumlah Aset</th>
-                            <th>Keuntungan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($walletAssetTerbanyak as $wallet)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $wallet->name }}</td>
-                                <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}
-                                <td
-                                    class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
-                                    @if ($wallet->pnl < 0)
-                                        -
-                                    @endif
-                                    ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+    <div class="mb-3">
+        <h5 class="text-muted mb-2"><strong>Alokasi Dompet</strong></h5>
+        <hr>
+        <div class="d-flex justify-content-center">
+            <div style="width: 60%">
+                <div id="pie" class="mb-3 w-100"></div>
             </div>
         </div>
     </div>
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between mb-3">
         <div class="w-50">
             <h5 class="text-muted mb-2"><strong>3 Dompet Performa Terbaik</strong></h5>
             <hr>
-            <div id="barTerbaik" class="mb-3"></div>
+            <div id="barTerbaik"></div>
         </div>
         <div class="w-50">
             <h5 class="text-muted mb-2"><strong>3 Dompet Performa Terburuk</strong></h5>
             <hr>
-            <div id="barTerburuk" class="mb-3"></div>
+            <div id="barTerburuk"></div>
+        </div>
+    </div>
+    <div>
+        <h5 class="text-muted mb-2"><strong>Daftar Dompet</strong></h5>
+        <hr>
+        <div class="table-responsive">
+            <table id="wallets-list-table" class="table table-striped table-hover" role="grid"
+                data-toggle="data-table">
+                <thead>
+                    <tr class="light">
+                        <th>#</th>
+                        <th>Nama</th>
+                        <th>Jumlah Aset</th>
+                        <th>Keuntungan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($walletAssetTerbanyak as $wallet)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $wallet->name }}</td>
+                            <td>${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}
+                            <td
+                                class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
+                                @if ($wallet->pnl < 0)
+                                    -
+                                @endif
+                                ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
+                            </td>
+                        </tr>
+                    @empty
+                    <tr><td colspan="4">Data tidak tersedia</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </x-print-layout>

@@ -152,12 +152,12 @@
                                 typeTd = "Transfer Keluar";
                                 amountTd = amountString.toString().concat(' ').concat(
                                     symbol);
-                                totalTd = totalString.toString().concat('$');
+                                totalTd = "-"
                             } else if (transaction.type == 3) {
                                 typeTd = "Transfer Masuk";
                                 amountTd = "+".concat(amountString).concat(' ').concat(
                                     symbol);
-                                totalTd = "+".concat(totalString).concat('$');
+                                totalTd = "-";
                             }
 
                             let feeString = '';
@@ -615,7 +615,7 @@
                                             @endif
                                         </div>
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Laporan Aset</button>
+                                            <a href="{{route('user.wallet.asset.report', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" type="button" class="btn btn-dark w-100">Laporan Aset</a>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
                                             <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal"

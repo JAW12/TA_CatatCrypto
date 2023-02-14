@@ -161,7 +161,8 @@
                                     <h4 class="card-title">Demografi Dompet</h4>
                                 </div>
                                 <div class="col-sm-12 col-md-3 justify-content-md-end mt-3 mt-md-0">
-                                    <a href="{{route('user.wallet.demography.print')}}" target="_blank" class="btn btn-primary w-100" id="export-pdf">Cetak
+                                    <a href="{{ route('user.wallet.demography.print') }}" target="_blank"
+                                        class="btn btn-primary w-100" id="export-pdf">Cetak
                                         Laporan</a>
                                 </div>
                             </div>
@@ -211,7 +212,7 @@
 
                                         </div>
                                     </div>
-                                    <p class="text-dark mb-2"><strong>3 Dompet dengan Aset Terbanyak</strong></p>
+                                    <p class="text-dark mb-2"><strong>Daftar Dompet</strong></p>
                                     <div class="table-responsive">
                                         <table id="wallets-list-table" class="table table-striped table-hover"
                                             role="grid" data-toggle="data-table">
@@ -224,7 +225,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($walletAssetTerbanyak as $wallet)
+                                                @forelse ($walletAssetTerbanyak as $wallet)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $wallet->name }}</td>
@@ -237,7 +238,11 @@
                                                             ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
                                                         </td>
                                                     </tr>
-                                                @endforeach
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="4">Data tidak tersedia</td>
+                                                    </tr>
+                                                @endforelse
                                             </tbody>
                                         </table>
                                     </div>

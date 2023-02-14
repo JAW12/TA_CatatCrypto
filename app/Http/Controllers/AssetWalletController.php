@@ -8,6 +8,7 @@ use App\Models\AssetTransaction;
 use App\Models\AssetWallet;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AssetWalletController extends Controller
 {
@@ -30,10 +31,9 @@ class AssetWalletController extends Controller
     public function show(Wallet $wallet, Asset $asset)
     {
         $asset_wallet = AssetWallet::where('asset_id', $asset->id)->where('wallet_id', $wallet->id)->first();
-        if($asset_wallet == null){
+        if ($asset_wallet == null) {
             return abort(404);
-        }
-        else{
+        } else {
             return view('users.wallets.assets.show', compact('wallet', 'asset', 'asset_wallet'));
         }
     }
@@ -59,12 +59,19 @@ class AssetWalletController extends Controller
 
                 if ($account_info != null) {
                     if (array_key_exists("balances", $account_info)) {
+                        $found = false;
                         foreach ($account_info['balances'] as $balance) {
                             if ($balance['asset'] == $asset->symbol) {
+                                $found = true;
                                 $asset_wallet->update([
                                     'amount' => $balance['free'] + $balance['locked']
                                 ]);
                             }
+                        }
+                        if(!$found){
+                            $asset_wallet->update([
+                                'amount' => 0
+                            ]);
                         }
                     } else if (array_key_exists("msg", $account_info)) {
                         if (str_contains($account_info['msg'], 'API-key')) {
@@ -72,8 +79,7 @@ class AssetWalletController extends Controller
                         }
                     }
                 }
-            }
-            else{
+            } else {
                 $url = "/sapi/v3/asset/getUserAsset";
                 $params = [];
                 $type = "POST";
@@ -83,14 +89,20 @@ class AssetWalletController extends Controller
                         if (str_contains($user_assets['msg'], 'API-key')) {
                             return response()->json(['error' => 'Invalid'], 404);
                         }
-                    }
-                    else{
+                    } else {
+                        $found = false;
                         foreach ($user_assets as $user_asset) {
                             if ($user_asset['asset'] == $asset->symbol) {
+                                $found = true;
                                 $asset_wallet->update([
                                     'amount' => $user_asset['free'] + $user_asset['locked']
                                 ]);
                             }
+                        }
+                        if(!$found){
+                            $asset_wallet->update([
+                                'amount' => 0
+                            ]);
                         }
                     }
                 }
@@ -177,7 +189,7 @@ class AssetWalletController extends Controller
                                             'integrated' => 1,
                                             'time' => date('Y-m-d H:i:s', $myTrades['time'] / 1000)
                                         ]);
-                                    } else if($asset_transaction->status == 0) {
+                                    } else if ($asset_transaction->status == 0) {
                                         $asset_transaction->update([
                                             'trade_id' => $myTrades['id'],
                                             'order_id' => $order['orderId'],
@@ -197,6 +209,452 @@ class AssetWalletController extends Controller
                             }
                             $myTrades['time'] = date('d-m-Y H:i:s', $myTrades['time'] / 1000);
                             // print_r("FILLED " . $myTrades['time'] . " : " . $order['side'] . ' ' . $myTrades['qty'] . ' x ' . $myTrades['price'] . ' = ' . $myTrades['qty'] * $myTrades['price'] . '<br><br>');
+                        }
+                    }
+                }
+            }
+
+            // print_r("<pre>");
+            $url = "/sapi/v1/capital/deposit/hisrec";
+            $params = [
+                'coin' => $asset->symbol,
+            ];
+            $type = "GET";
+            $deposit_history = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($deposit_history != null) {
+                if (array_key_exists('code', $deposit_history) != 1) {
+                    foreach ($deposit_history as $deposit) {
+                        $type = 3;
+
+                        $negative = -1;
+                        if ($type == 3) {
+                            $negative = 1;
+                        }
+                        if ($asset_wallet != null) {
+                            $asset_transaction = AssetTransaction::where('order_id', $deposit['id'])->first();
+                            if ($asset_transaction == null) {
+                                $asset_wallet->transactions()->create([
+                                    'order_id' => $deposit['id'],
+                                    'type' => $type,
+                                    'amount' => $negative * $deposit['amount'],
+                                    'status' => 1,
+                                    'integrated' => 1,
+                                    'time' => date('Y-m-d H:i:s', $order['insertTime'] / 1000)
+                                ]);
+                            } else {
+                                $asset_transaction->update([
+                                    'order_id' => $deposit['id'],
+                                    'type' => $type,
+                                    'amount' => $negative * $deposit['amount'],
+                                    'status' => 1,
+                                    'integrated' => 1,
+                                    'time' => date('Y-m-d H:i:s', $order['insertTime'] / 1000)
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/capital/withdraw/history";
+            $params = [
+                'coin' => $asset->symbol,
+            ];
+            $type = "GET";
+            $withdraw_history = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($withdraw_history != null) {
+                if (array_key_exists('code', $withdraw_history) != 1) {
+                    foreach ($withdraw_history as $withdraw) {
+                        $type = 2;
+
+                        $negative = -1;
+                        if ($type == 3) {
+                            $negative = 1;
+                        }
+                        if ($asset_wallet != null) {
+                            $asset_transaction = AssetTransaction::where('order_id', $withdraw['id'])->first();
+                            if ($asset_transaction == null) {
+                                $asset_wallet->transactions()->create([
+                                    'order_id' => $withdraw['id'],
+                                    'type' => $type,
+                                    'amount' => $negative * $withdraw['amount'],
+                                    'fee' => $withdraw['transactionFee'],
+                                    'status' => 1,
+                                    'integrated' => 1,
+                                    'time' => date('Y-m-d H:i:s', $withdraw['applyTime'])
+                                ]);
+                            } else {
+                                $asset_transaction->update([
+                                    'order_id' => $withdraw['id'],
+                                    'type' => $type,
+                                    'amount' => $negative * $withdraw['amount'],
+                                    'fee' => $withdraw['transactionFee'],
+                                    'status' => 1,
+                                    'integrated' => 1,
+                                    'time' => date('Y-m-d H:i:s', $withdraw['applyTime'])
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'MAIN_UMFUTURE',
+            ];
+            $type = "GET";
+            $transfer_out_usd_future = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_out_usd_future != null) {
+                if (array_key_exists('code', $transfer_out_usd_future) != 1) {
+                    if ($transfer_out_usd_future['total'] > 0) {
+                        foreach ($transfer_out_usd_future['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 2;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'MAIN_CMFUTURE',
+            ];
+            $type = "GET";
+            $transfer_out_coin_future = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_out_coin_future != null) {
+                if (array_key_exists('code', $transfer_out_coin_future) != 1) {
+                    if ($transfer_out_coin_future['total'] > 0) {
+                        foreach ($transfer_out_coin_future['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 2;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'MAIN_MARGIN',
+            ];
+            $type = "GET";
+            $transfer_out_margin = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_out_margin != null) {
+                if (array_key_exists('code', $transfer_out_margin) != 1) {
+                    if ($transfer_out_margin['total'] > 0) {
+                        foreach ($transfer_out_margin['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 2;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'MAIN_FUNDING',
+            ];
+            $type = "GET";
+            $transfer_out_funding = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_out_funding != null) {
+                if (array_key_exists('code', $transfer_out_funding) != 1) {
+                    if ($transfer_out_funding['total'] > 0) {
+                        foreach ($transfer_out_funding['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 2;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'UMFUTURE_MAIN',
+            ];
+            $type = "GET";
+            $transfer_in_usd_future = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_in_usd_future != null) {
+                if (array_key_exists('code', $transfer_in_usd_future) != 1) {
+                    if ($transfer_in_usd_future['total'] > 0) {
+                        foreach ($transfer_in_usd_future['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 3;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'CMFUTURE_MAIN',
+            ];
+            $type = "GET";
+            $transfer_in_coin_future = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_in_coin_future != null) {
+                if (array_key_exists('code', $transfer_in_coin_future) != 1) {
+                    if ($transfer_in_coin_future['total'] > 0) {
+                        foreach ($transfer_in_coin_future['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 3;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'MARGIN_MAIN',
+            ];
+            $type = "GET";
+            $transfer_in_margin = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_in_margin != null) {
+                if (array_key_exists('code', $transfer_in_margin) != 1) {
+                    if ($transfer_in_margin['total'] > 0) {
+                        foreach ($transfer_in_margin['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 3;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $url = "/sapi/v1/asset/transfer";
+            $params = [
+                'type' => 'FUNDING_MAIN',
+            ];
+            $type = "GET";
+            $transfer_in_funding = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
+            if ($transfer_in_funding != null) {
+                if (array_key_exists('code', $transfer_in_funding) != 1) {
+                    if ($transfer_in_funding['total'] > 0) {
+                        foreach ($transfer_in_funding['rows'] as $transfer) {
+                            if ($transfer['asset'] == $asset->symbol) {
+                                $type = 3;
+
+                                $negative = -1;
+                                if ($type == 3) {
+                                    $negative = 1;
+                                }
+                                if ($asset_wallet != null) {
+                                    $asset_transaction = AssetTransaction::where('order_id', $transfer['tranId'])->first();
+                                    if ($asset_transaction == null) {
+                                        $asset_wallet->transactions()->create([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    } else {
+                                        $asset_transaction->update([
+                                            'order_id' => $transfer['tranId'],
+                                            'type' => $type,
+                                            'amount' => $negative * $transfer['amount'],
+                                            'status' => 1,
+                                            'integrated' => 1,
+                                            'time' => date('Y-m-d H:i:s', $transfer['timestamp'] / 1000)
+                                        ]);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -309,5 +767,60 @@ class AssetWalletController extends Controller
         }
         $wallet->assets()->detach($asset);
         return redirect()->route('user.wallet.detail', $wallet)->withSuccess('Aset berhasil dihapus');
+    }
+
+    public function report(Wallet $wallet, Asset $asset)
+    {
+        $asset_wallet = AssetWallet::where('asset_id', $asset->id)->where('wallet_id', $wallet->id)->first();
+        if ($asset_wallet == null) {
+            return abort(404);
+        } else {
+            $groupAssetTransactions = AssetTransaction::select(DB::raw('DATE(asset_transactions.time) as transaction_date'), DB::raw('SUM(asset_transactions.amount) as total_quantity'), DB::raw('SUM(asset_transactions.total) as total_value'))
+                ->join('asset_wallet', 'asset_transactions.asset_wallet_id', '=', 'asset_wallet.id')
+                ->join('assets', 'asset_wallet.asset_id', '=', 'assets.id')
+                ->where('asset_wallet.id', '=', $asset_wallet->id)
+                ->where('asset_transactions.status', '=', 1)
+                ->groupBy('transaction_date')
+                ->orderBy('transaction_date', 'desc')
+                ->get();
+
+
+            // dd($groupAssetTransactions);
+            $totalQuantity = (float)$asset_wallet->amount;
+            $totalValue = (float)$asset_wallet->total;
+            // $totalQuantity = 0;
+            // $totalValue = 0;
+            $quantityData = [];
+            $valueData = [];
+            foreach ($groupAssetTransactions as $transaction) {
+                // $totalValue += (float)$transaction->total_value;
+                // $totalQuantity += (float)$transaction->total_quantity;
+                array_unshift($quantityData, [
+                    'x' => $transaction->transaction_date,
+                    'y' => $totalQuantity < 0 ? 0 : $totalQuantity
+                ]);
+                array_unshift($valueData, [
+                    'x' => $transaction->transaction_date,
+                    'y' => $totalValue < 0 ? 0 : $totalValue
+                ]);
+                // $valueData[] = [
+                //     'x' => $transaction->transaction_date,
+                //     'y' => $totalValue < 0 ? 0 : $totalValue
+                // ];
+                // $quantityData[] = [
+                //     'x' => $transaction->transaction_date,
+                //     'y' => $totalQuantity < 0 ? 0 : $totalQuantity
+                // ];
+                $totalQuantity -= (float)$transaction->total_quantity;
+                if($totalQuantity > 0){
+                    $totalValue -= (float)$transaction->total_value;
+                }
+                else{
+                    $totalValue = 0;
+                }
+            }
+
+            return view('users.wallets.assets.report', compact('wallet', 'asset', 'asset_wallet', 'quantityData', 'valueData', 'groupAssetTransactions'));
+        }
     }
 }

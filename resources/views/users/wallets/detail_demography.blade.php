@@ -214,24 +214,39 @@
                                     </div>
                                     <p class="text-dark mb-2"><strong>Daftar Aset</strong></p>
                                     <div class="table-responsive">
-                                        <table id="wallets-list-table" class="table table-striped table-hover"
+                                        <table id="assets-list-table" class="table table-striped table-hover"
                                             role="grid" data-toggle="data-table">
                                             <thead>
                                                 <tr class="light">
                                                     <th>#</th>
                                                     <th>Nama</th>
+                                                    <th>Harga Rata-Rata</th>
                                                     <th>Jumlah</th>
                                                     <th>Nilai Aset</th>
                                                     <th>Keuntungan</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($terbanyak as $item)
+                                                @forelse ($terbanyak as $item)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $item['asset_name'] }}</td>
-                                                        <td>{{ number_format((float) $item['amount'], 2, '.', ',') }}
-                                                        <td>${{ number_format((float) $item['total'], 2, '.', ',') }}
+                                                        <td>$@if($item['total'] > 1){{number_format((float) $item['average_price'], 2, '.', ',') }}
+                                                            @elseif(strlen(substr(strrchr($item['average_price'], "."), 1)) > 8){{ number_format((float) $item['average_price'], 8, '.', ',') }}
+                                                            @else{{ (float) $item['average_price'] }}
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item['amount'] > 1){{number_format((float) $item['amount'], 2, '.', ',') }}
+                                                            @elseif(strlen(substr(strrchr($item['amount'], "."), 1)) > 8){{ number_format((float) $item['amount'], 8, '.', ',') }}
+                                                            @else{{ (float) $item['amount'] }}
+                                                            @endif
+                                                        </td>
+                                                        <td>$@if($item['total'] > 1){{number_format((float) $item['total'], 2, '.', ',') }}
+                                                            @elseif(strlen(substr(strrchr($item['total'], "."), 1)) > 8){{ number_format((float) $item['total'], 8, '.', ',') }}
+                                                            @else{{ (float) $item['total'] }}
+                                                            @endif
+                                                        </td>
                                                         <td
                                                             class="@if ($item['pnl'] > 0) text-success @elseif($item['pnl'] < 0) text-danger @endif">
                                                             @if ($item['pnl'] < 0)
@@ -240,7 +255,11 @@
                                                             ${{ number_format(abs((float) $item['pnl']), 2, '.', ',') }}
                                                         </td>
                                                     </tr>
-                                                @endforeach
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="6">Data tidak tersedia</td>
+                                                    </tr>
+                                                @endforelse
                                             </tbody>
                                         </table>
                                     </div>
