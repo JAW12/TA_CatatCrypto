@@ -20,8 +20,8 @@
                                 <div class="col-sm-12 col-md-5 mt-3 mt-md-0">
                                     <div class="row g-2">
                                         <div class="col-sm-12 col-md-6">
-                                            <button type="button" class="btn btn-dark w-100">Laporan
-                                                Metrik</button>
+                                            <a href="{{route('user.journal.metric')}}" type="button" class="btn btn-dark w-100">Laporan
+                                                Metrik</a>
                                         </div>
                                         <div class="col-sm-12 col-md-6">
                                             @can('journal-tambah')

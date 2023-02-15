@@ -862,8 +862,8 @@
                                             </form>
                                         @endif
                                         <div class="col-sm-12 col-md-4">
-                                            <button type="button" class="btn btn-dark w-100">Laporan
-                                                Metrik</button>
+                                            <a href="{{route('user.journal.detail.metric', ['journal' => $journal->id])}}" class="btn btn-dark w-100">Laporan
+                                                Metrik</a>
                                         </div>
                                         <div class="col-sm-12 col-md-4">
                                             <button type="button" class="btn btn-dark w-100">Laporan

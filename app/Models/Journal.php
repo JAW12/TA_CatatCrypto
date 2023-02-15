@@ -21,4 +21,8 @@ class Journal extends Model
     public function trades(){
         return $this->hasMany(Trade::class)->orderBy('open_time', 'desc');
     }
+
+    public function close_trades(){
+        return $this->hasMany(Trade::class)->where('status', '2')->orderBy('close_time', 'asc');
+    }
 }

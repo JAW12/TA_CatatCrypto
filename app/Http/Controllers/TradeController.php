@@ -764,6 +764,7 @@ class TradeController extends Controller
                     $margin_sold = $sumTotalSold / $trade->leverage;
                     $roe = ($nett_pnl / $margin_sold * 100);
                     $trade->roe = $roe;
+                    $trade->margin = $margin_sold;
 
                     if ($nett_pnl == 0) {
                         $trade->wl = 0;
@@ -915,6 +916,7 @@ class TradeController extends Controller
                 $margin_sold = $sumTotalSold / $trade->leverage;
                 $roe = ($nett_pnl / $margin_sold * 100);
                 $trade->roe = $roe;
+                $trade->margin = $margin_sold;
 
                 if ($nett_pnl == 0) {
                     $trade->wl = 0;

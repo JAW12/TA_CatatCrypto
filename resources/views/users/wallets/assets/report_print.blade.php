@@ -82,11 +82,23 @@
                 new Date({!! json_encode($quantityData) !!}[0]['x']).getTime(),
                 new Date({!! json_encode($quantityData) !!}.pop()['x']).getTime()
             )
-            line.updateOptions({});
+            line.updateOptions({
+                chart:{
+                    toolbar: {
+                        show: false,
+                    },
+                }
+            });
         };
 
         var afterPrint = function() {
-            line.updateOptions({});
+            line.updateOptions({
+                chart:{
+                    toolbar: {
+                        show: true,
+                    },
+                }
+            });
         };
 
         if (window.matchMedia) {

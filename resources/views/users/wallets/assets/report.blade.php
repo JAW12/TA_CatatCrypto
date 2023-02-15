@@ -6,7 +6,6 @@
                 type: 'line',
                 width: '100%',
                 height: 350,
-                title: 'Perubahan Kumulatif Kuantitas Kripto',
             },
             stroke: {
                 curve: 'smooth',

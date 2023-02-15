@@ -105,11 +105,16 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
     Route::group(['prefix' => 'jurnal'], function () {
         Route::get('', [JournalController::class, 'index'])->name('user.journal');
         Route::post('/tambah', [JournalController::class, 'store'])->name('user.journal.add');
-        Route::get('/metrik', [JournalController::class, 'metrics'])->name('user.journal.metrics');
+        Route::get('/metrik', [JournalController::class, 'metric'])->name('user.journal.metric');
+        Route::get('/metrik/print', [JournalController::class, 'metric_print'])->name('user.journal.metric.print');
+        Route::get('/koin', [JournalController::class, 'coin'])->name('user.journal.coin');
+        Route::get('/timeframe', [JournalController::class, 'timeframe'])->name('user.journal.timeframe');
 
         Route::group(['prefix' => '{journal}'], function () {
             Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();
             Route::post('', [JournalController::class, 'update'])->name('user.journal.update')->withTrashed();
+            Route::get('/metrik', [JournalController::class, 'detail_metric'])->name('user.journal.detail.metric');
+            Route::get('/metrik/print', [JournalController::class, 'detail_metric_print'])->name('user.journal.detail.metric.print');
             Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
             Route::post('/aktifkan', [JournalController::class, 'restore'])->name('user.journal.restore')->withTrashed();
             Route::get('/tambah', [TradeController::class, 'add'])->name('user.journal.trade.add');
