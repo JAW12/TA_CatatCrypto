@@ -50,7 +50,7 @@
         // value.render();
     </script>
 @endpush
-<x-app-layout :options="['loading']">
+<x-app-layout :options="['loading', 'datatable']">
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
@@ -69,7 +69,7 @@
                                     </h4>
                                 </div>
                                 <div class="col-sm-12 col-md-3 justify-content-md-end mt-3 mt-md-0">
-                                    <a href="#" target="_blank" class="btn btn-primary w-100"
+                                    <a href="{{route('user.wallet.asset.report.print', ['wallet' => $wallet->id, 'asset' => $asset->id])}}" target="_blank" class="btn btn-primary w-100"
                                         id="export-pdf">Cetak
                                         Laporan</a>
                                 </div>
@@ -82,17 +82,17 @@
                                         <tr>
                                             <td><strong>Jumlah Koin:</strong></td>
                                             <td><strong>
-                                                    @if ($asset_wallet->amount > 999)
-                                                        {{ number_format((float) $asset_wallet->amount, 2) }}
-                                                    @else
-                                                        {{ (float) $asset_wallet->amount }}
+                                                    @if ($asset_wallet->amount > 999){{ number_format((float) $asset_wallet->amount, 2) }}
+                                                    @else{{ (float) $asset_wallet->amount }}
                                                     @endif
                                                     {{ $asset->symbol }}
                                                 </strong></td>
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td><small>${{ (float) $asset_wallet->total }}</small></td>
+                                            <td><small>$@if ($asset_wallet->total > 999){{ number_format((float) $asset_wallet->total, 2) }}
+                                            @else{{ (float) $asset_wallet->total }}
+                                            @endif</small></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -100,7 +100,9 @@
                                     <table class="text-dark">
                                         <tr>
                                             <td><strong>Harga Rata-Rata:</strong></td>
-                                            <td><strong>${{ (float) $asset_wallet->average_price }}</strong></td>
+                                            <td><strong>$@if ($asset_wallet->average_price > 999){{ number_format((float) $asset_wallet->average_price, 2) }}
+                                            @else{{ (float) $asset_wallet->average_price }}
+                                            @endif</strong></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -192,9 +194,10 @@
                                                 @elseif($transaction->type == 2)-@endif
                                                 @endif</td>
                                                 <td>
-                                                    $@if($transaction->fee > 1){{number_format((float) $transaction->fee, 2, '.', ',') }}
-                                                    @elseif(strlen(substr(strrchr($transaction->fee, "."), 1)) > 8){{ number_format((float) $transaction->fee, 8, '.', ',') }}
-                                                    @else{{ (float) $transaction->fee }}
+                                                    @if($transaction->fee > 1)${{number_format((float) $transaction->fee, 2, '.', ',') }}
+                                                    @elseif(strlen(substr(strrchr($transaction->fee, "."), 1)) > 8)${{ number_format((float) $transaction->fee, 8, '.', ',') }}
+                                                    @elseif($transaction->fee == 0)-
+                                                    @else${{ (float) $transaction->fee }}
                                                     @endif
                                                 </td>
                                                 {{-- <td>{{number_format($cumulativeAmount, 0)}}</td>

@@ -728,8 +728,8 @@ class WalletController extends Controller
                 // Hitung Average Price
                 // dd($asset_wallet->transactions);
                 $sumAmount = $asset_wallet->amount;
-                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 3')->sum('amount');
-                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 3')->sum('total');
+                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0')->sum('amount');
+                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0')->sum('total');
                 if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                     $average_price = $sumTotalBought / $sumAmountBought;
                 } else {
@@ -767,8 +767,8 @@ class WalletController extends Controller
 
                 // Hitung Average Price
                 $sumAmount = $asset_wallet->transactions()->where('status', 1)->sum('amount');
-                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 3')->sum('amount');
-                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0 or type = 3')->sum('total');
+                $sumAmountBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0')->sum('amount');
+                $sumTotalBought = $asset_wallet->transactions()->where('status', 1)->whereRaw('type = 0')->sum('total');
                 if ($sumTotalBought > 0 and $sumAmountBought > 0) {
                     $average_price = $sumTotalBought / $sumAmountBought;
                 } else {

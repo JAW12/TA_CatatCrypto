@@ -90,6 +90,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
                 Route::group(['prefix' => '{asset}'], function () {
                     Route::get('', [AssetWalletController::class, 'show'])->name('user.wallet.asset.detail');
                     Route::get('/laporan', [AssetWalletController::class, 'report'])->name('user.wallet.asset.report');
+                    Route::get('/laporan/print', [AssetWalletController::class, 'report_print'])->name('user.wallet.asset.report.print');
                     Route::delete('/hapus', [AssetWalletController::class, 'destroy'])->name('user.wallet.asset.delete');
                     Route::get('/load', [AssetWalletController::class, 'load'])->name('user.wallet.asset.detail.load');
                     Route::get('/info', [AssetWalletController::class, 'info'])->name('user.wallet.asset.detail.info');
