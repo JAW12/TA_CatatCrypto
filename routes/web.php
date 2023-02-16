@@ -115,6 +115,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
             Route::post('', [JournalController::class, 'update'])->name('user.journal.update')->withTrashed();
             Route::get('/metrik', [JournalController::class, 'detail_metric'])->name('user.journal.detail.metric');
             Route::get('/metrik/print', [JournalController::class, 'detail_metric_print'])->name('user.journal.detail.metric.print');
+            Route::get('/riwayat', [JournalController::class, 'history'])->name('user.journal.detail.history');
+            Route::get('/riwayat/print', [JournalController::class, 'history_print'])->name('user.journal.detail.history.print');
             Route::delete('/nonaktifkan', [JournalController::class, 'destroy'])->name('user.journal.delete');
             Route::post('/aktifkan', [JournalController::class, 'restore'])->name('user.journal.restore')->withTrashed();
             Route::get('/tambah', [TradeController::class, 'add'])->name('user.journal.trade.add');

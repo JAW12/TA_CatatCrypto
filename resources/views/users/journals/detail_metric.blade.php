@@ -46,7 +46,7 @@
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
-        <x-back-button>{{ route('user.journal') }}</x-back-button>
+        <x-back-button>{{ route('user.journal.detail', ['journal' => $journal->id]) }}</x-back-button>
         <div>
             <div class="row">
                 <div class="col-sm-12">
@@ -210,10 +210,11 @@
                                     <table class="text-dark">
                                         <tr>
                                             <td><strong>Rata-Rata Durasi:</strong></td>
-                                            <td><strong>{{ $data['avgDuration']['days'] > 0 ? $data['avgDuration']['days'] . ' hari ' : '' }}
+                                            <td><strong>
+                                                @if($data['avgDuration'] != null){{ $data['avgDuration']['days'] > 0 ? $data['avgDuration']['days'] . ' hari ' : '' }}
                                                     {{ $data['avgDuration']['hours'] > 0 ? $data['avgDuration']['hours'] . ' jam ' : '' }}
                                                     {{ $data['avgDuration']['minutes'] > 0 ? $data['avgDuration']['minutes'] . ' menit ' : '' }}
-                                                    {{ $data['avgDuration']['seconds'] > 0 ? $data['avgDuration']['seconds'] . ' detik ' : '' }}</strong>
+                                                    {{ $data['avgDuration']['seconds'] > 0 ? $data['avgDuration']['seconds'] . ' detik ' : '' }}@else-@endif</strong>
                                             </td>
                                         </tr>
                                     </table>

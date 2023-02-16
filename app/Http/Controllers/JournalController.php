@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateJournalRequest;
 use App\Models\Trade;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class JournalController extends Controller
@@ -106,92 +107,103 @@ class JournalController extends Controller
             $data = [];
             $totalMargin = 0;
             $averageRR = 0;
-            $countFinishTrades = 0;
             $countLong = 0;
-            $countShort = 0;
             $pnlLong = 0;
+            $countShort = 0;
             $pnlShort = 0;
-            $journals = $user->journals;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
             $maxWin = 0;
             $maxLoss = 0;
+            $countFinishTrades = 0;
+
+            $journals = $user->journals;
 
             $pnlPerDay = [];
             $winratePerDay = [];
             $mergeTrades = collect();
 
             foreach ($journals as $journal) {
-                $mergeTrades = $mergeTrades->merge($journal->trades);
-                foreach ($journal->trades->where('status', 2) as $trade) {
-                    $totalMargin += $trade->margin;
-                    $averageRR += $trade->real_rr;
-                    $countFinishTrades++;
-                    if ($trade->type == 0) {
-                        $countShort++;
-                        $pnlShort += $trade->pnl;
-                    } elseif ($trade->type == 1) {
-                        $countLong++;
-                        $pnlLong += $trade->pnl;
-                    }
-                }
+                $mergeTrades = $mergeTrades->merge($journal->close_trades);
 
-                $trades = $journal->trades;
-                $pnlPerDayForJournal = $trades
-                    ->where('status', 2) // Hanya trades yang sudah selesai
+                $trades = $journal->close_trades;
+                if($trades->count() > 0){
+                    foreach ($trades as $trade) {
+                        $countFinishTrades++;
+                        $totalMargin += $trade->margin;
+                        $averageRR += $trade->real_rr;
+                        if ($trade->type == 0) {
+                            $countShort++;
+                            $pnlShort += $trade->nett_pnl;
+                        } elseif ($trade->type == 1) {
+                            $countLong++;
+                            $pnlLong += $trade->nett_pnl;
+                        }
+                    }
+
+                    $pnlPerDayForJournal = $trades
+                        ->where('status', 2) // Hanya trades yang sudah selesai
+                        ->groupBy(function ($trade) {
+                            return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                        })
+                        ->map(function ($tradesPerDay) {
+                            return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                        })->toArray();
+
+                    $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal);
+                    // Gabungkan array PnL per hari untuk setiap jurnal
+                }
+            }
+
+            if($mergeTrades->count() > 0){
+                $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
-                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                        return date('Y-m-d', strtotime($trade->close_time));
                     })
                     ->map(function ($tradesPerDay) {
-                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
-                    })->toArray();
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
 
-                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $mergeTrades->count();
+
+                $totalDurationInSeconds = $mergeTrades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $mergeTrades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $mergeTrades->max('pnl');
+                $maxLoss = $mergeTrades->min('pnl');
+                $averageRR /= $countFinishTrades;
             }
 
-            $winLossPerDay = $mergeTrades->where('status', 2)
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time));
-                })
-                ->map(function ($tradesPerDay) {
-                    $wins = $tradesPerDay->where('wl', 1)->count();
-                    $losses = $tradesPerDay->where('wl', -1)->count();
-                    return ['wins' => $wins, 'losses' => $losses];
-                })
-                ->toArray();
-
-            $winratePerDay = [];
-            foreach ($winLossPerDay as $date => $winLoss) {
-                $totalTrades = $winLoss['wins'] + $winLoss['losses'];
-                $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
-            }
-            $averageWRPerDay = collect($winratePerDay)->avg();
-
-            $totalPNL = 0;
-            foreach ($pnlPerDay as $pnl) {
-                $totalPNL += $pnl;
-            }
-            $averagePNLPerDay = $totalPNL / count($pnlPerDay);
-            $averagePNLPerTransaction = $totalPNL / $mergeTrades->count();
-
-            $totalDurationInSeconds = $mergeTrades->sum(function ($trade) {
-                return $trade->diff_days * 24 * 60 * 60
-                    + $trade->diff_hours * 60 * 60
-                    + $trade->diff_minutes * 60
-                    + $trade->diff_seconds;
-            });
-
-            $averageDurationInSeconds = $totalDurationInSeconds / $mergeTrades->count();
-
-            $averageDuration = [
-                'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
-                'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
-                'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
-                'seconds' => floor($averageDurationInSeconds % 60),
-            ];
-
-            $maxWin = $mergeTrades->max('pnl');
-            $maxLoss = $mergeTrades->min('pnl');
-
-            $averageRR /= $countFinishTrades;
             $data['totalMargin'] = $totalMargin;
             $data['averageRR'] = $averageRR;
             $data['long']['count'] = $countLong;
@@ -211,18 +223,18 @@ class JournalController extends Controller
 
             foreach($journals as $journal) {
                 foreach($journal->close_trades as $trade) {
-                    $profitSum += $trade->pnl;
+                    $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
                     if (!array_key_exists($date, $dailyProfitData)) {
                         $dailyProfitData[$date] = 0;
                     }
-                    $dailyProfitData[$date] += $trade->pnl;
+                    $dailyProfitData[$date] += $trade->nett_pnl;
                     if (!array_key_exists($date, $cumulativeProfitData)) {
                         $cumulativeProfitData[$date] = $profitSum;
                     }
                     else {
-                        $cumulativeProfitData[$date] += $trade->pnl;
+                        $cumulativeProfitData[$date] += $trade->nett_pnl;
                     }
                 }
             }
@@ -265,92 +277,103 @@ class JournalController extends Controller
             $data = [];
             $totalMargin = 0;
             $averageRR = 0;
-            $countFinishTrades = 0;
             $countLong = 0;
-            $countShort = 0;
             $pnlLong = 0;
+            $countShort = 0;
             $pnlShort = 0;
-            $journals = $user->journals;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
             $maxWin = 0;
             $maxLoss = 0;
+            $countFinishTrades = 0;
+
+            $journals = $user->journals;
 
             $pnlPerDay = [];
             $winratePerDay = [];
             $mergeTrades = collect();
 
             foreach ($journals as $journal) {
-                $mergeTrades = $mergeTrades->merge($journal->trades);
-                foreach ($journal->trades->where('status', 2) as $trade) {
-                    $totalMargin += $trade->margin;
-                    $averageRR += $trade->real_rr;
-                    $countFinishTrades++;
-                    if ($trade->type == 0) {
-                        $countShort++;
-                        $pnlShort += $trade->pnl;
-                    } elseif ($trade->type == 1) {
-                        $countLong++;
-                        $pnlLong += $trade->pnl;
-                    }
-                }
+                $mergeTrades = $mergeTrades->merge($journal->close_trades);
 
-                $trades = $journal->trades;
-                $pnlPerDayForJournal = $trades
-                    ->where('status', 2) // Hanya trades yang sudah selesai
+                $trades = $journal->close_trades;
+                if($trades->count() > 0){
+                    foreach ($trades as $trade) {
+                        $countFinishTrades++;
+                        $totalMargin += $trade->margin;
+                        $averageRR += $trade->real_rr;
+                        if ($trade->type == 0) {
+                            $countShort++;
+                            $pnlShort += $trade->nett_pnl;
+                        } elseif ($trade->type == 1) {
+                            $countLong++;
+                            $pnlLong += $trade->nett_pnl;
+                        }
+                    }
+
+                    $pnlPerDayForJournal = $trades
+                        ->where('status', 2) // Hanya trades yang sudah selesai
+                        ->groupBy(function ($trade) {
+                            return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                        })
+                        ->map(function ($tradesPerDay) {
+                            return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                        })->toArray();
+
+                    $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal);
+                    // Gabungkan array PnL per hari untuk setiap jurnal
+                }
+            }
+
+            if($mergeTrades->count() > 0){
+                $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
-                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                        return date('Y-m-d', strtotime($trade->close_time));
                     })
                     ->map(function ($tradesPerDay) {
-                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
-                    })->toArray();
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
 
-                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $mergeTrades->count();
+
+                $totalDurationInSeconds = $mergeTrades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $mergeTrades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $mergeTrades->max('pnl');
+                $maxLoss = $mergeTrades->min('pnl');
+                $averageRR /= $countFinishTrades;
             }
 
-            $winLossPerDay = $mergeTrades->where('status', 2)
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time));
-                })
-                ->map(function ($tradesPerDay) {
-                    $wins = $tradesPerDay->where('wl', 1)->count();
-                    $losses = $tradesPerDay->where('wl', -1)->count();
-                    return ['wins' => $wins, 'losses' => $losses];
-                })
-                ->toArray();
-
-            $winratePerDay = [];
-            foreach ($winLossPerDay as $date => $winLoss) {
-                $totalTrades = $winLoss['wins'] + $winLoss['losses'];
-                $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
-            }
-            $averageWRPerDay = collect($winratePerDay)->avg();
-
-            $totalPNL = 0;
-            foreach ($pnlPerDay as $pnl) {
-                $totalPNL += $pnl;
-            }
-            $averagePNLPerDay = $totalPNL / count($pnlPerDay);
-            $averagePNLPerTransaction = $totalPNL / $mergeTrades->count();
-
-            $totalDurationInSeconds = $mergeTrades->sum(function ($trade) {
-                return $trade->diff_days * 24 * 60 * 60
-                    + $trade->diff_hours * 60 * 60
-                    + $trade->diff_minutes * 60
-                    + $trade->diff_seconds;
-            });
-
-            $averageDurationInSeconds = $totalDurationInSeconds / $mergeTrades->count();
-
-            $averageDuration = [
-                'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
-                'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
-                'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
-                'seconds' => floor($averageDurationInSeconds % 60),
-            ];
-
-            $maxWin = $mergeTrades->max('pnl');
-            $maxLoss = $mergeTrades->min('pnl');
-
-            $averageRR /= $countFinishTrades;
             $data['totalMargin'] = $totalMargin;
             $data['averageRR'] = $averageRR;
             $data['long']['count'] = $countLong;
@@ -370,18 +393,18 @@ class JournalController extends Controller
 
             foreach($journals as $journal) {
                 foreach($journal->close_trades as $trade) {
-                    $profitSum += $trade->pnl;
+                    $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
                     if (!array_key_exists($date, $dailyProfitData)) {
                         $dailyProfitData[$date] = 0;
                     }
-                    $dailyProfitData[$date] += $trade->pnl;
+                    $dailyProfitData[$date] += $trade->nett_pnl;
                     if (!array_key_exists($date, $cumulativeProfitData)) {
                         $cumulativeProfitData[$date] = $profitSum;
                     }
                     else {
-                        $cumulativeProfitData[$date] += $trade->pnl;
+                        $cumulativeProfitData[$date] += $trade->nett_pnl;
                     }
                 }
             }
@@ -424,88 +447,91 @@ class JournalController extends Controller
             $data = [];
             $totalMargin = 0;
             $averageRR = 0;
-            $countFinishTrades = 0;
             $countLong = 0;
-            $countShort = 0;
             $pnlLong = 0;
+            $countShort = 0;
             $pnlShort = 0;
-            $journals = $user->journals;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
             $maxWin = 0;
             $maxLoss = 0;
 
             $pnlPerDay = [];
             $winratePerDay = [];
 
-            foreach ($journal->trades->where('status', 2) as $trade) {
-                $totalMargin += $trade->margin;
-                $averageRR += $trade->real_rr;
-                $countFinishTrades++;
-                if ($trade->type == 0) {
-                    $countShort++;
-                    $pnlShort += $trade->pnl;
-                } elseif ($trade->type == 1) {
-                    $countLong++;
-                    $pnlLong += $trade->pnl;
+            $trades = $journal->close_trades;
+
+            if($trades->count() > 0){
+                foreach ($trades as $trade) {
+                    $totalMargin += $trade->margin;
+                    $averageRR += $trade->real_rr;
+                    if ($trade->type == 0) {
+                        $countShort++;
+                        $pnlShort += $trade->nett_pnl;
+                    } elseif ($trade->type == 1) {
+                        $countLong++;
+                        $pnlLong += $trade->nett_pnl;
+                    }
                 }
+
+                $pnlPerDayForJournal = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                    })
+                    ->map(function ($tradesPerDay) {
+                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                    })->toArray();
+
+                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+
+                $winLossPerDay = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time));
+                    })
+                    ->map(function ($tradesPerDay) {
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
+
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $trades->count();
+
+                $totalDurationInSeconds = $trades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $trades->max('pnl');
+                $maxLoss = $trades->min('pnl');
+                $averageRR /= $trades->count();
             }
 
-            $trades = $journal->trades;
-            $pnlPerDayForJournal = $trades
-                ->where('status', 2) // Hanya trades yang sudah selesai
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
-                })
-                ->map(function ($tradesPerDay) {
-                    return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
-                })->toArray();
-
-            $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
-
-            $winLossPerDay = $trades->where('status', 2)
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time));
-                })
-                ->map(function ($tradesPerDay) {
-                    $wins = $tradesPerDay->where('wl', 1)->count();
-                    $losses = $tradesPerDay->where('wl', -1)->count();
-                    return ['wins' => $wins, 'losses' => $losses];
-                })
-                ->toArray();
-
-            $winratePerDay = [];
-            foreach ($winLossPerDay as $date => $winLoss) {
-                $totalTrades = $winLoss['wins'] + $winLoss['losses'];
-                $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
-            }
-            $averageWRPerDay = collect($winratePerDay)->avg();
-
-            $totalPNL = 0;
-            foreach ($pnlPerDay as $pnl) {
-                $totalPNL += $pnl;
-            }
-            $averagePNLPerDay = $totalPNL / count($pnlPerDay);
-            $averagePNLPerTransaction = $totalPNL / $trades->count();
-
-            $totalDurationInSeconds = $trades->sum(function ($trade) {
-                return $trade->diff_days * 24 * 60 * 60
-                    + $trade->diff_hours * 60 * 60
-                    + $trade->diff_minutes * 60
-                    + $trade->diff_seconds;
-            });
-
-            $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
-
-            $averageDuration = [
-                'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
-                'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
-                'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
-                'seconds' => floor($averageDurationInSeconds % 60),
-            ];
-
-            $maxWin = $trades->max('pnl');
-            $maxLoss = $trades->min('pnl');
-
-            $averageRR /= $countFinishTrades;
             $data['totalMargin'] = $totalMargin;
             $data['averageRR'] = $averageRR;
             $data['long']['count'] = $countLong;
@@ -523,21 +549,19 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journals as $journal) {
-                foreach($journal->close_trades as $trade) {
-                    $profitSum += $trade->pnl;
-                    $closeTime = Carbon::parse($trade->close_time);
-                    $date = $closeTime->format('Y-m-d');
-                    if (!array_key_exists($date, $dailyProfitData)) {
-                        $dailyProfitData[$date] = 0;
-                    }
-                    $dailyProfitData[$date] += $trade->pnl;
-                    if (!array_key_exists($date, $cumulativeProfitData)) {
-                        $cumulativeProfitData[$date] = $profitSum;
-                    }
-                    else {
-                        $cumulativeProfitData[$date] += $trade->pnl;
-                    }
+            foreach($journal->close_trades as $trade) {
+                $profitSum += $trade->nett_pnl;
+                $closeTime = Carbon::parse($trade->close_time);
+                $date = $closeTime->format('Y-m-d');
+                if (!array_key_exists($date, $dailyProfitData)) {
+                    $dailyProfitData[$date] = 0;
+                }
+                $dailyProfitData[$date] += $trade->nett_pnl;
+                if (!array_key_exists($date, $cumulativeProfitData)) {
+                    $cumulativeProfitData[$date] = $profitSum;
+                }
+                else {
+                    $cumulativeProfitData[$date] += $trade->nett_pnl;
                 }
             }
 
@@ -579,88 +603,91 @@ class JournalController extends Controller
             $data = [];
             $totalMargin = 0;
             $averageRR = 0;
-            $countFinishTrades = 0;
             $countLong = 0;
-            $countShort = 0;
             $pnlLong = 0;
+            $countShort = 0;
             $pnlShort = 0;
-            $journals = $user->journals;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
             $maxWin = 0;
             $maxLoss = 0;
 
             $pnlPerDay = [];
             $winratePerDay = [];
 
-            foreach ($journal->trades->where('status', 2) as $trade) {
-                $totalMargin += $trade->margin;
-                $averageRR += $trade->real_rr;
-                $countFinishTrades++;
-                if ($trade->type == 0) {
-                    $countShort++;
-                    $pnlShort += $trade->pnl;
-                } elseif ($trade->type == 1) {
-                    $countLong++;
-                    $pnlLong += $trade->pnl;
+            $trades = $journal->close_trades;
+
+            if($trades->count() > 0){
+                foreach ($trades as $trade) {
+                    $totalMargin += $trade->margin;
+                    $averageRR += $trade->real_rr;
+                    if ($trade->type == 0) {
+                        $countShort++;
+                        $pnlShort += $trade->nett_pnl;
+                    } elseif ($trade->type == 1) {
+                        $countLong++;
+                        $pnlLong += $trade->nett_pnl;
+                    }
                 }
+
+                $pnlPerDayForJournal = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                    })
+                    ->map(function ($tradesPerDay) {
+                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                    })->toArray();
+
+                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+
+                $winLossPerDay = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time));
+                    })
+                    ->map(function ($tradesPerDay) {
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
+
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $trades->count();
+
+                $totalDurationInSeconds = $trades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $trades->max('pnl');
+                $maxLoss = $trades->min('pnl');
+                $averageRR /= $trades->count();
             }
 
-            $trades = $journal->trades;
-            $pnlPerDayForJournal = $trades
-                ->where('status', 2) // Hanya trades yang sudah selesai
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
-                })
-                ->map(function ($tradesPerDay) {
-                    return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
-                })->toArray();
-
-            $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
-
-            $winLossPerDay = $trades->where('status', 2)
-                ->groupBy(function ($trade) {
-                    return date('Y-m-d', strtotime($trade->close_time));
-                })
-                ->map(function ($tradesPerDay) {
-                    $wins = $tradesPerDay->where('wl', 1)->count();
-                    $losses = $tradesPerDay->where('wl', -1)->count();
-                    return ['wins' => $wins, 'losses' => $losses];
-                })
-                ->toArray();
-
-            $winratePerDay = [];
-            foreach ($winLossPerDay as $date => $winLoss) {
-                $totalTrades = $winLoss['wins'] + $winLoss['losses'];
-                $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
-            }
-            $averageWRPerDay = collect($winratePerDay)->avg();
-
-            $totalPNL = 0;
-            foreach ($pnlPerDay as $pnl) {
-                $totalPNL += $pnl;
-            }
-            $averagePNLPerDay = $totalPNL / count($pnlPerDay);
-            $averagePNLPerTransaction = $totalPNL / $trades->count();
-
-            $totalDurationInSeconds = $trades->sum(function ($trade) {
-                return $trade->diff_days * 24 * 60 * 60
-                    + $trade->diff_hours * 60 * 60
-                    + $trade->diff_minutes * 60
-                    + $trade->diff_seconds;
-            });
-
-            $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
-
-            $averageDuration = [
-                'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
-                'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
-                'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
-                'seconds' => floor($averageDurationInSeconds % 60),
-            ];
-
-            $maxWin = $trades->max('pnl');
-            $maxLoss = $trades->min('pnl');
-
-            $averageRR /= $countFinishTrades;
             $data['totalMargin'] = $totalMargin;
             $data['averageRR'] = $averageRR;
             $data['long']['count'] = $countLong;
@@ -678,21 +705,19 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journals as $journal) {
-                foreach($journal->close_trades as $trade) {
-                    $profitSum += $trade->pnl;
-                    $closeTime = Carbon::parse($trade->close_time);
-                    $date = $closeTime->format('Y-m-d');
-                    if (!array_key_exists($date, $dailyProfitData)) {
-                        $dailyProfitData[$date] = 0;
-                    }
-                    $dailyProfitData[$date] += $trade->pnl;
-                    if (!array_key_exists($date, $cumulativeProfitData)) {
-                        $cumulativeProfitData[$date] = $profitSum;
-                    }
-                    else {
-                        $cumulativeProfitData[$date] += $trade->pnl;
-                    }
+            foreach($journal->close_trades as $trade) {
+                $profitSum += $trade->nett_pnl;
+                $closeTime = Carbon::parse($trade->close_time);
+                $date = $closeTime->format('Y-m-d');
+                if (!array_key_exists($date, $dailyProfitData)) {
+                    $dailyProfitData[$date] = 0;
+                }
+                $dailyProfitData[$date] += $trade->nett_pnl;
+                if (!array_key_exists($date, $cumulativeProfitData)) {
+                    $cumulativeProfitData[$date] = $profitSum;
+                }
+                else {
+                    $cumulativeProfitData[$date] += $trade->nett_pnl;
                 }
             }
 
@@ -722,6 +747,385 @@ class JournalController extends Controller
             // sort($dates);
 
             return view('users.journals.detail_metric_print', compact('user', 'journal', 'data', 'categories', 'dailyProfitArray', 'cumulativeProfitArray'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function history(Journal $journal, Request $request){
+        if (Auth::user()->hasPermissionTo('journal-daftar')) {
+            $user = User::findOrFail(Auth::id());
+            $data = [];
+
+            $winRate = 0;
+            $totalMargin = 0;
+            $averageRR = 0;
+            $countLong = 0;
+            $pnlLong = 0;
+            $countShort = 0;
+            $pnlShort = 0;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
+            $complianceRate = 0;
+            $maxWin = 0;
+            $maxLoss = 0;
+            $minDuration = null;
+            $maxDuration = null;
+            $mostAchievedTarget = null;
+
+            $pnlPerDay = [];
+            $winratePerDay = [];
+
+            if($request->start and $request->end){
+                $start = Carbon::parse($request->start);
+                $end = Carbon::parse($request->end)->endOfDay();
+                $trades = $journal->close_trades->whereBetween('close_time', [$start, $end]);
+            }
+            else if($request->start){
+                $start = Carbon::parse($request->start);
+                $trades = $journal->close_trades->where('close_time', '>=', $start);
+            }
+            else if($request->end){
+                $end = Carbon::parse($request->end);
+                $trades = $journal->close_trades->where('close_time', '<=', $end);
+            }
+            else{
+                $trades = $journal->close_trades;
+            }
+
+            if($trades->count() > 0){
+                $totalWins = 0;
+                $totalCompliance = 0;
+                foreach ($trades as $trade) {
+                    $totalMargin += $trade->margin;
+                    $averageRR += $trade->real_rr;
+                    if ($trade->type == 0) {
+                        $countShort++;
+                        $pnlShort += $trade->nett_pnl;
+                    } elseif ($trade->type == 1) {
+                        $countLong++;
+                        $pnlLong += $trade->nett_pnl;
+                    }
+                    if($trade->wl == 1){
+                        $totalWins++;
+                    }
+                    if($trade->nett_pnl < 0){
+                        if($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100){
+                            $totalCompliance++;
+                        }
+                    }
+                    else{
+                        $totalCompliance++;
+                    }
+                }
+
+                $winRate = $totalWins / $trades->count() * 100;
+                $complianceRate = $totalCompliance / $trades->count() * 100;
+
+                $pnlPerDayForJournal = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                    })
+                    ->map(function ($tradesPerDay) {
+                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                    })->toArray();
+
+                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+
+                $winLossPerDay = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time));
+                    })
+                    ->map(function ($tradesPerDay) {
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
+
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $trades->count();
+
+                $totalDurationInSeconds = $trades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $trades->max('pnl');
+                $maxLoss = $trades->min('pnl');
+
+                $averageRR /= $trades->count();
+
+                $targets = $trades->pluck('closed_at')->unique();
+                $targetCounts = $targets->map(function ($target) use ($trades) {
+                    $count = $trades->filter(function ($trade) use ($target) {
+                        return $trade->closed_at === $target;
+                    })->count();
+
+                    return [
+                        'target' => $target,
+                        'count' => $count,
+                        'percentage' => $count / $trades->count() * 100,
+                    ];
+                });
+
+                $sortedTargets = $targetCounts->sortByDesc('count');
+                $mostAchievedTarget = $sortedTargets->first();
+                // dd($mostAchievedTarget);
+
+                $sorted_trades = $trades->sortBy(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60 + $trade->diff_hours * 60 * 60 + $trade->diff_minutes * 60 + $trade->diff_seconds;
+                });
+
+                // dd($sorted_trades);
+                $minDuration = $sorted_trades->first();
+                $maxDuration = $sorted_trades->last();
+            }
+            $data['winRate'] = $winRate;
+            $data['complianceRate'] = $complianceRate;
+            $data['totalMargin'] = $totalMargin;
+            $data['averageRR'] = $averageRR;
+            $data['long']['count'] = $countLong;
+            $data['long']['pnl'] = $pnlLong;
+            $data['short']['count'] = $countShort;
+            $data['short']['pnl'] = $pnlShort;
+            $data['avgPNLPerDay'] = $averagePNLPerDay;
+            $data['avgWRPerDay'] = $averageWRPerDay;
+            $data['avgDuration'] = $averageDuration;
+            $data['avgPNLPerTransaction'] = $averagePNLPerTransaction;
+            $data['pnl']['max'] = $maxWin;
+            $data['pnl']['min'] = $maxLoss;
+            $data['duration']['min'] = $minDuration;
+            $data['duration']['max'] = $maxDuration;
+            if($request->start){
+                $data['start'] = $request->start;
+            }
+            else{
+                $data['start'] = $trades->first()->close_time;
+            }
+            if($request->end){
+                $data['end'] = $request->end;
+            }
+            else{
+                $data['end'] = $trades->last()->close_time;
+            }
+            $data['mostAchievedTarget'] = $mostAchievedTarget;
+
+            return view('users.journals.history', compact('user', 'journal', 'data', 'trades'));
+        } else {
+            abort(403);
+        }
+    }
+    public function history_print(Journal $journal, Request $request){
+        if (Auth::user()->hasPermissionTo('journal-daftar')) {
+            $user = User::findOrFail(Auth::id());
+            $data = [];
+
+            $winRate = 0;
+            $totalMargin = 0;
+            $averageRR = 0;
+            $countLong = 0;
+            $pnlLong = 0;
+            $countShort = 0;
+            $pnlShort = 0;
+            $averagePNLPerDay = 0;
+            $averageWRPerDay = 0;
+            $averageDuration = null;
+            $averagePNLPerTransaction = 0;
+            $complianceRate = 0;
+            $maxWin = 0;
+            $maxLoss = 0;
+            $minDuration = null;
+            $maxDuration = null;
+            $mostAchievedTarget = null;
+
+            $pnlPerDay = [];
+            $winratePerDay = [];
+
+            if($request->start and $request->end){
+                $start = Carbon::parse($request->start);
+                $end = Carbon::parse($request->end)->endOfDay();
+                $trades = $journal->close_trades->whereBetween('close_time', [$start, $end]);
+            }
+            else if($request->start){
+                $start = Carbon::parse($request->start);
+                $trades = $journal->close_trades->where('close_time', '>=', $start);
+            }
+            else if($request->end){
+                $end = Carbon::parse($request->end);
+                $trades = $journal->close_trades->where('close_time', '<=', $end);
+            }
+            else{
+                $trades = $journal->close_trades;
+            }
+
+            if($trades->count() > 0){
+                $totalWins = 0;
+                $totalCompliance = 0;
+                foreach ($trades as $trade) {
+                    $totalMargin += $trade->margin;
+                    $averageRR += $trade->real_rr;
+                    if ($trade->type == 0) {
+                        $countShort++;
+                        $pnlShort += $trade->nett_pnl;
+                    } elseif ($trade->type == 1) {
+                        $countLong++;
+                        $pnlLong += $trade->nett_pnl;
+                    }
+                    if($trade->wl == 1){
+                        $totalWins++;
+                    }
+                    if($trade->nett_pnl < 0){
+                        if($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100){
+                            $totalCompliance++;
+                        }
+                    }
+                    else{
+                        $totalCompliance++;
+                    }
+                }
+
+                $winRate = $totalWins / $trades->count() * 100;
+                $complianceRate = $totalCompliance / $trades->count() * 100;
+
+                $pnlPerDayForJournal = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time)); // Kelompokkan berdasarkan tanggal
+                    })
+                    ->map(function ($tradesPerDay) {
+                        return $tradesPerDay->sum('pnl'); // Hitung total PnL per hari
+                    })->toArray();
+
+                $pnlPerDay = array_merge_recursive($pnlPerDay, $pnlPerDayForJournal); // Gabungkan array PnL per hari untuk setiap jurnal
+
+                $winLossPerDay = $trades
+                    ->groupBy(function ($trade) {
+                        return date('Y-m-d', strtotime($trade->close_time));
+                    })
+                    ->map(function ($tradesPerDay) {
+                        $wins = $tradesPerDay->where('wl', 1)->count();
+                        $losses = $tradesPerDay->where('wl', -1)->count();
+                        return ['wins' => $wins, 'losses' => $losses];
+                    })
+                    ->toArray();
+
+                $winratePerDay = [];
+                foreach ($winLossPerDay as $date => $winLoss) {
+                    $totalTrades = $winLoss['wins'] + $winLoss['losses'];
+                    $winratePerDay[$date] = $totalTrades > 0 ? ($winLoss['wins'] / $totalTrades) * 100 : 0;
+                }
+                $averageWRPerDay = collect($winratePerDay)->avg();
+
+                $totalPNL = 0;
+                foreach ($pnlPerDay as $pnl) {
+                    $totalPNL += $pnl;
+                }
+
+                $averagePNLPerDay = $totalPNL / count($pnlPerDay);
+                $averagePNLPerTransaction = $totalPNL / $trades->count();
+
+                $totalDurationInSeconds = $trades->sum(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60
+                        + $trade->diff_hours * 60 * 60
+                        + $trade->diff_minutes * 60
+                        + $trade->diff_seconds;
+                });
+
+                $averageDurationInSeconds = $totalDurationInSeconds / $trades->count();
+
+                $averageDuration = [
+                    'days' => floor($averageDurationInSeconds / (24 * 60 * 60)),
+                    'hours' => floor(($averageDurationInSeconds % (24 * 60 * 60)) / (60 * 60)),
+                    'minutes' => floor(($averageDurationInSeconds % (60 * 60)) / 60),
+                    'seconds' => floor($averageDurationInSeconds % 60),
+                ];
+
+                $maxWin = $trades->max('pnl');
+                $maxLoss = $trades->min('pnl');
+
+                $averageRR /= $trades->count();
+
+                $targets = $trades->pluck('closed_at')->unique();
+                $targetCounts = $targets->map(function ($target) use ($trades) {
+                    $count = $trades->filter(function ($trade) use ($target) {
+                        return $trade->closed_at === $target;
+                    })->count();
+
+                    return [
+                        'target' => $target,
+                        'count' => $count,
+                        'percentage' => $count / $trades->count() * 100,
+                    ];
+                });
+
+                $sortedTargets = $targetCounts->sortByDesc('count');
+                $mostAchievedTarget = $sortedTargets->first();
+                // dd($mostAchievedTarget);
+
+                $sorted_trades = $trades->sortBy(function ($trade) {
+                    return $trade->diff_days * 24 * 60 * 60 + $trade->diff_hours * 60 * 60 + $trade->diff_minutes * 60 + $trade->diff_seconds;
+                });
+
+                // dd($sorted_trades);
+                $minDuration = $sorted_trades->first();
+                $maxDuration = $sorted_trades->last();
+            }
+            $data['winRate'] = $winRate;
+            $data['complianceRate'] = $complianceRate;
+            $data['totalMargin'] = $totalMargin;
+            $data['averageRR'] = $averageRR;
+            $data['long']['count'] = $countLong;
+            $data['long']['pnl'] = $pnlLong;
+            $data['short']['count'] = $countShort;
+            $data['short']['pnl'] = $pnlShort;
+            $data['avgPNLPerDay'] = $averagePNLPerDay;
+            $data['avgWRPerDay'] = $averageWRPerDay;
+            $data['avgDuration'] = $averageDuration;
+            $data['avgPNLPerTransaction'] = $averagePNLPerTransaction;
+            $data['pnl']['max'] = $maxWin;
+            $data['pnl']['min'] = $maxLoss;
+            $data['duration']['min'] = $minDuration;
+            $data['duration']['max'] = $maxDuration;
+            if($request->start){
+                $data['start'] = $request->start;
+            }
+            else{
+                $data['start'] = $trades->first()->close_time;
+            }
+            if($request->end){
+                $data['end'] = $request->end;
+            }
+            else{
+                $data['end'] = $trades->last()->close_time;
+            }
+            $data['mostAchievedTarget'] = $mostAchievedTarget;
+
+            return view('users.journals.history_print', compact('user', 'journal', 'data', 'trades'));
         } else {
             abort(403);
         }
