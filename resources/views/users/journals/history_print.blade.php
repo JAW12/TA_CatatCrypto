@@ -18,7 +18,9 @@
 
         head.appendChild(style);
 
-        window.print();
+        setTimeout(function() {
+            window.print();
+        }, 1000);
     </script>
 @endpush
 @push('styles')
@@ -69,7 +71,7 @@
     </style>
 @endpush
 <x-print-layout>
-    <div class="d-flex justify-content-between text-dark mb-3">
+    <div class="d-flex justify-content-between text-dark my-3">
         <div>
             <small>Resiko per Transaksi:
                 {{ (float) $journal->risk }}%</small>
@@ -112,7 +114,7 @@
                     </tr>
                 </thead>
                 <tbody id="list-selesai">
-                    @foreach ($trades->sortByDesc('close_time') as $trade)
+                    @forelse ($trades->sortByDesc('close_time') as $trade)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
@@ -179,7 +181,11 @@
                                 {{ $trade->real_rr }}</td>
                             <td>{{ $trade->closed_at == '' ? '-' : $trade->closed_at }}</td>
                         </tr>
-                    @endforeach
+                    @else
+                    <tr>
+                        <td colspan="16">Data tidak tersedia</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -193,8 +199,7 @@
                 <table class="text-dark">
                     <tr>
                         <td><strong>Jumlah Catatan:</strong></td>
-                        <td><strong>{{ $trades->count() }} Catatan</strong>
-                        </td>
+                        <td><strong>{{ number_format($trades->count(), 0) }} Catatan</strong>                        </td>
                     </tr>
                 </table>
             </div>

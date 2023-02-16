@@ -108,7 +108,9 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/metrik', [JournalController::class, 'metric'])->name('user.journal.metric');
         Route::get('/metrik/print', [JournalController::class, 'metric_print'])->name('user.journal.metric.print');
         Route::get('/koin', [JournalController::class, 'coin'])->name('user.journal.coin');
+        Route::get('/koin/print', [JournalController::class, 'coin_print'])->name('user.journal.coin.print');
         Route::get('/timeframe', [JournalController::class, 'timeframe'])->name('user.journal.timeframe');
+        Route::get('/timeframe/print', [JournalController::class, 'timeframe_print'])->name('user.journal.timeframe.print');
 
         Route::group(['prefix' => '{journal}'], function () {
             Route::get('', [JournalController::class, 'show'])->name('user.journal.detail')->withTrashed();

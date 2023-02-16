@@ -60,7 +60,9 @@
         var line = new ApexCharts(document.querySelector("#line"), options);
 
         line.render();
-        window.print();
+        setTimeout(function() {
+            window.print();
+        }, 1000);
 
         var beforePrint = function() {
             line.zoomX(
@@ -68,7 +70,7 @@
                 new Date({!! json_encode($categories) !!}.pop()).getTime()
             )
             line.updateOptions({
-                chart:{
+                chart: {
                     toolbar: {
                         show: false,
                     },
@@ -78,7 +80,7 @@
 
         var afterPrint = function() {
             line.updateOptions({
-                chart:{
+                chart: {
                     toolbar: {
                         show: true,
                     },
@@ -102,9 +104,9 @@
     </script>
 @endpush
 <x-print-layout>
-    <h5 class="text-muted mb-2"><strong>Ringkasan</strong></h5>
-    <hr>
-    <div class="mb-3">
+    <div class="my-3">
+        <h5 class="text-muted mb-2"><strong>Ringkasan</strong></h5>
+        <hr>
         <div class="d-flex justify-content-between">
             <div style="width: 33%">
                 <div style="width: 33%">
@@ -121,7 +123,7 @@
                 <table class="text-dark">
                     <tr>
                         <td><strong>Jumlah Catatan:</strong></td>
-                        <td><strong>{{ $user->journals->sum('count_of_trades') }} Catatan</strong>
+                        <td><strong>{{ number_format($user->journals->sum('count_of_trades'), 0) }} Catatan</strong>
                         </td>
                     </tr>
                 </table>
@@ -266,10 +268,13 @@
                     <tr>
                         <td><strong>Rata-Rata Durasi:</strong></td>
                         <td><strong>
-                            @if($data['avgDuration'] != null){{ $data['avgDuration']['days'] > 0 ? $data['avgDuration']['days'] . ' hari ' : '' }}
-                                {{ $data['avgDuration']['hours'] > 0 ? $data['avgDuration']['hours'] . ' jam ' : '' }}
-                                {{ $data['avgDuration']['minutes'] > 0 ? $data['avgDuration']['minutes'] . ' menit ' : '' }}
-                                {{ $data['avgDuration']['seconds'] > 0 ? $data['avgDuration']['seconds'] . ' detik ' : '' }}@else-@endif</strong>
+                                @if ($data['avgDuration'] != null)
+                                    {{ $data['avgDuration']['days'] > 0 ? $data['avgDuration']['days'] . ' hari ' : '' }}
+                                    {{ $data['avgDuration']['hours'] > 0 ? $data['avgDuration']['hours'] . ' jam ' : '' }}
+                                    {{ $data['avgDuration']['minutes'] > 0 ? $data['avgDuration']['minutes'] . ' menit ' : '' }}
+                                    {{ $data['avgDuration']['seconds'] > 0 ? $data['avgDuration']['seconds'] . ' detik ' : '' }}@else-
+                                @endif
+                            </strong>
                         </td>
                     </tr>
                 </table>

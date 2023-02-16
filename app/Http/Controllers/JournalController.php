@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Journal;
 use App\Http\Requests\StoreJournalRequest;
 use App\Http\Requests\UpdateJournalRequest;
+use App\Models\Timeframe;
+use App\Models\TimeframeTrade;
 use App\Models\Trade;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class JournalController extends Controller
 {
@@ -129,7 +132,7 @@ class JournalController extends Controller
                 $mergeTrades = $mergeTrades->merge($journal->close_trades);
 
                 $trades = $journal->close_trades;
-                if($trades->count() > 0){
+                if ($trades->count() > 0) {
                     foreach ($trades as $trade) {
                         $countFinishTrades++;
                         $totalMargin += $trade->margin;
@@ -157,7 +160,7 @@ class JournalController extends Controller
                 }
             }
 
-            if($mergeTrades->count() > 0){
+            if ($mergeTrades->count() > 0) {
                 $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
                         return date('Y-m-d', strtotime($trade->close_time));
@@ -221,8 +224,8 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journals as $journal) {
-                foreach($journal->close_trades as $trade) {
+            foreach ($journals as $journal) {
+                foreach ($journal->close_trades as $trade) {
                     $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
@@ -232,8 +235,7 @@ class JournalController extends Controller
                     $dailyProfitData[$date] += $trade->nett_pnl;
                     if (!array_key_exists($date, $cumulativeProfitData)) {
                         $cumulativeProfitData[$date] = $profitSum;
-                    }
-                    else {
+                    } else {
                         $cumulativeProfitData[$date] += $trade->nett_pnl;
                     }
                 }
@@ -299,7 +301,7 @@ class JournalController extends Controller
                 $mergeTrades = $mergeTrades->merge($journal->close_trades);
 
                 $trades = $journal->close_trades;
-                if($trades->count() > 0){
+                if ($trades->count() > 0) {
                     foreach ($trades as $trade) {
                         $countFinishTrades++;
                         $totalMargin += $trade->margin;
@@ -327,7 +329,7 @@ class JournalController extends Controller
                 }
             }
 
-            if($mergeTrades->count() > 0){
+            if ($mergeTrades->count() > 0) {
                 $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
                         return date('Y-m-d', strtotime($trade->close_time));
@@ -391,8 +393,8 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journals as $journal) {
-                foreach($journal->close_trades as $trade) {
+            foreach ($journals as $journal) {
+                foreach ($journal->close_trades as $trade) {
                     $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
@@ -402,8 +404,7 @@ class JournalController extends Controller
                     $dailyProfitData[$date] += $trade->nett_pnl;
                     if (!array_key_exists($date, $cumulativeProfitData)) {
                         $cumulativeProfitData[$date] = $profitSum;
-                    }
-                    else {
+                    } else {
                         $cumulativeProfitData[$date] += $trade->nett_pnl;
                     }
                 }
@@ -463,7 +464,7 @@ class JournalController extends Controller
 
             $trades = $journal->close_trades;
 
-            if($trades->count() > 0){
+            if ($trades->count() > 0) {
                 foreach ($trades as $trade) {
                     $totalMargin += $trade->margin;
                     $averageRR += $trade->real_rr;
@@ -549,7 +550,7 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journal->close_trades as $trade) {
+            foreach ($journal->close_trades as $trade) {
                 $profitSum += $trade->nett_pnl;
                 $closeTime = Carbon::parse($trade->close_time);
                 $date = $closeTime->format('Y-m-d');
@@ -559,8 +560,7 @@ class JournalController extends Controller
                 $dailyProfitData[$date] += $trade->nett_pnl;
                 if (!array_key_exists($date, $cumulativeProfitData)) {
                     $cumulativeProfitData[$date] = $profitSum;
-                }
-                else {
+                } else {
                     $cumulativeProfitData[$date] += $trade->nett_pnl;
                 }
             }
@@ -619,7 +619,7 @@ class JournalController extends Controller
 
             $trades = $journal->close_trades;
 
-            if($trades->count() > 0){
+            if ($trades->count() > 0) {
                 foreach ($trades as $trade) {
                     $totalMargin += $trade->margin;
                     $averageRR += $trade->real_rr;
@@ -705,7 +705,7 @@ class JournalController extends Controller
             $cumulativeProfitData = [];
             $profitSum = 0;
 
-            foreach($journal->close_trades as $trade) {
+            foreach ($journal->close_trades as $trade) {
                 $profitSum += $trade->nett_pnl;
                 $closeTime = Carbon::parse($trade->close_time);
                 $date = $closeTime->format('Y-m-d');
@@ -715,8 +715,7 @@ class JournalController extends Controller
                 $dailyProfitData[$date] += $trade->nett_pnl;
                 if (!array_key_exists($date, $cumulativeProfitData)) {
                     $cumulativeProfitData[$date] = $profitSum;
-                }
-                else {
+                } else {
                     $cumulativeProfitData[$date] += $trade->nett_pnl;
                 }
             }
@@ -752,7 +751,8 @@ class JournalController extends Controller
         }
     }
 
-    public function history(Journal $journal, Request $request){
+    public function history(Journal $journal, Request $request)
+    {
         if (Auth::user()->hasPermissionTo('journal-daftar')) {
             $user = User::findOrFail(Auth::id());
             $data = [];
@@ -778,24 +778,21 @@ class JournalController extends Controller
             $pnlPerDay = [];
             $winratePerDay = [];
 
-            if($request->start and $request->end){
+            if ($request->start and $request->end) {
                 $start = Carbon::parse($request->start);
                 $end = Carbon::parse($request->end)->endOfDay();
                 $trades = $journal->close_trades->whereBetween('close_time', [$start, $end]);
-            }
-            else if($request->start){
+            } else if ($request->start) {
                 $start = Carbon::parse($request->start);
                 $trades = $journal->close_trades->where('close_time', '>=', $start);
-            }
-            else if($request->end){
+            } else if ($request->end) {
                 $end = Carbon::parse($request->end);
                 $trades = $journal->close_trades->where('close_time', '<=', $end);
-            }
-            else{
+            } else {
                 $trades = $journal->close_trades;
             }
 
-            if($trades->count() > 0){
+            if ($trades->count() > 0) {
                 $totalWins = 0;
                 $totalCompliance = 0;
                 foreach ($trades as $trade) {
@@ -808,15 +805,14 @@ class JournalController extends Controller
                         $countLong++;
                         $pnlLong += $trade->nett_pnl;
                     }
-                    if($trade->wl == 1){
+                    if ($trade->wl == 1) {
                         $totalWins++;
                     }
-                    if($trade->nett_pnl < 0){
-                        if($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100){
+                    if ($trade->nett_pnl < 0) {
+                        if ($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100) {
                             $totalCompliance++;
                         }
-                    }
-                    else{
+                    } else {
                         $totalCompliance++;
                     }
                 }
@@ -922,16 +918,14 @@ class JournalController extends Controller
             $data['pnl']['min'] = $maxLoss;
             $data['duration']['min'] = $minDuration;
             $data['duration']['max'] = $maxDuration;
-            if($request->start){
+            if ($request->start) {
                 $data['start'] = $request->start;
-            }
-            else{
+            } else {
                 $data['start'] = $trades->first()->close_time;
             }
-            if($request->end){
+            if ($request->end) {
                 $data['end'] = $request->end;
-            }
-            else{
+            } else {
                 $data['end'] = $trades->last()->close_time;
             }
             $data['mostAchievedTarget'] = $mostAchievedTarget;
@@ -941,7 +935,8 @@ class JournalController extends Controller
             abort(403);
         }
     }
-    public function history_print(Journal $journal, Request $request){
+    public function history_print(Journal $journal, Request $request)
+    {
         if (Auth::user()->hasPermissionTo('journal-daftar')) {
             $user = User::findOrFail(Auth::id());
             $data = [];
@@ -967,24 +962,21 @@ class JournalController extends Controller
             $pnlPerDay = [];
             $winratePerDay = [];
 
-            if($request->start and $request->end){
+            if ($request->start and $request->end) {
                 $start = Carbon::parse($request->start);
                 $end = Carbon::parse($request->end)->endOfDay();
                 $trades = $journal->close_trades->whereBetween('close_time', [$start, $end]);
-            }
-            else if($request->start){
+            } else if ($request->start) {
                 $start = Carbon::parse($request->start);
                 $trades = $journal->close_trades->where('close_time', '>=', $start);
-            }
-            else if($request->end){
+            } else if ($request->end) {
                 $end = Carbon::parse($request->end);
                 $trades = $journal->close_trades->where('close_time', '<=', $end);
-            }
-            else{
+            } else {
                 $trades = $journal->close_trades;
             }
 
-            if($trades->count() > 0){
+            if ($trades->count() > 0) {
                 $totalWins = 0;
                 $totalCompliance = 0;
                 foreach ($trades as $trade) {
@@ -997,15 +989,14 @@ class JournalController extends Controller
                         $countLong++;
                         $pnlLong += $trade->nett_pnl;
                     }
-                    if($trade->wl == 1){
+                    if ($trade->wl == 1) {
                         $totalWins++;
                     }
-                    if($trade->nett_pnl < 0){
-                        if($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100){
+                    if ($trade->nett_pnl < 0) {
+                        if ($journal->risk > 0 and abs($trade->nett_pnl) <= ($journal->balances * $journal->risk) / 100) {
                             $totalCompliance++;
                         }
-                    }
-                    else{
+                    } else {
                         $totalCompliance++;
                     }
                 }
@@ -1111,21 +1102,362 @@ class JournalController extends Controller
             $data['pnl']['min'] = $maxLoss;
             $data['duration']['min'] = $minDuration;
             $data['duration']['max'] = $maxDuration;
-            if($request->start){
+            if ($request->start) {
                 $data['start'] = $request->start;
-            }
-            else{
+            } else {
                 $data['start'] = $trades->first()->close_time;
             }
-            if($request->end){
+            if ($request->end) {
                 $data['end'] = $request->end;
-            }
-            else{
+            } else {
                 $data['end'] = $trades->last()->close_time;
             }
             $data['mostAchievedTarget'] = $mostAchievedTarget;
 
             return view('users.journals.history_print', compact('user', 'journal', 'data', 'trades'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function coin()
+    {
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $data = DB::table('journals')
+                ->join('trades', 'journals.id', '=', 'trades.journal_id')
+                ->join('assets', 'trades.asset_id', '=', 'assets.id')
+                ->select(
+                    'assets.name',
+                    'assets.thumb',
+                    DB::raw('COUNT(trades.id) as jumlah_trades'),
+                    DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
+                    DB::raw('SUM(trades.nett_pnl) as total_profit'),
+                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit')
+                )
+                ->where('journals.user_id', Auth::id())
+                ->where('trades.status', 2)
+                ->groupBy('assets.name', 'assets.thumb')
+                ->get();
+
+            return view('users.coins.report', compact('user', 'data'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function coin_print()
+    {
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $data = DB::table('journals')
+                ->join('trades', 'journals.id', '=', 'trades.journal_id')
+                ->join('assets', 'trades.asset_id', '=', 'assets.id')
+                ->select(
+                    'assets.name',
+                    'assets.thumb',
+                    DB::raw('COUNT(trades.id) as jumlah_trades'),
+                    DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
+                    DB::raw('SUM(trades.nett_pnl) as total_profit'),
+                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit')
+                )
+                ->where('journals.user_id', Auth::id())
+                ->where('trades.status', 2)
+                ->groupBy('assets.name', 'assets.thumb')
+                ->get();
+
+            $dataBarTerbaik = $data->where('total_profit', '>', '0')->sortByDesc('total_profit')->take(3);
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row->name);
+                array_push($seriesBarTerbaik, (int)$row->total_profit);
+            }
+
+            $dataBarTerburuk = $data->where('total_profit', '<', '0')->sortBy('total_profit')->take(3);
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row->name);
+                array_push($seriesBarTerburuk, (int)$row->total_profit);
+            }
+
+            return view('users.coins.report_print', compact('user', 'data', 'labelsBarTerbaik', 'seriesBarTerbaik', 'labelsBarTerburuk', 'seriesBarTerburuk'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function timeframe()
+    {
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $rawData = array();
+            $timeframes = Timeframe::all();
+            foreach ($timeframes as $timeframe) {
+                $rawData[$timeframe->name] = array(
+                    'jumlah_trades' => 0,
+                    'winning_trades' => 0,
+                    'losing_trades' => 0,
+                    'profit' => 0,
+                    'durasi_days' => 0,
+                    'durasi_hours' => 0,
+                    'durasi_minutes' => 0,
+                    'durasi_seconds' => 0,
+                    'rata_rata_durasi' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'rata_rata_profit' => 0,
+                    'durasi_tercepat' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_terlama' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                );
+            }
+
+            foreach ($user->journals as $journal) {
+                foreach ($journal->close_trades as $trade) {
+                    foreach ($timeframes as $timeframe) {
+                        // Cek apakah trade dilakukan pada timeframe yang diinginkan
+                        $timeframe_trade = TimeframeTrade::where('trade_id', $trade->id)
+                            ->where('timeframe_id', $timeframe->id)
+                            ->first();
+                        if ($timeframe_trade) {
+                            // Hitung statistik untuk trade yang sesuai dengan timeframe
+                            $rawData[$timeframe->name]['jumlah_trades'] += 1;
+                            if ($trade->nett_pnl > 0) {
+                                $rawData[$timeframe->name]['winning_trades'] += 1;
+                            } else {
+                                $rawData[$timeframe->name]['losing_trades'] += 1;
+                            }
+                            $rawData[$timeframe->name]['profit'] += $trade->nett_pnl;
+                            $rawData[$timeframe->name]['durasi_days'] += $trade->diff_days;
+                            $rawData[$timeframe->name]['durasi_hours'] += $trade->diff_hours;
+                            $rawData[$timeframe->name]['durasi_minutes'] += $trade->diff_minutes;
+                            $rawData[$timeframe->name]['durasi_seconds'] += $trade->diff_seconds;
+                        }
+                    }
+                }
+            }
+
+            // Hitung rata-rata durasi, durasi tercepat, dan durasi terlama untuk setiap timeframe
+            foreach ($timeframes as $timeframe) {
+                $jumlah_trades = $rawData[$timeframe->name]['jumlah_trades'];
+                $winning_trades = $rawData[$timeframe->name]['winning_trades'];
+                $losing_trades = $rawData[$timeframe->name]['losing_trades'];
+                $profit = $rawData[$timeframe->name]['profit'];
+                $durasi_days = $rawData[$timeframe->name]['durasi_days'];
+                $durasi_hours = $rawData[$timeframe->name]['durasi_hours'];
+                $durasi_minutes = $rawData[$timeframe->name]['durasi_minutes'];
+                $durasi_seconds = $rawData[$timeframe->name]['durasi_seconds'];
+                if ($jumlah_trades > 0) {
+                    $rata_rata_durasi_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+                    $rata_rata_durasi_dalam_detik /= $jumlah_trades;
+
+                    $rata_rata_durasi = [
+                        'days' => floor($rata_rata_durasi_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($rata_rata_durasi_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($rata_rata_durasi_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($rata_rata_durasi_dalam_detik % 60),
+                    ];
+
+                    $rata_rata_profit = $profit / $jumlah_trades;
+                    $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+
+                    $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
+                    $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+
+                    $durasi_tercepat = [
+                        'days' => floor($durasi_tercepat_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($durasi_tercepat_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($durasi_tercepat_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($durasi_tercepat_dalam_detik % 60),
+                    ];
+                    $durasi_terlama = [
+                        'days' => floor($durasi_terlama_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($durasi_terlama_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($durasi_terlama_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($durasi_terlama_dalam_detik % 60),
+                    ];
+
+                    $rawData[$timeframe->name]['rata_rata_durasi'] = $rata_rata_durasi;
+                    $rawData[$timeframe->name]['rata_rata_profit'] = $rata_rata_profit;
+                    $rawData[$timeframe->name]['durasi_tercepat'] = $durasi_tercepat;
+                    $rawData[$timeframe->name]['durasi_terlama'] = $durasi_terlama;
+                }
+            }
+
+            $rawData = array_filter($rawData, function($value) {
+                return $value['jumlah_trades'] > 0;
+            });
+
+            $data = collect();
+
+            foreach($rawData as $key => $item){
+                $data->push([
+                    'nama' => $key,
+                    'jumlah_trades' => $item['jumlah_trades'],
+                    'winning_trades' => $item['winning_trades'],
+                    'losing_trades' => $item['losing_trades'],
+                    'profit' => $item['profit'],
+                    'durasi_days' => $item['durasi_days'],
+                    'durasi_hours' => $item['durasi_hours'],
+                    'durasi_minutes' => $item['durasi_minutes'],
+                    'durasi_seconds' => $item['durasi_seconds'],
+                    'rata_rata_durasi' => $item['rata_rata_durasi'],
+                    'rata_rata_profit' => $item['rata_rata_profit'],
+                    'durasi_tercepat' => $item['durasi_tercepat'],
+                    'durasi_terlama' => $item['durasi_terlama'],
+                ]);
+            }
+
+            return view('users.journals.timeframe_report', compact('user', 'data'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function timeframe_print()
+    {
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $rawData = array();
+            $timeframes = Timeframe::all();
+            foreach ($timeframes as $timeframe) {
+                $rawData[$timeframe->name] = array(
+                    'jumlah_trades' => 0,
+                    'winning_trades' => 0,
+                    'losing_trades' => 0,
+                    'profit' => 0,
+                    'durasi_days' => 0,
+                    'durasi_hours' => 0,
+                    'durasi_minutes' => 0,
+                    'durasi_seconds' => 0,
+                    'rata_rata_durasi' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'rata_rata_profit' => 0,
+                    'durasi_tercepat' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_terlama' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                );
+            }
+
+            foreach ($user->journals as $journal) {
+                foreach ($journal->close_trades as $trade) {
+                    foreach ($timeframes as $timeframe) {
+                        // Cek apakah trade dilakukan pada timeframe yang diinginkan
+                        $timeframe_trade = TimeframeTrade::where('trade_id', $trade->id)
+                            ->where('timeframe_id', $timeframe->id)
+                            ->first();
+                        if ($timeframe_trade) {
+                            // Hitung statistik untuk trade yang sesuai dengan timeframe
+                            $rawData[$timeframe->name]['jumlah_trades'] += 1;
+                            if ($trade->nett_pnl > 0) {
+                                $rawData[$timeframe->name]['winning_trades'] += 1;
+                            } else {
+                                $rawData[$timeframe->name]['losing_trades'] += 1;
+                            }
+                            $rawData[$timeframe->name]['profit'] += $trade->nett_pnl;
+                            $rawData[$timeframe->name]['durasi_days'] += $trade->diff_days;
+                            $rawData[$timeframe->name]['durasi_hours'] += $trade->diff_hours;
+                            $rawData[$timeframe->name]['durasi_minutes'] += $trade->diff_minutes;
+                            $rawData[$timeframe->name]['durasi_seconds'] += $trade->diff_seconds;
+                        }
+                    }
+                }
+            }
+
+            // Hitung rata-rata durasi, durasi tercepat, dan durasi terlama untuk setiap timeframe
+            foreach ($timeframes as $timeframe) {
+                $jumlah_trades = $rawData[$timeframe->name]['jumlah_trades'];
+                $winning_trades = $rawData[$timeframe->name]['winning_trades'];
+                $losing_trades = $rawData[$timeframe->name]['losing_trades'];
+                $profit = $rawData[$timeframe->name]['profit'];
+                $durasi_days = $rawData[$timeframe->name]['durasi_days'];
+                $durasi_hours = $rawData[$timeframe->name]['durasi_hours'];
+                $durasi_minutes = $rawData[$timeframe->name]['durasi_minutes'];
+                $durasi_seconds = $rawData[$timeframe->name]['durasi_seconds'];
+                if ($jumlah_trades > 0) {
+                    $rata_rata_durasi_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+                    $rata_rata_durasi_dalam_detik /= $jumlah_trades;
+
+                    $rata_rata_durasi = [
+                        'days' => floor($rata_rata_durasi_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($rata_rata_durasi_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($rata_rata_durasi_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($rata_rata_durasi_dalam_detik % 60),
+                    ];
+
+                    $rata_rata_profit = $profit / $jumlah_trades;
+                    $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+
+                    $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
+                    $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+
+                    $durasi_tercepat = [
+                        'days' => floor($durasi_tercepat_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($durasi_tercepat_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($durasi_tercepat_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($durasi_tercepat_dalam_detik % 60),
+                    ];
+                    $durasi_terlama = [
+                        'days' => floor($durasi_terlama_dalam_detik / (24 * 60 * 60)),
+                        'hours' => floor(($durasi_terlama_dalam_detik % (24 * 60 * 60)) / (60 * 60)),
+                        'minutes' => floor(($durasi_terlama_dalam_detik % (60 * 60)) / 60),
+                        'seconds' => floor($durasi_terlama_dalam_detik % 60),
+                    ];
+
+                    $rawData[$timeframe->name]['rata_rata_durasi'] = $rata_rata_durasi;
+                    $rawData[$timeframe->name]['rata_rata_profit'] = $rata_rata_profit;
+                    $rawData[$timeframe->name]['durasi_tercepat'] = $durasi_tercepat;
+                    $rawData[$timeframe->name]['durasi_terlama'] = $durasi_terlama;
+                }
+            }
+
+            $rawData = array_filter($rawData, function($value) {
+                return $value['jumlah_trades'] > 0;
+            });
+            $data = collect();
+
+            foreach($rawData as $key => $item){
+                $data->push([
+                    'nama' => $key,
+                    'jumlah_trades' => $item['jumlah_trades'],
+                    'winning_trades' => $item['winning_trades'],
+                    'losing_trades' => $item['losing_trades'],
+                    'profit' => $item['profit'],
+                    'durasi_days' => $item['durasi_days'],
+                    'durasi_hours' => $item['durasi_hours'],
+                    'durasi_minutes' => $item['durasi_minutes'],
+                    'durasi_seconds' => $item['durasi_seconds'],
+                    'rata_rata_durasi' => $item['rata_rata_durasi'],
+                    'rata_rata_profit' => $item['rata_rata_profit'],
+                    'durasi_tercepat' => $item['durasi_tercepat'],
+                    'durasi_terlama' => $item['durasi_terlama'],
+                ]);
+            }
+
+            $dataBarTerbaik = $data->where('profit', '>', '0')->sortByDesc('profit')->take(3);
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row['nama']);
+                array_push($seriesBarTerbaik, (int)$row['profit']);
+            }
+
+            $dataBarTerburuk = $data->where('profit', '<', '0')->sortBy('profit')->take(3);
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row['nama']);
+                array_push($seriesBarTerburuk, (int)$row['profit']);
+            }
+
+            return view('users.journals.timeframe_report_print', compact('user', 'data', 'labelsBarTerbaik', 'seriesBarTerbaik', 'labelsBarTerburuk', 'seriesBarTerburuk'));
         } else {
             abort(403);
         }

@@ -177,7 +177,9 @@
             info: false,
         });
 
-        window.print();
+        setTimeout(function() {
+            window.print();
+        }, 1000);
 
         var beforePrint = function() {
             pie.updateOptions({});
@@ -203,19 +205,21 @@
     </script>
 @endpush
 <x-print-layout>
-    <h5 class="text-muted mb-2"><strong>Ringkasan</strong></h5>
-    <hr>
-    <div class="d-flex justify-content-between mb-3">
-        <p class="text-dark"><strong>Jumlah Aset:
-                ${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}</strong>
-        </p>
-        <p class="text-dark"><strong>Total Keuntungan: <span
-                    class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
-                    @if ($wallet->pnl < 0)
-                        -
-                    @endif
-                    ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
-                </span></strong></p>
+    <div class="my-3">
+        <h5 class="text-muted mb-2"><strong>Ringkasan</strong></h5>
+        <hr>
+        <div class="d-flex justify-content-between">
+            <p class="text-dark"><strong>Jumlah Aset:
+                    ${{ number_format((float) $wallet->amount_of_assets, 2, '.', ',') }}</strong>
+            </p>
+            <p class="text-dark"><strong>Total Keuntungan: <span
+                        class="@if ($wallet->pnl > 0) text-success @elseif($wallet->pnl < 0) text-danger @endif">
+                        @if ($wallet->pnl < 0)
+                            -
+                        @endif
+                        ${{ number_format(abs((float) $wallet->pnl), 2, '.', ',') }}
+                    </span></strong></p>
+        </div>
     </div>
     <div class="mb-3">
         <h5 class="text-muted mb-2"><strong>Alokasi Aset</strong></h5>

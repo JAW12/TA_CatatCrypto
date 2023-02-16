@@ -74,7 +74,9 @@
         line.render();
         // var value = new ApexCharts(document.querySelector("#value"), optionsValue);
         // value.render();
-        window.print();
+        setTimeout(function() {
+            window.print();
+        }, 1000);
 
         // console.log({!! json_encode($quantityData) !!}.pop()['x']);
         var beforePrint = function() {

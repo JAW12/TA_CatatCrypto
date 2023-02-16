@@ -294,8 +294,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a href="@if(request()->is('user/jurnal/*') and request()->is('user/jurnal/metrik') == false and request()->is('user/dompet/coin') == false and request()->is('user/dompet/timeframe') == false) javascript:window.location.reload(true) @else {{route('user.journal')}} @endif"
-                        class="nav-link @if(request()->is('user/jurnal/*') and request()->is('user/jurnal/metrik') == false and request()->is('user/dompet/coin') == false and request()->is('user/dompet/timeframe') == false) active @endif" style="cursor:pointer">
+                    <a href="@if(request()->is('user/jurnal/*') and request()->is('user/jurnal/metrik') == false and request()->is('user/jurnal/koin') == false and request()->is('user/jurnal/timeframe') == false) javascript:window.location.reload(true) @else {{route('user.journal')}} @endif"
+                        class="nav-link @if(request()->is('user/jurnal/*') and request()->is('user/jurnal/metrik') == false and request()->is('user/jurnal/koin') == false and request()->is('user/jurnal/timeframe') == false) active @endif" style="cursor:pointer">
 
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"

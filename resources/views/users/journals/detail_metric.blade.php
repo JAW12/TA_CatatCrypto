@@ -76,7 +76,7 @@
                                     <table class="text-dark">
                                         <tr>
                                             <td><strong>Jumlah Catatan:</strong></td>
-                                            <td><strong>{{ $journal->count_of_trades }} Catatan</strong>
+                                            <td><strong>{{ number_format($journal->count_of_trades, 0) }} Catatan</strong>
                                             </td>
                                         </tr>
                                     </table>

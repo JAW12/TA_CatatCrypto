@@ -20,4 +20,9 @@ class Asset extends Model
     public function users(){
         return $this->belongsToMany(User::class, 'asset_watchlist', 'asset_id', 'user_id')->withTimestamps();
     }
+
+    public function trades(){
+        return $this->belongsToMany(Trade::class, 'trades', 'asset_id', 'id');
+    }
+
 }
