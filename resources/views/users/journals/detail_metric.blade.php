@@ -11,6 +11,9 @@
             stroke: {
                 curve: 'smooth',
             },
+            title: {
+                text: 'Performa Keuntungan'
+            },
             markers: {
                 size: 5,
             },

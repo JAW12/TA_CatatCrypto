@@ -107,8 +107,6 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::post('/tambah', [JournalController::class, 'store'])->name('user.journal.add');
         Route::get('/metrik', [JournalController::class, 'metric'])->name('user.journal.metric');
         Route::get('/metrik/print', [JournalController::class, 'metric_print'])->name('user.journal.metric.print');
-        Route::get('/koin', [JournalController::class, 'coin'])->name('user.journal.coin');
-        Route::get('/koin/print', [JournalController::class, 'coin_print'])->name('user.journal.coin.print');
         Route::get('/timeframe', [JournalController::class, 'timeframe'])->name('user.journal.timeframe');
         Route::get('/timeframe/print', [JournalController::class, 'timeframe_print'])->name('user.journal.timeframe.print');
 
@@ -146,6 +144,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
     Route::group(['prefix' => 'koin'], function(){
         Route::get('', [AssetController::class, 'list'])->name('user.coins');
         Route::get('/watchlist', [AssetController::class, 'list_watchlist'])->name('user.coins.watchlist');
+        Route::get('/laporan', [JournalController::class, 'coin'])->name('user.coins.report');
+        Route::get('/laporan/print', [JournalController::class, 'coin_print'])->name('user.coins.report.print');
         Route::get('/{id}', [AssetController::class, 'info'])->name('user.coins.info');
         Route::get('/{id}/favorit', [AssetController::class, 'favorit'])->name('user.coins.favorite');
         Route::get('/{id}/unfavorit', [AssetController::class, 'unfavorit'])->name('user.coins.unfavorite');
@@ -158,7 +158,8 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/favorit', [LibraryController::class, 'favorite'])->name('user.library.favorite');
         Route::get('/tambah', [LibraryController::class, 'addPage'])->name('user.library.add');
         Route::post('/tambah', [LibraryController::class, 'store']);
-        Route::get('/laporan', [LibraryController::class, 'reports'])->name('user.library.reports');
+        Route::get('/laporan', [LibraryController::class, 'report'])->name('user.library.report');
+        Route::get('/laporan/print', [LibraryController::class, 'report_print'])->name('user.library.report.print');
         Route::get('/{category}', [LibraryController::class, 'category'])->name('user.library.category');
         Route::get('/{id}/detail', [LibraryController::class, 'show'])->name('user.library.detail');
         Route::get('/{id}/edit', [LibraryController::class, 'edit'])->name('user.library.edit');

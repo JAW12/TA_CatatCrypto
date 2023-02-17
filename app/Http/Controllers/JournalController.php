@@ -1134,7 +1134,9 @@ class JournalController extends Controller
                     DB::raw('COUNT(trades.id) as jumlah_trades'),
                     DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
                     DB::raw('SUM(trades.nett_pnl) as total_profit'),
-                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit')
+                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit'),
+                    DB::raw('MAX(trades.nett_pnl) as max_profit'),
+                    DB::raw('MIN(trades.nett_pnl) as min_profit')
                 )
                 ->where('journals.user_id', Auth::id())
                 ->where('trades.status', 2)
@@ -1161,7 +1163,9 @@ class JournalController extends Controller
                     DB::raw('COUNT(trades.id) as jumlah_trades'),
                     DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
                     DB::raw('SUM(trades.nett_pnl) as total_profit'),
-                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit')
+                    DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit'),
+                    DB::raw('MAX(trades.nett_pnl) as max_profit'),
+                    DB::raw('MIN(trades.nett_pnl) as min_profit')
                 )
                 ->where('journals.user_id', Auth::id())
                 ->where('trades.status', 2)

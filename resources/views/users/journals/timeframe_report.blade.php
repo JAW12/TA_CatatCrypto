@@ -35,7 +35,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($data as $item)
+                                        @forelse ($data->sortBy([['jumlah_trades', 'desc'],[ 'win_loss_percent', 'desc']]) as $item)
                                             <tr>
                                                 <td>{{ $loop->iteration}}</td>
                                                 <td>{{ $item['nama'] }}</td>

@@ -13,7 +13,7 @@
                                     <h4 class="card-title">Laporan Trading Berdasarkan Koin</h4>
                                 </div>
                                 <div class="col-sm-12 col-md-3 justify-content-md-end mt-3 mt-md-0">
-                                    <a href="{{route('user.journal.coin.print')}}" target="_blank" class="btn btn-primary w-100" id="export-pdf">Cetak
+                                    <a href="{{route('user.coins.report.print')}}" target="_blank" class="btn btn-primary w-100" id="export-pdf">Cetak
                                         Laporan</a>
                                 </div>
                             </div>
@@ -29,10 +29,12 @@
                                             <th>W/L (%)</th>
                                             <th>P/L ($)</th>
                                             <th>Rata2 P/L ($)</th>
+                                            <th>P/L Terbesar ($)</th>
+                                            <th>P/L Terkecil($)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($data as $item)
+                                        @forelse ($data->sortBy([['jumlah_trades', 'desc'],[ 'win_loss_percent', 'desc']]) as $item)
                                             <tr>
                                                 <td>{{$loop->iteration}}</td>
                                                 <td>
@@ -59,10 +61,28 @@
                                                         -${{ abs((float) $item->avg_profit) > 999 ? number_format(abs((float) $item->avg_profit), 2) : abs((float) $item->avg_profit) }}
                                                     </td>
                                                 @endif
+                                                @if ($item->max_profit > 0)
+                                                    <td class="text-success">
+                                                        ${{ $item->max_profit > 999 ? number_format((float) $item->max_profit, 2) : (float) $item->max_profit }}
+                                                    </td>
+                                                @else
+                                                    <td class="text-danger">
+                                                        -${{ abs((float) $item->max_profit) > 999 ? number_format(abs((float) $item->max_profit), 2) : abs((float) $item->max_profit) }}
+                                                    </td>
+                                                @endif
+                                                @if ($item->min_profit > 0)
+                                                    <td class="text-success">
+                                                        ${{ $item->min_profit > 999 ? number_format((float) $item->min_profit, 2) : (float) $item->min_profit }}
+                                                    </td>
+                                                @else
+                                                    <td class="text-danger">
+                                                        -${{ abs((float) $item->min_profit) > 999 ? number_format(abs((float) $item->min_profit), 2) : abs((float) $item->min_profit) }}
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6">Data tidak tersedia</td>
+                                                <td colspan="8">Data tidak tersedia</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

@@ -8,6 +8,9 @@
                 type: 'area',
                 stacked: true,
             },
+            title: {
+                text: 'Performa Keuntungan'
+            },
             stroke: {
                 curve: 'smooth',
             },

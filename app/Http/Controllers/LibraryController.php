@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Strategy;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -235,6 +236,92 @@ class LibraryController extends Controller
             DB::rollback();
             throw $th;
             return redirect()->route('user.library.detail', ['id' => $strategy->id])->withError('Gagal mengubah pustaka pribadi');
+        }
+    }
+
+    public function report(){
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $data = DB::table('journals')
+            ->join('trades', 'journals.id', '=', 'trades.journal_id')
+            ->join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+            ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
+            ->join('categories', 'strategies.category_id', '=', 'categories.id')
+            ->select(
+                'strategies.name as strategy_name',
+                'categories.name as category_name',
+                'strategies.user_id as strategy_author',
+                DB::raw('COUNT(trades.id) as jumlah_trades'),
+                DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
+                DB::raw('SUM(trades.nett_pnl) as total_profit'),
+                DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit'),
+                DB::raw('MAX(trades.nett_pnl) as max_profit'),
+                DB::raw('MIN(trades.nett_pnl) as min_profit'),
+                DB::raw('CAST(ROUND(AVG(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))), 0) AS INT) as avg_duration'),
+                DB::raw('MIN(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))) as min_duration'),
+                DB::raw('MAX(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))) as max_duration')
+            )
+            ->where('journals.user_id', Auth::id())
+            ->where('trades.status', 2)
+            ->groupBy('strategies.name', 'categories.name', 'strategies.user_id')
+            ->get();
+
+            return view('users.strategies.report', compact('user', 'data'));
+        } else {
+            abort(403);
+        }
+    }
+
+    public function report_print(){
+        if (Auth::user()->hasPermissionTo('journal')) {
+            $user = User::findOrFail(Auth::id());
+
+            $data = DB::table('journals')
+            ->join('trades', 'journals.id', '=', 'trades.journal_id')
+            ->join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+            ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
+            ->join('categories', 'strategies.category_id', '=', 'categories.id')
+            ->select(
+                'strategies.name as strategy_name',
+                'categories.name as category_name',
+                'strategies.user_id as strategy_author',
+                DB::raw('COUNT(trades.id) as jumlah_trades'),
+                DB::raw('ROUND(SUM(CASE WHEN trades.nett_pnl > 0 THEN 1 ELSE 0 END)/COUNT(trades.id)*100, 2) as win_loss_percent'),
+                DB::raw('SUM(trades.nett_pnl) as total_profit'),
+                DB::raw('ROUND(AVG(trades.nett_pnl), 2) as avg_profit'),
+                DB::raw('MAX(trades.nett_pnl) as max_profit'),
+                DB::raw('MIN(trades.nett_pnl) as min_profit'),
+                DB::raw('CAST(ROUND(AVG(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))), 0) AS INT) as avg_duration'),
+                DB::raw('MIN(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))) as min_duration'),
+                DB::raw('MAX(TIME_TO_SEC(TIMEDIFF(trades.close_time, trades.open_time))) as max_duration')
+            )
+            ->where('journals.user_id', Auth::id())
+            ->where('trades.status', 2)
+            ->groupBy('strategies.name', 'categories.name', 'strategies.user_id')
+            ->get();
+
+            $dataBarTerbaik = $data->where('total_profit', '>', '0')->sortByDesc('total_profit')->take(3);
+            $labelsBarTerbaik = [];
+            $seriesBarTerbaik = [];
+
+            foreach ($dataBarTerbaik as $row) {
+                array_push($labelsBarTerbaik, $row->strategy_name);
+                array_push($seriesBarTerbaik, (int)$row->total_profit);
+            }
+
+            $dataBarTerburuk = $data->where('total_profit', '<', '0')->sortBy('total_profit')->take(3);
+            $labelsBarTerburuk = [];
+            $seriesBarTerburuk = [];
+
+            foreach ($dataBarTerburuk as $row) {
+                array_push($labelsBarTerburuk, $row->strategy_name);
+                array_push($seriesBarTerburuk, (int)$row->total_profit);
+            }
+
+            return view('users.strategies.report_print', compact('user', 'data', 'labelsBarTerbaik', 'seriesBarTerbaik', 'labelsBarTerburuk', 'seriesBarTerburuk'));
+        } else {
+            abort(403);
         }
     }
 }

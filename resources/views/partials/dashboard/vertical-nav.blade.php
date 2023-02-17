@@ -88,8 +88,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.journal.coin')) }}"
-                        href="{{ route('user.journal.coin') }}">
+                    <a class="nav-link {{ activeRoute(route('user.coins.report')) }}"
+                        href="{{ route('user.coins.report') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-currency-bitcoin" viewBox="0 0 16 16">
@@ -344,7 +344,7 @@
             </a>
             <ul class="sub-nav collapse" id="sidebar-pustaka" data-bs-parent="#sidebar-pustaka">
                 <li class=" nav-item">
-                    <a class="nav-link @if((@request()->is('user/pustaka') or request()->is('user/pustaka/*')) and request()->is('user/pustaka/*/') == false and request()->is('user/pustaka/tambah') == false and request()->is('user/pustaka/favorit') == false) active @endif" href="{{ route('user.library') }}">
+                    <a class="nav-link @if((@request()->is('user/pustaka') or request()->is('user/pustaka/*')) and request()->is('user/pustaka/*/') == false and request()->is('user/pustaka/tambah') == false and request()->is('user/pustaka/favorit') == false and request()->is('user/pustaka/laporan') == false) active @endif" href="{{ route('user.library') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
@@ -405,8 +405,8 @@
                     </a>
                 </li>
                 <li class=" nav-item">
-                    <a class="nav-link {{ activeRoute(route('user.library.reports')) }}"
-                        href="{{ route('user.library.reports') }}">
+                    <a class="nav-link {{ activeRoute(route('user.library.report')) }}"
+                        href="{{ route('user.library.report') }}">
                         <i class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                 fill="currentColor" class="bi bi-file-text" viewBox="0 0 16 16">

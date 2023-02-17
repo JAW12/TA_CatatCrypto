@@ -166,11 +166,15 @@
             }
 
             #coins-list-table {
-                font-size: 0.8em;
+                font-size: 0.6em;
+            }
+
+            #coins-list-table th, #coins-list-table td{
+                padding: 8px 8px;
             }
 
             #coins-list-table img {
-                width: 30px;
+                width: 24px;
                 margin-right: 5px;
             }
 
@@ -208,10 +212,12 @@
                         <th>W/L (%)</th>
                         <th>P/L ($)</th>
                         <th>Rata2 P/L ($)</th>
+                        <th>P/L Terbesar ($)</th>
+                        <th>P/L Terkecil($)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($data->sortByDesc('jumlah_trades')->sortByDesc('total_profit') as $item)
+                    @forelse ($data->sortBy([['jumlah_trades', 'desc'],[ 'win_loss_percent', 'desc']]) as $item)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>
@@ -236,6 +242,24 @@
                             @else
                                 <td class="text-danger">
                                     -${{ abs((float) $item->avg_profit) > 999 ? number_format(abs((float) $item->avg_profit), 2) : abs((float) $item->avg_profit) }}
+                                </td>
+                            @endif
+                            @if ($item->max_profit > 0)
+                                <td class="text-success">
+                                    ${{ $item->max_profit > 999 ? number_format((float) $item->max_profit, 2) : (float) $item->max_profit }}
+                                </td>
+                            @else
+                                <td class="text-danger">
+                                    -${{ abs((float) $item->max_profit) > 999 ? number_format(abs((float) $item->max_profit), 2) : abs((float) $item->max_profit) }}
+                                </td>
+                            @endif
+                            @if ($item->min_profit > 0)
+                                <td class="text-success">
+                                    ${{ $item->min_profit > 999 ? number_format((float) $item->min_profit, 2) : (float) $item->min_profit }}
+                                </td>
+                            @else
+                                <td class="text-danger">
+                                    -${{ abs((float) $item->min_profit) > 999 ? number_format(abs((float) $item->min_profit), 2) : abs((float) $item->min_profit) }}
                                 </td>
                             @endif
                         </tr>
