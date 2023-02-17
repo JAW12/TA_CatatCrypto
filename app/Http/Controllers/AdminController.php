@@ -7,6 +7,8 @@ use App\Models\Membership;
 use App\Models\Strategy;
 use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -271,5 +273,155 @@ class AdminController extends Controller
     {
         $user = User::withTrashed()->findOrFail($id);
         return view('admin.users.show', compact('user'));
+    }
+
+    public function transactions_report(){
+        $transactions = Transaction::where('status', 'settlement')->orWhere('status', 'capture')->get();
+        return view('admin.membership.report', compact('transactions'));
+    }
+
+    public function transactions_report_load(Request $request){
+        $minDateTimeStamp = $request->minDate;
+        $maxDateTimeStamp = $request->maxDate;
+        // dd(date($maxDate/1000));
+        if ($minDateTimeStamp and $maxDateTimeStamp) {
+            $minDate = DateTime::createFromFormat("D M d Y H:i:s e+", $minDateTimeStamp);
+            $maxDate = DateTime::createFromFormat("D M d Y H:i:s e+", $maxDateTimeStamp);
+            $maxDate->setTime(23, 59, 59);
+            $transactions = Transaction::whereBetween('payment_time', [$minDate, $maxDate])->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else if ($minDateTimeStamp) {
+            $minDate = DateTime::createFromFormat("D M d Y H:i:s e+", $minDateTimeStamp);
+            $transactions = Transaction::where('payment_time', '>=', $minDate->format('Y-m-d H:i:s'))->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else if ($maxDateTimeStamp) {
+            $maxDate = DateTime::createFromFormat("D M d Y H:i:s e+", $maxDateTimeStamp);
+            $maxDate->setTime(23, 59, 59);
+            $transactions = Transaction::where('payment_time', '<=', $maxDate->format('Y-m-d H:i:s'))->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else {
+            $transactions = Transaction::where('status', 'settlement')->orWhere('status', 'capture')->get();
+        }
+
+        $basic = [
+            'income' => $transactions->where('membership_id', 1)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 1)->count(),
+        ];
+        $home = [
+            'income' => $transactions->where('membership_id', 2)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 2)->count(),
+        ];
+        $professional = [
+            'income' => $transactions->where('membership_id', 3)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 3)->count(),
+        ];
+        $business = [
+            'income' => $transactions->where('membership_id', 4)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 4)->count(),
+        ];
+        $additional = [
+            'income' => $transactions->where('membership_id', 0)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 0)->count(),
+        ];
+
+        $manual_bank = [
+            'income' => $transactions->where('payment_type', 'like', '%Bank%')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'like', '%Bank%')->count(),
+        ];
+        $manual_ewallet = [
+            'income' => $transactions->where('payment_type', 'like', '%E-Wallet%')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'like', '%E-Wallet%')->count(),
+        ];
+        $credit_card = [
+            'income' => $transactions->where('payment_type', 'credit_card')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'credit_card')->count(),
+        ];
+        $total = [
+            'income' => $transactions->sum('gross_amount'),
+            'count' => $transactions->count(),
+        ];
+
+        $data = [
+            'total' => $total,
+            'basic' => $basic,
+            'home' => $home,
+            'professional' => $professional,
+            'business' => $business,
+            'additional' => $additional,
+            'manual_bank' => $manual_bank,
+            'manual_ewallet' => $manual_ewallet,
+            'credit_card' => $credit_card,
+        ];
+
+        return response()->json($data);
+    }
+
+    public function transactions_report_print(Request $request){
+        // dd(date($maxDate/1000));
+        if ($request->start and $request->end) {
+            $start = Carbon::parse($request->start);
+            $end = Carbon::parse($request->end)->endOfDay();
+            $transactions = Transaction::whereBetween('payment_time', [$start, $end])->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else if ($request->start) {
+            $start = Carbon::parse($request->start);
+            $end = Carbon::parse($request->end)->endOfDay();
+            $transactions = Transaction::where('payment_time', '>=', $start)->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else if ($request->end) {
+            $end = Carbon::parse($request->end)->endOfDay();
+            $transactions = Transaction::where('payment_time', '<=', $end)->where('status', 'settlement')->orWhere('status', 'capture')->get();
+        } else {
+            $transactions = Transaction::where('status', 'settlement')->orWhere('status', 'capture')->get();
+        }
+
+        $basic = [
+            'income' => $transactions->where('membership_id', 1)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 1)->count(),
+        ];
+        $home = [
+            'income' => $transactions->where('membership_id', 2)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 2)->count(),
+        ];
+        $professional = [
+            'income' => $transactions->where('membership_id', 3)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 3)->count(),
+        ];
+        $business = [
+            'income' => $transactions->where('membership_id', 4)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 4)->count(),
+        ];
+        $additional = [
+            'income' => $transactions->where('membership_id', 0)->sum('gross_amount'),
+            'count' => $transactions->where('membership_id', 0)->count(),
+        ];
+
+        $manual_bank = [
+            'income' => $transactions->where('payment_type', 'like', '%Bank%')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'like', '%Bank%')->count(),
+        ];
+        $manual_ewallet = [
+            'income' => $transactions->where('payment_type', 'like', '%E-Wallet%')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'like', '%E-Wallet%')->count(),
+        ];
+        $credit_card = [
+            'income' => $transactions->where('payment_type', 'credit_card')->sum('gross_amount'),
+            'count' => $transactions->where('payment_type', 'credit_card')->count(),
+        ];
+        $total = [
+            'income' => $transactions->sum('gross_amount'),
+            'count' => $transactions->count(),
+        ];
+
+        $data = [
+            'total' => $total,
+            'basic' => $basic,
+            'home' => $home,
+            'professional' => $professional,
+            'business' => $business,
+            'additional' => $additional,
+            'manual_bank' => $manual_bank,
+            'manual_ewallet' => $manual_ewallet,
+            'credit_card' => $credit_card,
+            'start' => $request->start,
+            'end' => $request->end,
+        ];
+
+        return view('admin.membership.report_print', compact('transactions', 'data'));
     }
 }

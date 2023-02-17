@@ -58,7 +58,7 @@
                                     <th>#</th>
                                     <th>Kode Order</th>
                                     <th>Nama Pengguna</th>
-                                    <th>Paket Membership</th>
+                                    <th>Pembayaran Untuk</th>
                                     <th>Jumlah Pembayaran</th>
                                     <th>Jenis Pembayaran</th>
                                     <th>Waktu Pembayaran</th>
@@ -73,12 +73,12 @@
                                         <td>{{ $transaction->id_order }}</td>
                                         <td>{{ $transaction->user->full_name }}</td>
                                         @if ($transaction->membership_id != null)
-                                            <td>{{ ucwords($transaction->membership->name) }}</td>
+                                            <td>Paket {{ ucwords($transaction->membership->name) }}</td>
                                         @else
                                             <td>Penambahan 100 Catatan Trading</td>
                                         @endif
                                         <td>Rp {{ number_format($transaction->gross_amount, 2) }}</td>
-                                        @if ($transaction->payment_type == 'credit_card')
+                                        @if ($transaction->payment_type == 'credit_card' || $transaction->payment_type == 'automatic')
                                             <td>Credit Card (Midtrans)</td>
                                         @else
                                             <td>{{ $transaction->payment_type }}</td>

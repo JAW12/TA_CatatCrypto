@@ -182,6 +182,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::get('/transaksi/{id_order}/terima', [AdminController::class, 'transaction_accept'])->name('admin.transaction.accept');
         Route::get('/transaksi/{id_order}/tolak', [AdminController::class, 'transaction_deny'])->name('admin.transaction.deny');
         Route::get('/laporan', [AdminController::class, 'transactions_report'])->name('admin.transactions.report');
+        Route::get('/laporan/load', [AdminController::class, 'transactions_report_load'])->name('admin.transactions.report.load');
+        Route::get('/laporan/print', [AdminController::class, 'transactions_report_print'])->name('admin.transactions.report.print');
     });
 
 
