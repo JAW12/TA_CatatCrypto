@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Journal;
 use App\Models\Membership;
 use App\Models\Strategy;
+use App\Models\StrategyFavorite;
+use App\Models\Trade;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
@@ -434,13 +437,73 @@ class AdminController extends Controller
         $users = User::where('user_type', '!=', 'admin')->get();
 
         $total_users = $users->count();
-        $malePercentage = 0;
-        $agefemalePercentage = 0;
-        $unknownPercentage = 0;
+        $genderDistribution = [
+            'Pria' => 0,
+            'Wanita' => 0,
+            'Tidak Diketahui' => 0,
+        ];
         $averageAge = 0;
-        $ageRangeCounts = 0;
-        $membership_distribution = null;
-        $total_verified_users = 0;
+        $ageRangeCounts = [
+            '<20' => 0,
+            '20-29' => 0,
+            '30-39' => 0,
+            '40-49' => 0,
+            '>50' => 0,
+        ];
+        $membership_distribution = collect(
+            [
+                'name' => 'Basic',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Home',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Professional',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Business',
+                'total' => 0,
+            ],
+        );
+        $walletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $binanceWalletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $manualWalletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $journalDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $tradeDistribution = [
+            '0' => 0,
+            '1-100' => 0,
+            '101-500' => 0,
+            '501-1500' => 0,
+            '>1500' => 0,
+        ];
+        $averageWallets = 0;
+        $averageManualWallets = 0;
+        $averageBinanceWallets = 0;
+        $averageJournals = 0;
+        $averageTrades = 0;
 
         if ($total_users > 0) {
             $maleCount = $users->where('gender', 'm')->count();
@@ -749,13 +812,73 @@ class AdminController extends Controller
         $users = User::where('user_type', '!=', 'admin')->get();
 
         $total_users = $users->count();
-        $malePercentage = 0;
-        $agefemalePercentage = 0;
-        $unknownPercentage = 0;
+        $genderDistribution = [
+            'Pria' => 0,
+            'Wanita' => 0,
+            'Tidak Diketahui' => 0,
+        ];
         $averageAge = 0;
-        $ageRangeCounts = 0;
-        $membership_distribution = null;
-        $total_verified_users = 0;
+        $ageRangeCounts = [
+            '<20' => 0,
+            '20-29' => 0,
+            '30-39' => 0,
+            '40-49' => 0,
+            '>50' => 0,
+        ];
+        $membership_distribution = collect(
+            [
+                'name' => 'Basic',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Home',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Professional',
+                'total' => 0,
+            ],
+            [
+                'name' => 'Business',
+                'total' => 0,
+            ],
+        );
+        $walletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $binanceWalletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $manualWalletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $journalDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $tradeDistribution = [
+            '0' => 0,
+            '1-100' => 0,
+            '101-500' => 0,
+            '501-1500' => 0,
+            '>1500' => 0,
+        ];
+        $averageWallets = 0;
+        $averageManualWallets = 0;
+        $averageBinanceWallets = 0;
+        $averageJournals = 0;
+        $averageTrades = 0;
 
         if ($total_users > 0) {
             $maleCount = $users->where('gender', 'm')->count();
@@ -1057,5 +1180,387 @@ class AdminController extends Controller
         ];
 
         return view('admin.users.demography_print', compact('data'));
+    }
+
+    public function full_report()
+    {
+        $users = User::where('user_type', '!=', 'admin')->get();
+
+        $total_users = $users->count();
+        $genderDistribution = [
+            'Pria' => 0,
+            'Wanita' => 0,
+            'Tidak Diketahui' => 0,
+        ];
+        $ageRangeCounts = [
+            '<20' => 0,
+            '20-29' => 0,
+            '30-39' => 0,
+            '40-49' => 0,
+            '>50' => 0,
+        ];
+        $usersLast30Days = 0;
+        $newUsersPerDayCumulative = null;
+        $verifiedUsers = 0;
+        $blockedUsers = 0;
+        $walletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $walletCount = 0;
+        $journalCount = 0;
+        $tradeCount = 0;
+        $transactions = null;
+        $categories = null;
+        $publicAddedStrategies = 0;
+        $mostFavoriteStrategies = null;
+        $mostUsedStrategies = null;
+
+        if ($total_users > 0) {
+            $maleCount = $users->where('gender', 'm')->count();
+            $femaleCount = $users->where('gender', 'f')->count();
+            $unknownCount = $users->whereNull('gender')->count();
+            $totalCount = $users->count();
+
+            $genderDistribution = [
+                'Pria' => $maleCount,
+                'Wanita' => $femaleCount,
+                'Tidak Diketahui' => $unknownCount,
+            ];
+
+
+            $usersAge = $users->map(function ($user) {
+                return Carbon::parse($user->birthdate)->age;
+            });
+
+
+            $ageRanges = ['<20', '20-29', '30-39', '40-49', '>50'];
+            $ageRangeCounts = $usersAge->groupBy(function ($age) {
+                if ($age < 20) {
+                    return '<20';
+                } elseif ($age < 30) {
+                    return '20-29';
+                } elseif ($age < 40) {
+                    return '30-39';
+                } elseif ($age < 50) {
+                    return '40-49';
+                } else {
+                    return '>50';
+                }
+            })->map(function ($ageRange) {
+                return $ageRange->count();
+            });
+
+            $ageRangeCounts = array_merge(array_fill_keys($ageRanges, 0), $ageRangeCounts->toArray());
+
+            $usersLast30Days = User::where('user_type', '!=', 'admin')->where('created_at', '>=', Carbon::now()->subDays(30))->count();
+            $newUsersPerDay = User::where('user_type', '!=', 'admin')
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+
+            $runningTotal = 0;
+            $newUsersPerDayCumulative = $newUsersPerDay->map(function ($item) use (&$runningTotal) {
+                $runningTotal += $item->count;
+                return [
+                    'date' => $item->date,
+                    'count' => $item->count,
+                    'cumulative_count' => $runningTotal
+                ];
+            });
+
+            // Jumlah pengguna terverifikasi
+            $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+
+            // Jumlah pengguna yang diblokir
+            $blockedUsers = User::whereNotNull('deleted_at')->withTrashed()->count();
+
+            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
+
+            $manualWalletCount = Wallet::whereNull('binance_api_key')->count();
+
+            $walletDistribution = [
+                'Binance' => $binanceWalletCount,
+                'Manual' => $manualWalletCount,
+            ];
+
+            $walletCount = Wallet::count();
+            $journalCount = Journal::count();
+            $tradeCount = Trade::count();
+
+            $transactions = DB::table('memberships')
+                ->leftJoin('transactions', function ($join) {
+                    $join->on('transactions.membership_id', '=', 'memberships.id')
+                        ->whereIn('transactions.status', ['settlement', 'capture']);
+                })
+                ->select(
+                    DB::raw("CONCAT('Paket ', UPPER(SUBSTRING(memberships.name, 1, 1)), SUBSTRING(memberships.name, 2)) as name"),
+                    DB::raw('COUNT(transactions.id) as total_transactions'),
+                    DB::raw('COALESCE(SUM(transactions.gross_amount), 0) as total_sales')
+                )
+                ->groupBy('name')
+                ->get();
+
+            $nonMembershipTransactions = DB::table('transactions')
+                ->select(DB::raw("'Penambahan 100 Catatan Pengguna' as name"), DB::raw('COUNT(id) as total_transactions'), DB::raw('COALESCE(SUM(gross_amount), 0) as total_sales'))
+                ->where('membership_id', 0)
+                ->where(function ($query) {
+                    $query->where('status', 'settlement')
+                        ->orWhere('status', 'capture')
+                        ->orWhereNull('status');
+                })
+                ->get();
+
+            $transactions = $transactions->merge($nonMembershipTransactions);
+
+            $categories = Category::select('name')
+                ->withCount('strategies')
+                ->get();
+
+            $publicUser = User::where('user_type', '!=', 'admin')->get()->pluck('id');
+
+            $publicAddedStrategies = Strategy::whereIn('user_id', $publicUser)->count();
+
+            $adminCount = Strategy::whereHas('user', function ($query) {
+                $query->where('user_type', 'admin');
+            })->count();
+
+            $systemCount = Strategy::whereNull('user_id')->count();
+
+            $systemAddedStrategies = $adminCount + $systemCount;
+
+            $mostFavoritedStrategies = StrategyFavorite::join('strategies', 'strategy_favorite.strategy_id', '=', 'strategies.id')
+                ->select('strategies.name', DB::raw('COUNT(strategy_favorite.id) as favorite_count'))
+                ->groupBy('strategies.name')
+                ->orderBy('favorite_count', 'desc')
+                ->limit(3)
+                ->get();
+
+                $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+                ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
+                ->select('strategies.name', DB::raw('COUNT(trades.id) as trade_count'))
+                ->groupBy('strategies.name')
+                ->orderBy('trade_count', 'desc')
+                ->limit(3)
+                ->get();
+
+        }
+
+        $data = [
+            'total_users' => $total_users,
+            'gender_distribution' => $genderDistribution,
+            'age_distribution' => $ageRangeCounts,
+            'usersLast30Days' => $usersLast30Days,
+            'newUsersPerDay' => $newUsersPerDayCumulative,
+            'verifiedUsers' => $verifiedUsers,
+            'blockedUsers' => $blockedUsers,
+            'wallet_distribution' => $walletDistribution,
+            'walletCount' => $walletCount,
+            'journalCount' => $journalCount,
+            'tradeCount' => $tradeCount,
+            'transactions' => $transactions,
+            'categories' => $categories,
+            'publicAddedStrategies' => $publicAddedStrategies,
+            'systemAddedStrategies' => $systemAddedStrategies,
+            'mostFavoritedStrategies' => $mostFavoritedStrategies,
+            'mostUsedStrategies' => $mostUsedStrategies,
+        ];
+
+        return view('admin.report', compact('data'));
+    }
+
+    public function full_report_print()
+    {
+        $users = User::where('user_type', '!=', 'admin')->get();
+
+        $total_users = $users->count();
+        $genderDistribution = [
+            'Pria' => 0,
+            'Wanita' => 0,
+            'Tidak Diketahui' => 0,
+        ];
+        $ageRangeCounts = [
+            '<20' => 0,
+            '20-29' => 0,
+            '30-39' => 0,
+            '40-49' => 0,
+            '>50' => 0,
+        ];
+        $usersLast30Days = 0;
+        $newUsersPerDayCumulative = null;
+        $verifiedUsers = 0;
+        $blockedUsers = 0;
+        $walletDistribution = [
+            '0' => 0,
+            '1-3' => 0,
+            '4-6' => 0,
+            '>6' => 0
+        ];
+        $walletCount = 0;
+        $journalCount = 0;
+        $tradeCount = 0;
+        $transactions = null;
+        $categories = null;
+        $publicAddedStrategies = 0;
+        $mostFavoriteStrategies = null;
+        $mostUsedStrategies = null;
+
+        if ($total_users > 0) {
+            $maleCount = $users->where('gender', 'm')->count();
+            $femaleCount = $users->where('gender', 'f')->count();
+            $unknownCount = $users->whereNull('gender')->count();
+            $totalCount = $users->count();
+
+            $genderDistribution = [
+                'Pria' => $maleCount,
+                'Wanita' => $femaleCount,
+                'Tidak Diketahui' => $unknownCount,
+            ];
+
+
+            $usersAge = $users->map(function ($user) {
+                return Carbon::parse($user->birthdate)->age;
+            });
+
+
+            $ageRanges = ['<20', '20-29', '30-39', '40-49', '>50'];
+            $ageRangeCounts = $usersAge->groupBy(function ($age) {
+                if ($age < 20) {
+                    return '<20';
+                } elseif ($age < 30) {
+                    return '20-29';
+                } elseif ($age < 40) {
+                    return '30-39';
+                } elseif ($age < 50) {
+                    return '40-49';
+                } else {
+                    return '>50';
+                }
+            })->map(function ($ageRange) {
+                return $ageRange->count();
+            });
+
+            $ageRangeCounts = array_merge(array_fill_keys($ageRanges, 0), $ageRangeCounts->toArray());
+
+            $usersLast30Days = User::where('user_type', '!=', 'admin')->where('created_at', '>=', Carbon::now()->subDays(30))->count();
+            $newUsersPerDay = User::where('user_type', '!=', 'admin')
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+
+            $runningTotal = 0;
+            $newUsersPerDayCumulative = $newUsersPerDay->map(function ($item) use (&$runningTotal) {
+                $runningTotal += $item->count;
+                return [
+                    'date' => $item->date,
+                    'count' => $item->count,
+                    'cumulative_count' => $runningTotal
+                ];
+            });
+
+            // dd($newUsersPerDay->pluck('date')->last());
+
+            // Jumlah pengguna terverifikasi
+            $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+
+            // Jumlah pengguna yang diblokir
+            $blockedUsers = User::whereNotNull('deleted_at')->withTrashed()->count();
+
+            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
+
+            $manualWalletCount = Wallet::whereNull('binance_api_key')->count();
+
+            $walletDistribution = [
+                'Binance' => $binanceWalletCount,
+                'Manual' => $manualWalletCount,
+            ];
+
+            $walletCount = Wallet::count();
+            $journalCount = Journal::count();
+            $tradeCount = Trade::count();
+
+            $transactions = DB::table('memberships')
+                ->leftJoin('transactions', function ($join) {
+                    $join->on('transactions.membership_id', '=', 'memberships.id')
+                        ->whereIn('transactions.status', ['settlement', 'capture']);
+                })
+                ->select(
+                    DB::raw("CONCAT('Paket ', UPPER(SUBSTRING(memberships.name, 1, 1)), SUBSTRING(memberships.name, 2)) as name"),
+                    DB::raw('COUNT(transactions.id) as total_transactions'),
+                    DB::raw('COALESCE(SUM(transactions.gross_amount), 0) as total_sales')
+                )
+                ->groupBy('name')
+                ->get();
+
+            $nonMembershipTransactions = DB::table('transactions')
+                ->select(DB::raw("'Penambahan 100 Catatan Pengguna' as name"), DB::raw('COUNT(id) as total_transactions'), DB::raw('COALESCE(SUM(gross_amount), 0) as total_sales'))
+                ->where('membership_id', 0)
+                ->where(function ($query) {
+                    $query->where('status', 'settlement')
+                        ->orWhere('status', 'capture')
+                        ->orWhereNull('status');
+                })
+                ->get();
+
+            $transactions = $transactions->merge($nonMembershipTransactions);
+
+            $categories = Category::select('name')
+                ->withCount('strategies')
+                ->get();
+
+            $publicUser = User::where('user_type', '!=', 'admin')->get()->pluck('id');
+
+            $publicAddedStrategies = Strategy::whereIn('user_id', $publicUser)->count();
+
+            $adminCount = Strategy::whereHas('user', function ($query) {
+                $query->where('user_type', 'admin');
+            })->count();
+
+            $systemCount = Strategy::whereNull('user_id')->count();
+
+            $systemAddedStrategies = $adminCount + $systemCount;
+
+            $mostFavoritedStrategies = StrategyFavorite::join('strategies', 'strategy_favorite.strategy_id', '=', 'strategies.id')
+                ->select('strategies.name', DB::raw('COUNT(strategy_favorite.id) as favorite_count'))
+                ->groupBy('strategies.name')
+                ->orderBy('favorite_count', 'desc')
+                ->limit(3)
+                ->get();
+
+                $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+                ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
+                ->select('strategies.name', DB::raw('COUNT(trades.id) as trade_count'))
+                ->groupBy('strategies.name')
+                ->orderBy('trade_count', 'desc')
+                ->limit(3)
+                ->get();
+
+        }
+
+        $data = [
+            'total_users' => $total_users,
+            'gender_distribution' => $genderDistribution,
+            'age_distribution' => $ageRangeCounts,
+            'usersLast30Days' => $usersLast30Days,
+            'newUsersPerDay' => $newUsersPerDayCumulative,
+            'verifiedUsers' => $verifiedUsers,
+            'blockedUsers' => $blockedUsers,
+            'wallet_distribution' => $walletDistribution,
+            'walletCount' => $walletCount,
+            'journalCount' => $journalCount,
+            'tradeCount' => $tradeCount,
+            'transactions' => $transactions,
+            'categories' => $categories,
+            'publicAddedStrategies' => $publicAddedStrategies,
+            'systemAddedStrategies' => $systemAddedStrategies,
+            'mostFavoritedStrategies' => $mostFavoritedStrategies,
+            'mostUsedStrategies' => $mostUsedStrategies,
+        ];
+
+        return view('admin.report_print', compact('data'));
     }
 }

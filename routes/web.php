@@ -168,12 +168,11 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/{id}/unlike', [LibraryController::class, 'unlike'])->name('user.library.unlike');
         Route::get('/{id}/hapus', [LibraryController::class, 'delete'])->name('user.library.delete');
     });
-
-    Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
-    Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::get('/laporan', [AdminController::class, 'full_report'])->name('admin.report');
+    Route::get('/laporan/print', [AdminController::class, 'full_report_print'])->name('admin.report.print');
 
     Route::group(['prefix' => 'membership'], function () {
         Route::get('/transaksi', [AdminController::class, 'transactions'])->name('admin.transactions');
@@ -208,6 +207,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
         Route::get('/laporan', [LibraryController::class, 'reports'])->name('admin.library.reports');
     });
 });
+
+Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
+Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
 //UI Pages Routs
 // Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 

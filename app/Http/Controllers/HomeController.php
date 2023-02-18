@@ -174,10 +174,10 @@ class HomeController extends Controller
     // /*
     //  * uisheet Page Routs
     //  */
-    public function uisheet(Request $request)
-    {
-        return view('uisheet');
-    }
+    // public function uisheet(Request $request)
+    // {
+    //     return view('uisheet');
+    // }
 
     // /*
     //  * Form Page Routs
@@ -237,11 +237,11 @@ class HomeController extends Controller
     // /*
     //  * Extra Page Routs
     //  */
-    public function privacypolicy(Request $request)
+    public function privacypolicy()
     {
         return view('privacy-policy');
     }
-    public function termsofuse(Request $request)
+    public function termsofuse()
     {
         return view('terms-of-use');
     }
