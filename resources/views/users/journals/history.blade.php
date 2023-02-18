@@ -125,7 +125,7 @@
                                                     {{ $trade->real_rr }}</td>
                                                 <td>{{ $trade->closed_at == '' ? '-' : $trade->closed_at }}</td>
                                             </tr>
-                                        @else
+                                        @empty
                                         <tr>
                                             <td colspan="16">Data tidak tersedia</td>
                                         </tr>

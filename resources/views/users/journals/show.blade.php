@@ -825,7 +825,7 @@
                 var start = $("#start").val();
                 var end = $("#end").val();
                 var url = $("#btnRiwayat").attr("href");
-                window.open(url + "?start=" + start + "&end=" + end, '_blank');
+                window.location = url + "?start=" + start + "&end=" + end;
             })
         });
     </script>

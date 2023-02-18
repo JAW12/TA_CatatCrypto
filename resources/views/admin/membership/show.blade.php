@@ -87,7 +87,8 @@
                         <p>Metode Pembayaran: {{$transaction->payment_type}}</p>
                         <p>Jenis Bank Pengguna: {{$transaction->bank_name}}</p>
                         <p>Atas Nama: {{$transaction->payment_name}}</p>
-                        <p>Transfer pada: {{ date_format(date_create($transaction->payment_time), 'd F Y H:i:s') }}</p>
+                        <p>Pembayaran akan dilakukan pada: {{ date_format(date_create($transaction->payment_time), 'd F Y H:i:s') }}</p>
+                        <p>Batas pembayaran: <span class="text-danger">@if($transaction->payment_type != "credit_card"){{ date('d F Y H:i:s', strtotime($transaction->created_at . ' +1 day')) }}@else - @endif</span></p>
                         @endif
                         <p>Biaya yang dibayarkan: Rp {{ number_format($transaction->gross_amount, 2) }}</p>
 

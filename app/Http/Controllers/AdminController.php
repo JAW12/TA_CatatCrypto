@@ -429,6 +429,18 @@ class AdminController extends Controller
             'end' => $request->end,
         ];
 
+        if ($request->start) {
+            $data['start'] = $request->start;
+        } else {
+            $data['start'] = $transactions->first()->payment_time;
+        }
+        if ($request->end) {
+            $data['end'] = $request->end;
+        } else {
+            $data['end'] = $transactions->last()->payment_time;
+        }
+
+
         return view('admin.membership.report_print', compact('transactions', 'data'));
     }
 
@@ -1272,11 +1284,9 @@ class AdminController extends Controller
                 ];
             });
 
-            // Jumlah pengguna terverifikasi
-            $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+            $verifiedUsers = $users->whereNotNull('email_verified_at')->count();
 
-            // Jumlah pengguna yang diblokir
-            $blockedUsers = User::whereNotNull('deleted_at')->withTrashed()->count();
+            $blockedUsers = User::where('user_type', '!=', 'admin')->whereNotNull('deleted_at')->withTrashed()->count();
 
             $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
 
@@ -1464,11 +1474,9 @@ class AdminController extends Controller
 
             // dd($newUsersPerDay->pluck('date')->last());
 
-            // Jumlah pengguna terverifikasi
-            $verifiedUsers = User::whereNotNull('email_verified_at')->count();
+            $verifiedUsers = $users->whereNotNull('email_verified_at')->count();
 
-            // Jumlah pengguna yang diblokir
-            $blockedUsers = User::whereNotNull('deleted_at')->withTrashed()->count();
+            $blockedUsers = User::where('user_type', '!=', 'admin')->whereNotNull('deleted_at')->withTrashed()->count();
 
             $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
 
