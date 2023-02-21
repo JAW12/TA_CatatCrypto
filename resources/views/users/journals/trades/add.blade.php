@@ -358,18 +358,24 @@
 
         function calculateRR() {
             let tp1_pnl = $("#tp_pnl1").val();
-            let sl1_pnl = $("#sl_pnl1").val();
-
-            if (tp1_pnl != "" && sl1_pnl != "") {
-                let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl));
-                if(rr >= 2){
-                    $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
+            let sl_pnl_input = $(".sl_pnl");
+            let last_sl_pnl = sl_pnl_input.last();
+            // console.log(sl_pnl_input);
+            if(last_sl_pnl != null){
+                if(last_sl_pnl.length > 0){
+                    let sl_pnl = $(last_sl_pnl[0]).val();
+                    if (tp1_pnl != "" && sl_pnl != "") {
+                        let rr = (parseFloat(tp1_pnl) / parseFloat(sl_pnl));
+                        if (rr >= 2) {
+                            $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
+                        } else {
+                            $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+                        }
+                        $("#input_rr_expected").val(rr);
+                    }
                 }
-                else{
-                    $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
-                }
-                $("#input_rr_expected").val(rr);
             }
+            // let sl1_pnl = $("#sl_pnl1").val();
         }
 
         // loadTransaction();
@@ -454,6 +460,7 @@
                     value++;
                 })
                 parent.remove();
+                calculateRR();
             });
 
             $(document).on('keyup', '.input_sl', function() {
@@ -830,8 +837,8 @@
                                                         class="form-control input_sl"></div>
                                                 <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                                         class="text-danger pnl_sl" id="pnl_sl1">$0 (0%)</span></div>
-                                                <input type="hidden" name="sl_pnl[]" id="sl_pnl1">
-                                                <input type="hidden" name="sl_roe[]" id="sl_roe1">
+                                                <input type="hidden" class="sl_pnl" name="sl_pnl[]" id="sl_pnl1">
+                                                <input type="hidden" class="sl_roe" name="sl_roe[]" id="sl_roe1">
                                             </div>
                                         </div>
                                     </div>

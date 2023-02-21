@@ -33,7 +33,7 @@ class TradeController extends Controller
 
     public function add(Journal $journal)
     {
-        if (Auth::user()->hasPermissionTo('notes-tambah')) {
+        if (Auth::user()->hasPermissionTo('notes-tambah') and (Auth::user()->remaining_trades == -1 or Auth::user()->remaining_trades > 0)) {
             $timeframes = Timeframe::all();
             // $entry_strategies = Strategy::where('category_id', 1)->get();
             $entry_strategies = Strategy::where(function ($query){
@@ -111,8 +111,8 @@ class TradeController extends Controller
                 'tp_roe.*' => 'required|numeric|gt:0',
                 'sl*' => 'required|min:1',
                 'sl.*' => 'required|numeric|gt:0',
-                'sl_pnl.*' => 'required|numeric|gt:0',
-                'sl_roe.*' => 'required|numeric|gt:0',
+                'sl_pnl.*' => 'required|numeric',
+                'sl_roe.*' => 'required|numeric',
                 'rr_expected' => 'required|numeric|gt:0',
                 'timeframe' => 'required|min:1',
                 'timeframe.*' => 'required',
@@ -131,6 +131,7 @@ class TradeController extends Controller
                     'open_quantity' => $request->get('open_quantity'),
                     'open_margin' => $request->get('initial_margin'),
                     'rr_expected' => $request->get('rr_expected'),
+                    'notes' => $request->get('notes'),
                 ]);
 
                 $tp = $request->get('tp');
@@ -236,7 +237,9 @@ class TradeController extends Controller
                 $journal->save();
 
                 $user = Auth::user();
-                $user->remaining_trades = $user->remaining_trades - 1;
+                if($user->remaining_trades > 0){
+                    $user->remaining_trades = $user->remaining_trades - 1;
+                }
                 $user->save();
 
                 DB::commit();
@@ -335,8 +338,8 @@ class TradeController extends Controller
                 'tp_roe.*' => 'required|numeric|gt:0',
                 'sl*' => 'required|min:1',
                 'sl.*' => 'required|numeric|gt:0',
-                'sl_pnl.*' => 'required|numeric|gt:0',
-                'sl_roe.*' => 'required|numeric|gt:0',
+                'sl_pnl.*' => 'required|numeric',
+                'sl_roe.*' => 'required|numeric',
                 'rr_expected' => 'required|numeric|gt:0',
                 'timeframe' => 'required|min:1',
                 'timeframe.*' => 'required',
@@ -353,6 +356,7 @@ class TradeController extends Controller
                 $trade->open_quantity = $request->get('open_quantity');
                 $trade->open_margin = $request->get('initial_margin');
                 $trade->rr_expected = $request->get('rr_expected');
+                $trade->notes = $request->get('notes');
                 $update = $trade->save();
 
                 $tp = $request->get('tp');
@@ -419,7 +423,7 @@ class TradeController extends Controller
                 }
 
                 $chart_strategy = $request->get('chart_strategy');
-                if ($entry_strategy != null) {
+                if ($chart_strategy != null) {
                     if (count($chart_strategy) > 0) {
                         foreach ($chart_strategy as $key => $value) {
                             $trade->strategies()->attach($value);
@@ -739,7 +743,7 @@ class TradeController extends Controller
                     $trade->real_rr = $real_rr;
 
                     // ganti open time sama transaksi paling pertama
-                    $first_transaction = $trade->transactions->last();
+                    $first_transaction = $trade->transactions->sortByDesc('time')->last();
                     $trade->open_price = $first_transaction->price;
                     $trade->open_quantity = $first_transaction->quantity;
 
@@ -1013,7 +1017,9 @@ class TradeController extends Controller
                 $journal->save();
 
                 $user = Auth::user();
-                $user->remaining_trades = $user->remaining_trades + 1;
+                if($user->remaining_trades >= 0){
+                    $user->remaining_trades = $user->remaining_trades + 1;
+                }
                 $user->save();
 
                 DB::commit();

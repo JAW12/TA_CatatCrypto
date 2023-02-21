@@ -103,9 +103,7 @@
                                                 <td>{{ (float) $journal->winrate }}%</td>
                                                 <td
                                                     class="@if ($journal->pnl > 0) text-success @elseif($journal->pnl < 0) text-danger @endif">
-                                                    @if ($journal->pnl < 0)
-                                                        -
-                                                    @endif${{ abs((float) $journal->pnl) }}
+                                                    @if ($journal->pnl < 0)-@endif${{ abs((float) $journal->pnl) }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -135,8 +133,7 @@
                                                         {{ number_format((float) $data->journals->sum('pnl'), 2) }}</strong>
                                                 </td>
                                             @elseif((float) $data->journals->sum('pnl') < 0)
-                                                <td class="text-danger"><strong>-$
-                                                        {{ abs(number_format((float) $data->journals->sum('pnl'), 2)) }}</strong>
+                                                <td class="text-danger"><strong>-${{ abs(number_format((float) $data->journals->sum('pnl'), 2)) }}</strong>
                                                 </td>
                                             @else
                                                 <td><strong>$0.00</strong></td>

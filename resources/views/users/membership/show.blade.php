@@ -7,7 +7,7 @@
             let rekening = $('option:selected', this).attr('rekening');
             let an = $('option:selected', this).attr('an');
             let value = $("#payment_type").val();
-            if (value != 'automatic') {
+            if (value != 'credit_card') {
                 $("#nomor").text(nomor);
                 $("#rekening").text(rekening);
                 $("#an").text(an);
@@ -79,7 +79,7 @@
                                         <option value="Manual Transfer E-Wallet OVO" rekening="OVO" nomor="xxxxxxxxxx" an="Jem Angkasa Wijaya">OVO</option>
                                     </optgroup>
                                     <optgroup label="Pembayaran Otomatis">
-                                        <option value="automatic">Midtrans</option>
+                                        <option value="credit_card">Kartu Kredit</option>
                                     </optgroup>
                                 </select>
                             </div>

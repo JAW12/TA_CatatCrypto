@@ -146,7 +146,7 @@
         });
     </script>
 @endpush
-<x-app-layout :options="['loading']">
+<x-app-layout :options="['loading', 'datatable']">
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
@@ -249,10 +249,7 @@
                                                         </td>
                                                         <td
                                                             class="@if ($item['pnl'] > 0) text-success @elseif($item['pnl'] < 0) text-danger @endif">
-                                                            @if ($item['pnl'] < 0)
-                                                                -
-                                                            @endif
-                                                            ${{ number_format(abs((float) $item['pnl']), 2, '.', ',') }}
+                                                            @if ($item['pnl'] < 0)-@endif${{ number_format(abs((float) $item['pnl']), 2, '.', ',') }}
                                                         </td>
                                                     </tr>
                                                     @empty

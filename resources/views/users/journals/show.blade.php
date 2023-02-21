@@ -212,9 +212,13 @@
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                    totalRR = totalRR / api.column(15, {
+                    if(api.column(15, {
                         filter: 'applied'
-                    }).data().count();
+                    }).data().count() > 0){
+                        totalRR = totalRR / api.column(15, {
+                            filter: 'applied'
+                        }).data().count();
+                    }
 
                     pageTotalRR = api
                         .column(15, {
@@ -226,9 +230,13 @@
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                    pageTotalRR = pageTotalRR / api.column(15, {
+                    if(api.column(15, {
                         filter: 'applied'
-                    }).data().count();
+                    }).data().count() > 0){
+                        pageTotalRR = pageTotalRR / api.column(15, {
+                            filter: 'applied'
+                        }).data().count();
+                    }
 
                     htmlRR = "";
                     if (pageTotalRR >= 2) {
@@ -237,7 +245,7 @@
                         htmlRR =
                             `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
                     } else {
-                        htmlRR = `<span class='text-danger me-1'>${pageTotalRR.toFixed(2)}</span>`;
+                        htmlRR = `<span class=' me-1'>${pageTotalRR.toFixed(2)}</span>`;
                     }
 
                     if (totalRR >= 2) {
@@ -247,7 +255,7 @@
                             `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
                     } else {
                         htmlRR +=
-                            `<span class="text-danger">(Total: ${totalRR.toFixed(2)})</span>`;
+                            `<span class="">(Total: ${totalRR.toFixed(2)})</span>`;
                     }
 
 
@@ -623,10 +631,10 @@
 
                     if (totalPNLP > 0) {
                         htmlPNLP +=
-                            `<span class="text-success">(Total: ${totalPNLP.toFixed(2)})%</span>`;
+                            `<span class="text-success">(Total: ${totalPNLP.toFixed(2)}%)</span>`;
                     } else if (totalPNLP < 0) {
                         htmlPNLP +=
-                            `<span class="text-danger">(Total: -${Math.abs(totalPNLP).toFixed(2)})%</span>`;
+                            `<span class="text-danger">(Total: -${Math.abs(totalPNLP).toFixed(2)}%)</span>`;
                     } else {
                         htmlPNLP += "(Total: 0%)";
                     }
@@ -687,9 +695,13 @@
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                    totalRR = totalRR / api.column(14, {
+                    if(api.column(14, {
                         filter: 'applied'
-                    }).data().count();
+                    }).data().count() > 0){
+                        totalRR = totalRR / api.column(14, {
+                            filter: 'applied'
+                        }).data().count();
+                    }
 
                     pageTotalRR = api
                         .column(14, {
@@ -701,9 +713,13 @@
                             return intVal(a) + intVal(b);
                         }, 0);
 
-                    pageTotalRR = pageTotalRR / api.column(14, {
+                    if(api.column(14, {
                         filter: 'applied'
-                    }).data().count();
+                    }).data().count() > 0){
+                        pageTotalRR = pageTotalRR / api.column(14, {
+                            filter: 'applied'
+                        }).data().count();
+                    }
 
                     htmlRR = "";
                     if (pageTotalRR >= 2) {
@@ -713,7 +729,7 @@
                             `<span class="text-danger me-1">-${Math.abs(pageTotalRR).toFixed(2)}</span>`;
                     } else {
                         htmlRR =
-                            `<span class="text-danger me-1">${pageTotalRR.toFixed(2)}</span>`;
+                            `<span class="me-1">${pageTotalRR.toFixed(2)}</span>`;
                     }
 
                     if (totalRR >= 2) {
@@ -723,7 +739,7 @@
                             `<span class="text-danger">(Total: -${Math.abs(totalRR).toFixed(2)})</span>`;
                     } else {
                         htmlRR +=
-                            `<span class="text-danger">(Total: ${totalRR.toFixed(2)})</span>`;
+                            `<span class="">(Total: ${totalRR.toFixed(2)})</span>`;
                     }
 
 
@@ -1072,7 +1088,7 @@
                                 <div class="col-sm-12 col-md-3 d-flex justify-content-end">
                                     @can('notes-tambah')
                                         <a href="{{ route('user.journal.trade.add', ['journal' => $journal->id]) }}"
-                                            class="btn btn-primary @if ($journal->deleted_at != '') disabled @endif w-100">+
+                                            class="btn btn-primary @if ($journal->deleted_at != '' or Auth::user()->remaining_trades == 0) disabled @endif w-100">+
                                             Tambah Catatan</a>
                                     @endcan
                                 </div>
@@ -1108,7 +1124,7 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     <img src="{{ $trade->asset->thumb }}" alt="coin">
-                                                    {{ $trade->asset->name }}
+                                                    {{ $trade->asset->name }} ({{$trade->asset->symbol}})
                                                 </td>
                                                 <td>
                                                     @if ($trade->type == 0)
@@ -1282,8 +1298,8 @@
                                             <th>Margin</th>
                                             <th>Hrg Entri</th>
                                             <th>Waktu Entri</th>
-                                            <th>Hrg SL 1</th>
-                                            <th>P/L SL 1</th>
+                                            <th>Hrg SL Terakhir</th>
+                                            <th>P/L SL Terakhir</th>
                                             <th>Hrg TP 1</th>
                                             <th>P/L TP 1</th>
                                             <th>Hrg TP 2</th>
@@ -1300,7 +1316,7 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     <img src="{{ $trade->asset->thumb }}" alt="coin">
-                                                    {{ $trade->asset->name }}
+                                                    {{ $trade->asset->name }} ({{$trade->asset->symbol}})
                                                 </td>
                                                 <td>
                                                     @if ($trade->type == 0)
@@ -1315,13 +1331,13 @@
                                                 <td>${{ $trade->open_price > 999 ? number_format((float) $trade->open_price, 0) : (float) $trade->open_price }}</td>
                                                 <td>{{ $trade->open_time }}</td>
                                                 @if (count($trade->targets->where('type', '0')) > 0)
-                                                    <td>${{ (float) $trade->targets->where('type', '0')->first()->price > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->price, 0) : (float) $trade->targets->where('type', '0')->first()->price }}
+                                                    <td>${{ (float) $trade->targets->where('type', '0')->last()->price > 999 ? number_format((float) $trade->targets->where('type', '0')->last()->price, 0) : (float) $trade->targets->where('type', '0')->last()->price }}
                                                     </td>
                                                     <td class="text-danger">
-                                                        ${{ (float) $trade->targets->where('type', '0')->first()->pnl > 999 ? number_format((float) $trade->targets->where('type', '0')->first()->pnl, 0) : (float) $trade->targets->where('type', '0')->first()->pnl }}
+                                                        ${{ (float) $trade->targets->where('type', '0')->last()->pnl > 999 ? number_format((float) $trade->targets->where('type', '0')->last()->pnl, 0) : (float) $trade->targets->where('type', '0')->last()->pnl }}
                                                         @if (
                                                             $journal->risk > 0 and
-                                                                $trade->targets->where('type', '0')->first()->pnl > ($journal->balances * $journal->risk) / 100)
+                                                                $trade->targets->where('type', '0')->last()->pnl > ($journal->balances * $journal->risk) / 100)
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                                                 height="16" fill="currentColor"
                                                                 class="bi bi-exclamation-triangle-fill mb-1"
@@ -1504,7 +1520,7 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     <img src="{{ $trade->asset->thumb }}" alt="coin">
-                                                    {{ $trade->asset->name }}
+                                                    {{ $trade->asset->name }} ({{$trade->asset->symbol}})
                                                 </td>
                                                 <td>
                                                     @if ($trade->type == 0)

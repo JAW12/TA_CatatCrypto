@@ -20,7 +20,7 @@ class TransactionController extends Controller
 
         $order_id = "order-" . date('y') . date('m') . date('d') . Auth::id() . '-' . $request->membership_id . sprintf('%03d', Transaction::where('membership_id', $request->membership_id)->whereDate('created_at', date('Y-m-d'))->count());
 
-        if ($request->payment_type != "automatic") {
+        if ($request->payment_type != "credit_card") {
             if($request->transfer_time == null){
                 $request['transfer_time'] = now();
             }

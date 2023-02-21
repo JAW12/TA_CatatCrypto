@@ -30,7 +30,7 @@ class JournalController extends Controller
     {
         if (Auth::user()->hasPermissionTo('journal-tambah')) {
 
-            if (Auth::user()->max_journals == 0 or Auth::user()->journals->count() < Auth::user()->max_journals) {
+            if (Auth::user()->max_journals > 0 and Auth::user()->journals->count() < Auth::user()->max_journals) {
                 $wallet = Auth::user()->journals()->create($request->all());
                 if ($wallet) {
                     return redirect()->back()->withSuccess('Jurnal berhasil ditambahkan');
@@ -1216,7 +1216,9 @@ class JournalController extends Controller
                     'rata_rata_durasi' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
                     'rata_rata_profit' => 0,
                     'durasi_tercepat' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_tercepat_dalam_detik' => 999999999999999,
                     'durasi_terlama' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_terlama_dalam_detik' => 0,
                 );
             }
 
@@ -1240,17 +1242,24 @@ class JournalController extends Controller
                             $rawData[$timeframe->name]['durasi_hours'] += $trade->diff_hours;
                             $rawData[$timeframe->name]['durasi_minutes'] += $trade->diff_minutes;
                             $rawData[$timeframe->name]['durasi_seconds'] += $trade->diff_seconds;
+                            $durasiKeseluruhan = $trade->diff_days * 86400 + $trade->diff_hours * 3600 + $trade->diff_minutes * 60 + $trade->diff_seconds;
+                            if($durasiKeseluruhan >= $rawData[$timeframe->name]['durasi_terlama_dalam_detik']){
+                                $rawData[$timeframe->name]['durasi_terlama_dalam_detik'] = $durasiKeseluruhan;
+                            }
+                            if($durasiKeseluruhan <= $rawData[$timeframe->name]['durasi_tercepat_dalam_detik']){
+                                $rawData[$timeframe->name]['durasi_tercepat_dalam_detik'] = $durasiKeseluruhan;
+                            }
                         }
                     }
                 }
             }
-
             // Hitung rata-rata durasi, durasi tercepat, dan durasi terlama untuk setiap timeframe
             foreach ($timeframes as $timeframe) {
                 $jumlah_trades = $rawData[$timeframe->name]['jumlah_trades'];
                 $winning_trades = $rawData[$timeframe->name]['winning_trades'];
                 $losing_trades = $rawData[$timeframe->name]['losing_trades'];
                 $profit = $rawData[$timeframe->name]['profit'];
+
                 $durasi_days = $rawData[$timeframe->name]['durasi_days'];
                 $durasi_hours = $rawData[$timeframe->name]['durasi_hours'];
                 $durasi_minutes = $rawData[$timeframe->name]['durasi_minutes'];
@@ -1267,11 +1276,15 @@ class JournalController extends Controller
                     ];
 
                     $rata_rata_profit = $profit / $jumlah_trades;
-                    $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
 
-                    $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
-                    $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
-                    $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    // $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+                    // $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
+
+                    // $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    // $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+
+                    $durasi_tercepat_dalam_detik = $rawData[$timeframe->name]['durasi_tercepat_dalam_detik'];
+                    $durasi_terlama_dalam_detik = $rawData[$timeframe->name]['durasi_terlama_dalam_detik'];
 
                     $durasi_tercepat = [
                         'days' => floor($durasi_tercepat_dalam_detik / (24 * 60 * 60)),
@@ -1343,7 +1356,9 @@ class JournalController extends Controller
                     'rata_rata_durasi' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
                     'rata_rata_profit' => 0,
                     'durasi_tercepat' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_tercepat_dalam_detik' => 999999999999999,
                     'durasi_terlama' => ['days' => 0, 'hours' => 0, 'minutes' => 0, 'seconds' => 0],
+                    'durasi_terlama_dalam_detik' => 0,
                 );
             }
 
@@ -1367,17 +1382,24 @@ class JournalController extends Controller
                             $rawData[$timeframe->name]['durasi_hours'] += $trade->diff_hours;
                             $rawData[$timeframe->name]['durasi_minutes'] += $trade->diff_minutes;
                             $rawData[$timeframe->name]['durasi_seconds'] += $trade->diff_seconds;
+                            $durasiKeseluruhan = $trade->diff_days * 86400 + $trade->diff_hours * 3600 + $trade->diff_minutes * 60 + $trade->diff_seconds;
+                            if($durasiKeseluruhan >= $rawData[$timeframe->name]['durasi_terlama_dalam_detik']){
+                                $rawData[$timeframe->name]['durasi_terlama_dalam_detik'] = $durasiKeseluruhan;
+                            }
+                            if($durasiKeseluruhan <= $rawData[$timeframe->name]['durasi_tercepat_dalam_detik']){
+                                $rawData[$timeframe->name]['durasi_tercepat_dalam_detik'] = $durasiKeseluruhan;
+                            }
                         }
                     }
                 }
             }
-
             // Hitung rata-rata durasi, durasi tercepat, dan durasi terlama untuk setiap timeframe
             foreach ($timeframes as $timeframe) {
                 $jumlah_trades = $rawData[$timeframe->name]['jumlah_trades'];
                 $winning_trades = $rawData[$timeframe->name]['winning_trades'];
                 $losing_trades = $rawData[$timeframe->name]['losing_trades'];
                 $profit = $rawData[$timeframe->name]['profit'];
+
                 $durasi_days = $rawData[$timeframe->name]['durasi_days'];
                 $durasi_hours = $rawData[$timeframe->name]['durasi_hours'];
                 $durasi_minutes = $rawData[$timeframe->name]['durasi_minutes'];
@@ -1394,11 +1416,15 @@ class JournalController extends Controller
                     ];
 
                     $rata_rata_profit = $profit / $jumlah_trades;
-                    $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
 
-                    $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
-                    $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
-                    $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    // $durasi_tercepat_dalam_detik = $durasi_days * 86400 + $durasi_hours * 3600 + $durasi_minutes * 60 + $durasi_seconds;
+                    // $durasi_terlama_dalam_detik = $durasi_tercepat_dalam_detik;
+
+                    // $durasi_tercepat_dalam_detik = min($durasi_tercepat_dalam_detik, $rata_rata_durasi_dalam_detik);
+                    // $durasi_terlama_dalam_detik = max($durasi_terlama_dalam_detik, $rata_rata_durasi_dalam_detik);
+
+                    $durasi_tercepat_dalam_detik = $rawData[$timeframe->name]['durasi_tercepat_dalam_detik'];
+                    $durasi_terlama_dalam_detik = $rawData[$timeframe->name]['durasi_terlama_dalam_detik'];
 
                     $durasi_tercepat = [
                         'days' => floor($durasi_tercepat_dalam_detik / (24 * 60 * 60)),

@@ -27,7 +27,7 @@ class WalletController extends Controller
     public function store(StoreWalletRequest $request)
     {
         if (Auth::user()->hasPermissionTo('portfolio-tambah')) {
-            if (Auth::user()->max_wallets == 0 or Auth::user()->wallets->count() < Auth::user()->max_wallets) {
+            if (Auth::user()->max_wallets > 0 and Auth::user()->wallets->count() < Auth::user()->max_wallets) {
                 if ($request['binance_api_key'] == null and $request['balance'] == null) {
                     return redirect()->back()->withError('Dompet gagal ditambahkan');
                 } else if ($request['binance_api_key'] != null) {
@@ -56,6 +56,27 @@ class WalletController extends Controller
                     return redirect()->back()->withError('Dompet gagal ditambahkan');
                 }
             } else if (Auth::user()->max_wallets == -1) {
+                if ($request['binance_api_key'] == null and $request['balance'] == null) {
+                    return redirect()->back()->withError('Dompet gagal ditambahkan');
+                } else if ($request['binance_api_key'] != null) {
+                    $request['balance'] = 0;
+
+                    Binance::auth($request['binance_api_key'], $request['binance_secret_key']);
+                    $url = "/sapi/v1/account/status";
+                    $params = [];
+                    $type = "GET";
+                    $account_status = Binance::call(false, "SPOT", $url, $params, $type);
+
+                    if (array_key_exists("msg", $account_status)) {
+                        if (str_contains($account_status['msg'], 'Invalid')) {
+                            $request['demo'] = true;
+                        } else {
+                            $request['demo'] = false;
+                        }
+                    } else {
+                        $request['demo'] = false;
+                    }
+                }
                 $wallet = Auth::user()->wallets()->create($request->all());
                 if ($wallet) {
                     return redirect()->back()->withSuccess('Dompet berhasil ditambahkan');
@@ -960,7 +981,7 @@ class WalletController extends Controller
                 ]
             ];
 
-            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>=', '0')->orderBy('pnl', 'desc')->take(3)->get();
+            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>', '0')->orderBy('pnl', 'desc')->take(3)->get();
             $labelsBarTerbaik = [];
             $seriesBarTerbaik = [];
 
@@ -969,7 +990,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerbaik, (int)$row->pnl);
             }
 
-            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<=', '0')->orderBy('pnl', 'asc')->take(3)->get();
+            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<', '0')->orderBy('pnl', 'asc')->take(3)->get();
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 
@@ -1017,7 +1038,7 @@ class WalletController extends Controller
                 ]
             ];
 
-            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>=', '0')->orderBy('pnl', 'desc')->take(3)->get();
+            $dataBarTerbaik = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '>', '0')->orderBy('pnl', 'desc')->take(3)->get();
             $labelsBarTerbaik = [];
             $seriesBarTerbaik = [];
 
@@ -1026,7 +1047,7 @@ class WalletController extends Controller
                 array_push($seriesBarTerbaik, (int)$row->pnl);
             }
 
-            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<=', '0')->orderBy('pnl', 'asc')->take(3)->get();
+            $dataBarTerburuk = Wallet::select('name', 'pnl')->where('user_id', $data->id)->where('pnl', '<', '0')->orderBy('pnl', 'asc')->take(3)->get();
             $labelsBarTerburuk = [];
             $seriesBarTerburuk = [];
 

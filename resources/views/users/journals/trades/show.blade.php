@@ -58,6 +58,10 @@
         .select2 {
             width: 100% !important;
         }
+
+        .viewer{
+            cursor: zoom-in;
+        }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
@@ -135,6 +139,11 @@
                     .appendTo(ul);
             };
 
+        calculateRisk();
+        calculateProfit();
+        calculateLoss();
+        calculateRR();
+
         $("#open_price").keyup(function() {
             let open_price = $("#open_price").val();
             calculateInitialMargin();
@@ -186,7 +195,7 @@
         function calculateRisk() {
             let open_price = $("#open_price").val();
             let input_average_price = $("#input_average_price");
-            console.log(input_average_price);
+            // console.log(input_average_price);
             if (input_average_price != null) {
                 let average_price = $("#input_average_price").val();
                 if (average_price != "") {
@@ -269,11 +278,15 @@
         function calculateProfit() {
             let initial_margin = $("#input_initial_margin").val();
             let qty = $("#open_quantity").val();
+            let qty_remaining = $("#input_quantity_remaining").val();
+            if (qty_remaining != "" && qty_remaining > 0) {
+                qty = qty_remaining;
+            }
             let open_price = $("#open_price").val();
-            // let average_price = $("#input_average_price").val();
-            // if (average_price != "") {
-            //     open_price == average_price;
-            // }
+            let average_price = $("#input_average_price").val();
+            if (average_price != "" && average_price > 0) {
+                open_price = average_price;
+            }
 
             let input_tp = $(".input_tp");
             input_tp.each(function() {
@@ -305,15 +318,16 @@
         function calculateLoss() {
             let initial_margin = $("#input_initial_margin").val();
             let qty = $("#open_quantity").val();
-            // let qty_remaining = $("#input_quantity_remaining").val();
-            // if (qty_remaining != "") {
-            //     qty = qty_remaining;
-            // }
+            let qty_remaining = $("#input_quantity_remaining").val();
+            if (qty_remaining != "" && qty_remaining > 0) {
+                qty = qty_remaining;
+            }
             let open_price = $("#open_price").val();
-            // let average_price = $("#input_average_price").val();
-            // if (average_price != "") {
-            //     open_price == average_price;
-            // }
+            let average_price = $("#input_average_price").val();
+            if (average_price != "" && average_price > 0) {
+                // console.log(average_price);
+                open_price = average_price;
+            }
             let input_sl = $(".input_sl");
             input_sl.each(function() {
                 let no = $(this).attr("no");
@@ -344,17 +358,24 @@
 
         function calculateRR() {
             let tp1_pnl = $("#tp_pnl1").val();
-            let sl1_pnl = $("#sl_pnl1").val();
+            let sl_pnl_input = $(".sl_pnl");
+            let last_sl_pnl = sl_pnl_input.last();
 
-            if (tp1_pnl != "" && sl1_pnl != "") {
-                let rr = (parseFloat(tp1_pnl) / parseFloat(sl1_pnl));
-                if (rr >= 2) {
-                    $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
-                } else {
-                    $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+            if(last_sl_pnl != null){
+                if(last_sl_pnl.length > 0){
+                    let sl_pnl = $(last_sl_pnl[0]).val();
+                    if (tp1_pnl != "" && sl_pnl != "") {
+                        let rr = (parseFloat(tp1_pnl) / parseFloat(sl_pnl));
+                        if (rr >= 2) {
+                            $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
+                        } else {
+                            $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+                        }
+                        $("#input_rr_expected").val(rr);
+                    }
                 }
-                $("#input_rr_expected").val(rr);
             }
+            // let sl1_pnl = $("#sl_pnl1").val();
         }
 
         function datetimeLocal(datetime) {
@@ -402,6 +423,7 @@
                     value++;
                 })
                 parent.remove();
+                calculateRR();
             });
 
             $(document).on('keyup', '.input_sl', function() {
@@ -566,9 +588,9 @@
                         }
                     });
                     if (child_viewer != null) {
-                        console.log("Child Viewer:", child_viewer);
+                        // console.log("Child Viewer:", child_viewer);
                         let index = viewers.indexOf(child_viewer);
-                        console.log("Index:", index);
+                        // console.log("Index:", index);
                         if (index != -1) {
                             viewers.splice(index, 1);
                         }
@@ -592,9 +614,9 @@
 
                 var modal = $(this);
                 if (recipient != null) {
-                    console.log(recipient);
+                    // console.log(recipient);
                     var dt = Date.parse(recipient.time);
-                    console.log("Date Time : ", dt);
+                    // console.log("Date Time : ", dt);
 
                     modal.find('.modal-title').text('Ubah Transaksi');
                     $("#transaction_id").val(recipient.id);
@@ -900,7 +922,7 @@
                                                     </div>
                                                     <div class="col-sm-12 col-md-7">akan mendapatkan kerugian <span
                                                             class="text-danger pnl_sl"
-                                                            id="pnl_sl1">${{ number_format((float) $target->pnl, 2) }}
+                                                            id="pnl_sl{{ $loop->iteration }}">${{ number_format((float) $target->pnl, 2) }}
                                                             ({{ number_format((float) $target->roe, 2) }}%)
                                                         </span></div>
                                                     <input type="hidden" class="sl_pnl" name="sl_pnl[]"
@@ -1064,7 +1086,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="notes" class="text-dark">Catatan</label>
-                                    <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px"></textarea>
+                                    <textarea name="notes" id="notes" class="form-control" style="resize: none; height: 200px">{{$trade->notes}}</textarea>
                                 </div>
                                 <hr />
                                 <div>

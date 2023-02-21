@@ -118,6 +118,7 @@
                                 } else {
                                     author =
                                         `<p class="text-muted"><small>Dibuat oleh ${element.user.full_name}</small></p>`;
+                                    deleteButton = '';
                                 }
                             } else {
                                 author = `<p class="text-muted"><small>Dibuat oleh Admin</small></p>`;
