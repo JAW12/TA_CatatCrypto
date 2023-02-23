@@ -21,7 +21,7 @@ class TransactionController extends Controller
         $order_id = "order-" . date('y') . date('m') . date('d') . Auth::id() . '-' . $request->membership_id . sprintf('%03d', Transaction::where('membership_id', $request->membership_id)->whereDate('created_at', date('Y-m-d'))->count());
 
         if ($request->payment_type != "credit_card") {
-            if($request->transfer_time == null){
+            if ($request->transfer_time == null) {
                 $request['transfer_time'] = now();
             }
             $transaction = Auth::user()->transactions()->create([
@@ -90,66 +90,131 @@ class TransactionController extends Controller
 
         $transaction->save();
 
-        if($transaction->status == "settlement" || $transaction->status == "capture"){
-            if($transaction->membership_id > 0){
-                $membership = Membership::findOrFail($transaction->membership_id);
-                $today = date("Y-m-d");
-                $date = date('Y-m-d', strtotime($today. ' + ' . $membership->duration_months . ' months'));
+        // if($transaction->status == "settlement" || $transaction->status == "capture"){
+        //     if($transaction->membership_id > 0){
+        //         $membership = Membership::findOrFail($transaction->membership_id);
+        //         $today = date("Y-m-d");
+        //         $date = date('Y-m-d', strtotime($today. ' + ' . $membership->duration_months . ' months'));
 
-                Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
+        //         Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
 
-                $user = User::find(Auth::id());
-                $user->user_type = $membership->name;
-                $user->max_wallets = $membership->max_wallets;
-                $user->max_journals = $membership->max_journals;
-                $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
-                $user->remaining_trades = $user->trades_quantity_per_month;
-                if($membership->trades_quantity_per_month == -1){
-                    $user->remaining_trades = -1;
-                }
-                $user->membership_since = $today;
-                $user->membership_till = $date;
-                $user->membership_update = $today;
-                $user->spent = $user->spent + $transaction->gross_amount;
-                $user->save();
+        //         $user = User::find(Auth::id());
+        //         $user->user_type = $membership->name;
+        //         $user->max_wallets = $membership->max_wallets;
+        //         $user->max_journals = $membership->max_journals;
+        //         $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
+        //         $user->remaining_trades = $user->trades_quantity_per_month;
+        //         if($membership->trades_quantity_per_month == -1){
+        //             $user->remaining_trades = -1;
+        //         }
+        //         $user->membership_since = $today;
+        //         $user->membership_till = $date;
+        //         $user->membership_update = $today;
+        //         $user->spent = $user->spent + $transaction->gross_amount;
+        //         $user->save();
 
-                if($membership->enable_binance == 1){
-                    $user->givePermissionTo('portfolio-tambah-binance');
+        //         if($membership->enable_binance == 1){
+        //             $user->givePermissionTo('portfolio-tambah-binance');
+        //         }
+        //         else{
+        //             $user->revokePermissionTo('portfolio-tambah-binance');
+        //         }
+
+        //         if($membership->enable_notification == 1){
+        //             $user->givePermissionTo('assets-transactions-notifikasi');
+        //         }
+        //         else{
+        //             $user->revokePermissionTo('assets-transactions-notifikasi');
+        //         }
+        //     }
+        //     else{
+        //         $user = User::find(Auth::id());
+        //         $user->remaining_trades = $user->remaining_trades + 100;
+        //         $user->spent = $user->spent + $transaction->gross_amount;
+        //         $user->save();
+        //     }
+
+        //     foreach($user->transactions as $transaction){
+        //         if($transaction->status == "pending"){
+        //             $transaction->status = "cancel";
+        //             $transaction->save();
+        //         }
+        //     }
+        //     return redirect()->route('index')->withSuccess('Transaksi berhasil');
+        // }
+        // else{
+        //     return redirect()->route('index')->withError('Transaksi gagal');
+        // }
+
+        if ($transaction->status == "settlement" || $transaction->status == "capture") {
+            if ($transaction->membership_id > 0) {
+                $activeMembership = Auth::user()->membership->first();
+                if ($activeMembership == null) {
+                    $membership = Membership::findOrFail($transaction->membership_id);
+                    $today = date("Y-m-d");
+                    $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
+
+                    Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1, 'membership_start' => $today]);
+
+                    $user = User::find(Auth::id());
+                    $user->user_type = $membership->name;
+                    $user->max_wallets = $membership->max_wallets;
+                    $user->max_journals = $membership->max_journals;
+                    $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
+                    $user->remaining_trades = $user->trades_quantity_per_month;
+                    if ($membership->trades_quantity_per_month == -1) {
+                        $user->remaining_trades = -1;
+                    }
+                    $user->membership_since = $today;
+                    $user->membership_till = $date;
+                    $user->membership_update = $today;
+                    $user->spent = $user->spent + $transaction->gross_amount;
+                    $user->save();
+
+                    if ($membership->enable_binance == 1) {
+                        $user->givePermissionTo('portfolio-tambah-binance');
+                    } else {
+                        $user->revokePermissionTo('portfolio-tambah-binance');
+                    }
+
+                    if ($membership->enable_notification == 1) {
+                        $user->givePermissionTo('assets-transactions-notifikasi');
+                    } else {
+                        $user->revokePermissionTo('assets-transactions-notifikasi');
+                    }
                 }
                 else{
-                    $user->revokePermissionTo('portfolio-tambah-binance');
-                }
+                    $membership = Membership::findOrFail($transaction->membership_id);
+                    $start = $activeMembership->pivot->membership_expiration;
+                    $date = date('Y-m-d', strtotime($start . ' + ' . $membership->duration_months . ' months'));
 
-                if($membership->enable_notification == 1){
-                    $user->givePermissionTo('assets-transactions-notifikasi');
+                    Auth::user()->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 0, 'membership_start' => $start]);
+                    $user = User::find(Auth::id());
+                    $user->spent = $user->spent + $transaction->gross_amount;
+                    $user->save();
                 }
-                else{
-                    $user->revokePermissionTo('assets-transactions-notifikasi');
-                }
-            }
-            else{
+            } else {
                 $user = User::find(Auth::id());
                 $user->remaining_trades = $user->remaining_trades + 100;
                 $user->spent = $user->spent + $transaction->gross_amount;
                 $user->save();
             }
 
-            foreach($user->transactions as $transaction){
-                if($transaction->status == "pending"){
+            foreach ($user->transactions as $transaction) {
+                if ($transaction->status == "pending") {
                     $transaction->status = "cancel";
                     $transaction->save();
                 }
             }
             return redirect()->route('index')->withSuccess('Transaksi berhasil');
-        }
-        else{
+        } else {
             return redirect()->route('index')->withError('Transaksi gagal');
         }
     }
 
     public function list($id)
     {
-        if($id != Auth::id()){
+        if ($id != Auth::id()) {
             throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
             return redirect()->route('index');
         }
@@ -159,7 +224,7 @@ class TransactionController extends Controller
 
     public function detail($id, $id_order)
     {
-        if($id != Auth::id()){
+        if ($id != Auth::id()) {
             throw ValidationException::withMessages(['akses' => 'Anda tidak memiliki akses ke halaman ini.']);
             return redirect()->route('index');
         }

@@ -271,8 +271,10 @@
                                             </td>
                                             @if ($value->pivot->status == 1)
                                                 <td><span class="badge bg-success">Aktif</span></td>
-                                            @else
+                                            @elseif ($value->pivot->status == 0)
                                                 <td><span class="badge bg-secondary">Nonaktif</span></td>
+                                            @elseif ($value->pivot->status == -1)
+                                                <td><span class="badge bg-danger">Berakhir</span></td>
                                             @endif
                                         </tr>
                                     @endforeach

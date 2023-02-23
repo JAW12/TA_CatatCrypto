@@ -196,7 +196,6 @@ class AssetController extends Controller
                         'total_volume' => $coin['market_data']['total_volume']['usd'],
                         'market_cap_24h' => $coin['market_data']['market_cap_change_24h'],
                         'total_supply' => $coin['market_data']['total_supply'],
-                        'total_supply' => $coin['market_data']['total_supply'],
                         'circulating_supply' => $coin['market_data']['circulating_supply'],
                         'current_price' => $coin['market_data']['current_price']['usd'],
                         'thumb' => $coin['image']['thumb'],

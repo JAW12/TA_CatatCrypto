@@ -46,38 +46,89 @@ class AdminController extends Controller
             $transaction = Transaction::where('id_order', $id_order)->first();
             $transaction->status = "settlement";
 
+            // if ($transaction->membership_id > 0) {
+            //     $membership = Membership::findOrFail($transaction->membership_id);
+            //     $today = date("Y-m-d");
+            //     $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
+
+            //     $user = User::find($transaction->user->id);
+            //     $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
+            //     $user->max_wallets = $membership->max_wallets;
+            //     $user->max_journals = $membership->max_journals;
+            //     $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
+
+            //     $user->remaining_trades = $user->trades_quantity_per_month;
+
+            //     if ($membership->trades_quantity_per_month == -1) {
+            //         $user->remaining_trades = -1;
+            //     }
+            //     $user->membership_since = $today;
+            //     $user->membership_till = $date;
+            //     $user->membership_update = $today;
+            //     $user->spent = $user->spent + $transaction->gross_amount;
+            //     $user->save();
+
+            //     if ($membership->enable_binance == 1) {
+            //         $user->givePermissionTo('portfolio-tambah-binance');
+            //     } else {
+            //         $user->revokePermissionTo('portfolio-tambah-binance');
+            //     }
+
+            //     if ($membership->enable_notification == 1) {
+            //         $user->givePermissionTo('assets-transactions-notifikasi');
+            //     } else {
+            //         $user->revokePermissionTo('assets-transactions-notifikasi');
+            //     }
+            // } else {
+            //     $user = User::find($transaction->user->id);
+            //     $user->remaining_trades = $user->remaining_trades + 100;
+            //     $user->spent = $user->spent + $transaction->gross_amount;
+            //     $user->save();
+            // }
             if ($transaction->membership_id > 0) {
-                $membership = Membership::findOrFail($transaction->membership_id);
-                $today = date("Y-m-d");
-                $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
+                $activeMembership = $transaction->user->membership->first();
+                if ($activeMembership == null) {
+                    $membership = Membership::findOrFail($transaction->membership_id);
+                    $today = date("Y-m-d");
+                    $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
 
-                $user = User::find($transaction->user->id);
-                $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
-                $user->max_wallets = $membership->max_wallets;
-                $user->max_journals = $membership->max_journals;
-                $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
+                    $user = User::find($transaction->user->id);
+                    $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
+                    $user->max_wallets = $membership->max_wallets;
+                    $user->max_journals = $membership->max_journals;
+                    $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
 
-                $user->remaining_trades = $user->trades_quantity_per_month;
+                    $user->remaining_trades = $user->trades_quantity_per_month;
 
-                if ($membership->trades_quantity_per_month == -1) {
-                    $user->remaining_trades = -1;
-                }
-                $user->membership_since = $today;
-                $user->membership_till = $date;
-                $user->membership_update = $today;
-                $user->spent = $user->spent + $transaction->gross_amount;
-                $user->save();
+                    if ($membership->trades_quantity_per_month == -1) {
+                        $user->remaining_trades = -1;
+                    }
+                    $user->membership_since = $today;
+                    $user->membership_till = $date;
+                    $user->membership_update = $today;
+                    $user->spent = $user->spent + $transaction->gross_amount;
+                    $user->save();
 
-                if ($membership->enable_binance == 1) {
-                    $user->givePermissionTo('portfolio-tambah-binance');
+                    if ($membership->enable_binance == 1) {
+                        $user->givePermissionTo('portfolio-tambah-binance');
+                    } else {
+                        $user->revokePermissionTo('portfolio-tambah-binance');
+                    }
+
+                    if ($membership->enable_notification == 1) {
+                        $user->givePermissionTo('assets-transactions-notifikasi');
+                    } else {
+                        $user->revokePermissionTo('assets-transactions-notifikasi');
+                    }
                 } else {
-                    $user->revokePermissionTo('portfolio-tambah-binance');
-                }
+                    $membership = Membership::findOrFail($transaction->membership_id);
+                    $start = $activeMembership->pivot->membership_expiration;
+                    $date = date('Y-m-d', strtotime($start . ' + ' . $membership->duration_months . ' months'));
 
-                if ($membership->enable_notification == 1) {
-                    $user->givePermissionTo('assets-transactions-notifikasi');
-                } else {
-                    $user->revokePermissionTo('assets-transactions-notifikasi');
+                    $user = User::find($transaction->user->id);
+                    $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 0, 'membership_start' => $start]);
+                    $user->spent = $user->spent + $transaction->gross_amount;
+                    $user->save();
                 }
             } else {
                 $user = User::find($transaction->user->id);
@@ -1349,14 +1400,13 @@ class AdminController extends Controller
                 ->limit(3)
                 ->get();
 
-                $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+            $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
                 ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
                 ->select('strategies.name', DB::raw('COUNT(trades.id) as trade_count'))
                 ->groupBy('strategies.name')
                 ->orderBy('trade_count', 'desc')
                 ->limit(3)
                 ->get();
-
         }
 
         $data = [
@@ -1539,14 +1589,13 @@ class AdminController extends Controller
                 ->limit(3)
                 ->get();
 
-                $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
+            $mostUsedStrategies = Trade::join('strategy_trade', 'trades.id', '=', 'strategy_trade.trade_id')
                 ->join('strategies', 'strategy_trade.strategy_id', '=', 'strategies.id')
                 ->select('strategies.name', DB::raw('COUNT(trades.id) as trade_count'))
                 ->groupBy('strategies.name')
                 ->orderBy('trade_count', 'desc')
                 ->limit(3)
                 ->get();
-
         }
 
         $data = [

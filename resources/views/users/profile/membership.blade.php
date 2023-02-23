@@ -29,13 +29,15 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ ucwords($value->name) }}</td>
                                         <td>Rp {{ number_format($value->price, 2) }}</td>
-                                        <td>{{ date_format($value->pivot->created_at, 'd F Y') }}</td>
+                                        <td>{{ date_format(date_create($value->pivot->membership_start), 'd F Y') }}</td>
                                         <td>{{ date_format(date_create($value->pivot->membership_expiration), 'd F Y') }}
                                         </td>
                                         @if ($value->pivot->status == 1)
                                             <td><span class="badge bg-success">Aktif</span></td>
-                                        @else
+                                        @elseif($value->pivot->status == 0)
                                             <td><span class="badge bg-secondary">Nonaktif</span></td>
+                                        @elseif($value->pivot->status == -1)
+                                            <td><span class="badge bg-danger">Berakhir</span></td>
                                         @endif
                                     </tr>
                                 @endforeach

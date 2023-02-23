@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -39,8 +40,7 @@ class CheckMembershipStatus extends Command
                     $transaction->save();
                 }
             }
-
-            if (date('Y-m-d') > $user->membership_till) {
+            if ($user->membership_till != null && date('Y-m-d') >= $user->membership_till) {
                 $user->user_type = "user";
                 $user->membership_since = null;
                 $user->membership_till = null;
@@ -62,14 +62,46 @@ class CheckMembershipStatus extends Command
 
                 if (count($user->membership) > 0) {
                     DB::table('membership_user')->where('user_id', $user->id)->where('membership_id', $user->membership[0]->id)->where('status', 1)->update(['status' => 0]);
+
+                    $next_membership = DB::table('membership_user')->where('user_id', $user->id)->where('membership_start', date('Y-m-d'))->where('status', 0)->first();
+                    if ($next_membership) {
+                        $membership = Membership::findOrFail($next_membership->membership_id);
+
+                        $user = User::find($next_membership->user_id);
+                        $user->max_wallets = $membership->max_wallets;
+                        $user->max_journals = $membership->max_journals;
+                        $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
+
+                        $user->remaining_trades = $user->trades_quantity_per_month;
+
+                        if ($membership->trades_quantity_per_month == -1) {
+                            $user->remaining_trades = -1;
+                        }
+                        $user->membership_since = $next_membership->membership_start;
+                        $user->membership_till = $next_membership->membership_expiration;
+                        $user->membership_update = $next_membership->membership_start;
+
+                        if ($membership->enable_binance == 1) {
+                            $user->givePermissionTo('portfolio-tambah-binance');
+                        } else {
+                            $user->revokePermissionTo('portfolio-tambah-binance');
+                        }
+
+                        if ($membership->enable_notification == 1) {
+                            $user->givePermissionTo('assets-transactions-notifikasi');
+                        } else {
+                            $user->revokePermissionTo('assets-transactions-notifikasi');
+                        }
+                        $user->save();
+                        DB::table('membership_user')->where('id', $next_membership->id)->update(['status' => 1]);
+                    }
                 }
-            }
-            else{
+            } else {
                 $date_update = date_create($user->membership_update);
                 $date_now = date_create(now());
 
                 $diff = date_diff($date_update, $date_now);
-                if($diff->m > 0){
+                if ($diff->m > 0) {
                     $user->remaining_trades = $user->trades_quantity_per_month;
                     $user->membership_update = now();
                     $user->save();

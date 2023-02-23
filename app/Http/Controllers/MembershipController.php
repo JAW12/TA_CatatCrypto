@@ -18,7 +18,7 @@ class MembershipController extends Controller
         if($type > 0){
             $membership = Membership::find($type);
 
-            if(count(Auth::user()->membership) > 0){
+            if(count(Auth::user()->membership) > 0 && date('Y-m-d', strtotime('+3days')) < date_format(date_create(auth()->user()->membership_till), 'Y-m-d')){
                 return redirect()->back()->withError('Anda masih memiliki membership lain yang aktif saat ini');
             }
 

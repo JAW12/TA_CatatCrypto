@@ -61,7 +61,6 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::get('/{id}/transaksi', [TransactionController::class, 'list'])->name('user.transaction.list');
         Route::get('/{id}/transaksi/{id_order}', [TransactionController::class, 'detail'])->name('user.transaction.detail');
         Route::get('/{id}/transaksi/{id_order}/batal', [TransactionController::class, 'cancel'])->name('user.transaction.cancel');
-
     });
 
     Route::group(['prefix' => 'dompet'], function () {
@@ -141,7 +140,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
         Route::post('/post_pembayaran', [TransactionController::class, 'payment_post'])->name('user.membership.payment_post');
     });
 
-    Route::group(['prefix' => 'koin'], function(){
+    Route::group(['prefix' => 'koin'], function () {
         Route::get('', [AssetController::class, 'list'])->name('user.coins');
         Route::get('/watchlist', [AssetController::class, 'list_watchlist'])->name('user.coins.watchlist');
         Route::get('/laporan', [JournalController::class, 'coin'])->name('user.coins.report');

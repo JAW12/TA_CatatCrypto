@@ -1,7 +1,7 @@
 @section('title', 'Dashbor User')
 <x-app-layout :options="['loading']">
 
-    @if (date('Y-m-d', strtotime('+3days')) == date_format(date_create(auth()->user()->membership_till), 'Y-m-d'))
+    @if (date('Y-m-d', strtotime('+3days')) >= date_format(date_create(auth()->user()->membership_till), 'Y-m-d'))
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 999999">
             <div class="toast fade show bg-primary text-white" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
@@ -14,7 +14,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body">
-                    Membership anda akan berakhir 3 hari lagi
+                    Membership anda akan berakhir {{ now()->diffInDays(auth()->user()->membership_till)}} hari lagi
                 </div>
             </div>
         </div>
