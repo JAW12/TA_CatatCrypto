@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <p>CatatCrypto adalah sebuah platform untuk mengelola investasi aset kripto Anda. Dengan CatatCrypto,
+                <p>CatatCrypto adalah sebuah platform untuk mengelola investasi aset kripto dan kegiatan trading Anda. Dengan CatatCrypto,
                     Anda dapat memantau portofolio investasi Anda, mencatat jurnal trading, mengakses daftar pustaka
                     untuk belajar analisis teknikal, dan melihat laporan performa investasi dan kegiatan trading.</p>
             </div>
