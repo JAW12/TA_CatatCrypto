@@ -453,9 +453,16 @@ class TradeController extends Controller
                 $timeframe = $request->get('timeframe');
                 $tv = $request->get('tv');
                 $ss = $request->file('ss');
+                $order = $request->get('order');
                 if (count($timeframe) > 0) {
                     for ($i = 0; $i < count($timeframe); $i++) {
-                        if ($tv[$i] != null) {
+                        $idx_order = -1;
+                        for ($j = 0; $j < count($order); $j++){
+                            if($timeframe[$i] == $order[$j]){
+                                $idx_order = $j;
+                            }
+                        }
+                        if($idx_order == -1){
                             $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                             if ($relation != null) {
                                 $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
@@ -463,12 +470,22 @@ class TradeController extends Controller
                                     File::delete($image_path);
                                 }
                             }
-                            $trade->timeframes()->attach($timeframe[$i], [
-                                'picture_type' => 0,
-                                'url_picture' => url($tv[$i])
-                            ]);
-                        } else if ($ss != null) {
-                            if ($request->hasFile('ss') && array_key_exists($i, $ss)) {
+                            $trade->timeframes()->detach($timeframe[$i]);
+                        }
+                        else {
+                            if ($tv[$idx_order] != null) {
+                                $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
+                                if ($relation != null) {
+                                    $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    if (File::exists($image_path)) {
+                                        File::delete($image_path);
+                                    }
+                                }
+                                $trade->timeframes()->attach($timeframe[$i], [
+                                    'picture_type' => 0,
+                                    'url_picture' => url($tv[$idx_order])
+                                ]);
+                            } else if ($ss != null && $request->hasFile('ss') && array_key_exists($idx_order, $ss)) {
                                 $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                                 if ($relation != null) {
                                     $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
@@ -478,12 +495,22 @@ class TradeController extends Controller
                                 }
                                 $trade->timeframes()->detach($timeframe[$i]);
                                 $tf = Timeframe::findOrFail($timeframe[$i]);
-                                $fileName = $trade->id . '-' . $tf->name . '-' . time() . '.' . $ss[$i]->extension();
-                                $ss[$i]->storeAs('uploads', $fileName, 'public');
+                                $fileName = $trade->id . '-' . $tf->name . '-' . time() . '.' . $ss[$idx_order]->extension();
+                                $ss[$idx_order]->storeAs('uploads', $fileName, 'public');
                                 $trade->timeframes()->attach($timeframe[$i], [
                                     'picture_type' => 1,
                                     'url_picture' => $fileName
                                 ]);
+                            }
+                            else{
+                                $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
+                                if ($relation != null) {
+                                    $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    if (File::exists($image_path)) {
+                                        File::delete($image_path);
+                                    }
+                                }
+                                $trade->timeframes()->detach($timeframe[$i]);
                             }
                         }
                     }
@@ -1012,7 +1039,12 @@ class TradeController extends Controller
                 $delete = $trade->delete();
                 $journal->pnl = $journal->trades()->where('status', '<>', '0')->sum('nett_pnl');
                 $journal->count_of_trades = count($journal->trades);
-                $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
+                if($journal->count_of_trades == 0){
+                    $journal->winrate = 0;
+                }
+                else{
+                    $journal->winrate = $journal->trades()->where('wl', '1')->count('wl') / $journal->count_of_trades * 100;
+                }
 
                 $journal->save();
 
@@ -1025,7 +1057,7 @@ class TradeController extends Controller
                 DB::commit();
                 return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withSuccess('Catatan berhasil dihapus');
             } catch (\Throwable $th) {
-                //throw $th;
+                throw $th;
                 DB::rollBack();
                 return redirect()->route('user.journal.detail', ['journal' => $journal->id])->withError('Catatan gagal dihapus');
             }

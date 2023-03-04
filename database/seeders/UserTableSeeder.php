@@ -28,8 +28,8 @@ class UserTableSeeder extends Seeder
                 'user_type' => 'admin',
             ],
             [
-                'first_name' => 'Jem',
-                'last_name' => 'Angkasa',
+                'first_name' => 'User',
+                'last_name' => 'One',
                 'email' => 'user@example.com',
                 'password' => bcrypt('password'),
                 'phone_number' => '+12398190255',
@@ -40,8 +40,8 @@ class UserTableSeeder extends Seeder
                 'membership_update' => $today,
             ],
             [
-                'first_name' => 'Jem',
-                'last_name' => 'Angkasa 2',
+                'first_name' => 'User',
+                'last_name' => 'Two',
                 'email' => 'user2@example.com',
                 'password' => bcrypt('password'),
                 'phone_number' => '+12398190255',
@@ -52,8 +52,8 @@ class UserTableSeeder extends Seeder
                 'membership_update' => $today,
             ],
             [
-                'first_name' => 'Jem',
-                'last_name' => 'Angkasa 3',
+                'first_name' => 'User',
+                'last_name' => 'Three',
                 'email' => 'user3@example.com',
                 'password' => bcrypt('password'),
                 'phone_number' => '+12398190255',

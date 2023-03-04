@@ -921,12 +921,23 @@ class JournalController extends Controller
             if ($request->start) {
                 $data['start'] = $request->start;
             } else {
-                $data['start'] = $trades->first()->close_time;
+                if($trades->first() != null){
+                    $data['start'] = $trades->first()->close_time;
+                }
             }
             if ($request->end) {
                 $data['end'] = $request->end;
             } else {
-                $data['end'] = $trades->last()->close_time;
+                if($trades->last() != null){
+                    $data['end'] = $trades->last()->close_time;
+                }
+            }
+
+            if(array_key_exists("start", $data) == false){
+                $data['start'] = $data['end'];
+            }
+            else if(array_key_exists("end", $data) == false){
+                $data['end'] = $data['start'];
             }
             $data['mostAchievedTarget'] = $mostAchievedTarget;
 
@@ -1105,12 +1116,23 @@ class JournalController extends Controller
             if ($request->start) {
                 $data['start'] = $request->start;
             } else {
-                $data['start'] = $trades->first()->close_time;
+                if($trades->first() != null){
+                    $data['start'] = $trades->first()->close_time;
+                }
             }
             if ($request->end) {
                 $data['end'] = $request->end;
             } else {
-                $data['end'] = $trades->last()->close_time;
+                if($trades->last() != null){
+                    $data['end'] = $trades->last()->close_time;
+                }
+            }
+
+            if(array_key_exists("start", $data) == false){
+                $data['start'] = $data['end'];
+            }
+            else if(array_key_exists("end", $data) == false){
+                $data['end'] = $data['start'];
             }
             $data['mostAchievedTarget'] = $mostAchievedTarget;
 

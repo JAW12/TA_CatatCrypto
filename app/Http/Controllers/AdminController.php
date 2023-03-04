@@ -93,7 +93,7 @@ class AdminController extends Controller
                     $date = date('Y-m-d', strtotime($today . ' + ' . $membership->duration_months . ' months'));
 
                     $user = User::find($transaction->user->id);
-                    $user->memberships()->attach($membership->id, ['membership_expiration' => $date, 'status' => 1]);
+                    $user->memberships()->attach($membership->id, ['membership_start' => $today, 'membership_expiration' => $date, 'status' => 1]);
                     $user->max_wallets = $membership->max_wallets;
                     $user->max_journals = $membership->max_journals;
                     $user->trades_quantity_per_month = $membership->trades_quantity_per_month;
@@ -132,7 +132,9 @@ class AdminController extends Controller
                 }
             } else {
                 $user = User::find($transaction->user->id);
-                $user->remaining_trades = $user->remaining_trades + 100;
+                if($user->remaining_trades >= 0){
+                    $user->remaining_trades = $user->remaining_trades + 100;
+                }
                 $user->spent = $user->spent + $transaction->gross_amount;
                 $user->save();
             }
@@ -197,11 +199,11 @@ class AdminController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.strategies')->withSuccess('Berhasil menghapus pustaka tersebut');
+            return redirect()->route('admin.library')->withSuccess('Berhasil menghapus pustaka tersebut');
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
-            return redirect()->route('admin.strategies')->withError('Gagal menghapus pustaka tersebut');
+            return redirect()->route('admin.library')->withError('Gagal menghapus pustaka tersebut');
         }
     }
 
@@ -246,7 +248,6 @@ class AdminController extends Controller
                 }
 
                 $fileName = Auth::id() . '-' . $strategy->name . '-' . time() . '.' . $url_picture->extension();
-                $destinationPath = 'images';
                 $url_picture->storeAs('strategies', $fileName, 'public');
                 $strategy->url_picture = "storage/strategies/" . $fileName;
             }
@@ -379,12 +380,20 @@ class AdminController extends Controller
         ];
 
         $manual_bank = [
-            'income' => $transactions->where('payment_type', 'like', '%Bank%')->sum('gross_amount'),
-            'count' => $transactions->where('payment_type', 'like', '%Bank%')->count(),
+            'income' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'Bank');
+            })->sum('gross_amount'),
+            'count' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'Bank');
+            })->count(),
         ];
         $manual_ewallet = [
-            'income' => $transactions->where('payment_type', 'like', '%E-Wallet%')->sum('gross_amount'),
-            'count' => $transactions->where('payment_type', 'like', '%E-Wallet%')->count(),
+            'income' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'E-Wallet');
+            })->sum('gross_amount'),
+            'count' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'E-Wallet');
+            })->count(),
         ];
         $credit_card = [
             'income' => $transactions->where('payment_type', 'credit_card')->sum('gross_amount'),
@@ -450,12 +459,20 @@ class AdminController extends Controller
         ];
 
         $manual_bank = [
-            'income' => $transactions->where('payment_type', 'like', '%Bank%')->sum('gross_amount'),
-            'count' => $transactions->where('payment_type', 'like', '%Bank%')->count(),
+            'income' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'Bank');
+            })->sum('gross_amount'),
+            'count' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'Bank');
+            })->count(),
         ];
         $manual_ewallet = [
-            'income' => $transactions->where('payment_type', 'like', '%E-Wallet%')->sum('gross_amount'),
-            'count' => $transactions->where('payment_type', 'like', '%E-Wallet%')->count(),
+            'income' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'E-Wallet');
+            })->sum('gross_amount'),
+            'count' => $transactions->filter(function ($item) {
+                return str_contains($item->payment_type, 'E-Wallet');
+            })->count(),
         ];
         $credit_card = [
             'income' => $transactions->where('payment_type', 'credit_card')->sum('gross_amount'),
@@ -659,7 +676,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWallet1To3 = $usersWithWallet1To3Result ? $usersWithWallet1To3Result->total_users : 0;
+            $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
 
             $usersWithWallet4To6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -669,7 +686,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWallet4To6 = $usersWithWallet4To6Result ? $usersWithWallet4To6Result->total_users : 0;
+            $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
 
             $usersWithWalletMoreThan6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -679,7 +696,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? $usersWithWalletMoreThan6Result->total_users : 0;
+            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
 
             $walletDistribution = [
                 '0' => $usersWithoutWallet,
@@ -729,7 +746,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? $usersWithBinanceWalletMoreThan6Result->total_users : 0;
+            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
 
             $binanceWalletDistribution = [
                 '0' => $usersWithoutBinanceWallet,
@@ -756,7 +773,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? $usersWithManualWallet1To3Result->total_users : 0;
+            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
 
             $usersWithManualWallet4To6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -767,7 +784,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? $usersWithManualWallet4To6Result->total_users : 0;
+            $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? intval($usersWithManualWallet4To6Result->total_users) : 0;
 
             $usersWithManualWalletMoreThan6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -778,7 +795,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? $usersWithManualWalletMoreThan6Result->total_users : 0;
+            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
 
             $manualWalletDistribution = [
                 '0' => $usersWithoutManualWallet,
@@ -787,11 +804,6 @@ class AdminController extends Controller
                 '>6' => $usersWithManualWalletMoreThan6
             ];
 
-            $journalCount = DB::table('journals')
-                ->select(DB::raw('user_id, count(*) as count'))
-                ->groupBy('user_id')
-                ->get();
-
             $journalDistribution = [
                 '0' => 0,
                 '1-3' => 0,
@@ -799,19 +811,16 @@ class AdminController extends Controller
                 '>6' => 0,
             ];
 
-            foreach ($journalCount as $count) {
-                $user = User::find($count->user_id);
-                if ($user->user_type != 'admin') {
-                    $journal = $count->count;
-                    if ($journal == 0) {
-                        $journalDistribution['0'] += 1;
-                    } elseif ($journal >= 1 && $journal <= 3) {
-                        $journalDistribution['1-3'] += 1;
-                    } elseif ($journal >= 3 && $journal <= 5) {
-                        $journalDistribution['3-5'] += 1;
-                    } elseif ($journal > 5) {
-                        $journalDistribution['>5'] += 1;
-                    }
+            foreach ($users as $user) {
+                $journalCount = $user->journals()->count();
+                if ($journalCount == 0) {
+                    $journalDistribution['0'] += 1;
+                } elseif ($journalCount >= 1 && $journalCount <= 3) {
+                    $journalDistribution['1-3'] += 1;
+                } elseif ($journalCount >= 4 && $journalCount <= 6) {
+                    $journalDistribution['4-6'] += 1;
+                } elseif ($journalCount > 6) {
+                    $journalDistribution['>6'] += 1;
                 }
             }
 
@@ -1034,7 +1043,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWallet1To3 = $usersWithWallet1To3Result ? $usersWithWallet1To3Result->total_users : 0;
+            $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
 
             $usersWithWallet4To6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -1044,7 +1053,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWallet4To6 = $usersWithWallet4To6Result ? $usersWithWallet4To6Result->total_users : 0;
+            $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
 
             $usersWithWalletMoreThan6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -1054,7 +1063,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? $usersWithWalletMoreThan6Result->total_users : 0;
+            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
 
             $walletDistribution = [
                 '0' => $usersWithoutWallet,
@@ -1082,7 +1091,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? $usersWithBinanceWallet1To3Result->total_users : 0;
+            $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? intval($usersWithBinanceWallet1To3Result->total_users) : 0;
 
             $usersWithBinanceWallet4To6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -1093,7 +1102,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? $usersWithBinanceWallet4To6Result->total_users : 0;
+            $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? intval($usersWithBinanceWallet4To6Result->total_users) : 0;
 
             $usersWithBinanceWalletMoreThan6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -1104,7 +1113,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? $usersWithBinanceWalletMoreThan6Result->total_users : 0;
+            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
 
             $binanceWalletDistribution = [
                 '0' => $usersWithoutBinanceWallet,
@@ -1131,7 +1140,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? $usersWithManualWallet1To3Result->total_users : 0;
+            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
 
             $usersWithManualWallet4To6Result = DB::table('users')
                 ->join('wallets', 'users.id', '=', 'wallets.user_id')
@@ -1153,7 +1162,7 @@ class AdminController extends Controller
                 ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
                 ->first();
 
-            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? $usersWithManualWalletMoreThan6Result->total_users : 0;
+            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
 
             $manualWalletDistribution = [
                 '0' => $usersWithoutManualWallet,

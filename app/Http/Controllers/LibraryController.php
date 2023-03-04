@@ -151,8 +151,6 @@ class LibraryController extends Controller
 
     public function delete($id)
     {
-
-
         DB::beginTransaction();
         try {
 
@@ -172,12 +170,12 @@ class LibraryController extends Controller
 
 
             DB::commit();
-            return redirect()->back()->withSuccess('Berhasil menghapus pustaka pribadi tersebut');
+            return redirect()->route('user.library')->withSuccess('Berhasil menghapus pustaka pribadi tersebut');
 
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
-            return redirect()->back()->withError('Gagal menghapus pustaka pribadi tersebut');
+            return redirect()->route('user.library')->withError('Gagal menghapus pustaka pribadi tersebut');
         }
     }
 

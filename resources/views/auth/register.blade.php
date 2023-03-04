@@ -81,7 +81,7 @@
                                         </div>
                                         <div class="d-flex justify-content-center">
                                             <div class="form-check mb-3" style="padding-left: 0">
-                                                <label class="form-check-label" for="customCheck1">Saya setuju dengan <a href="#">ketentuan penggunaan</a></label>
+                                                <label class="form-check-label" for="customCheck1">Saya setuju dengan <a href="{{route('pages.term-of-use')}}" target="_blank">ketentuan penggunaan</a></label>
                                                 <input type="checkbox" class="custom-control-input" id="customCheck1"
                                                     required>
                                             </div>

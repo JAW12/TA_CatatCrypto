@@ -20,7 +20,7 @@
     @if (Auth::user()->email_verified_at == null)
         <x-verify-button></x-verify-button>
     @else
-        <x-back-button>{{ route('user.library.detail', ['id' => $strategy->id]) }}</x-back-button>
+        <x-back-button>{{ route('admin.library.detail', ['id' => $strategy->id]) }}</x-back-button>
         <div>
             <div class="row">
                 <div class="col-sm-12">

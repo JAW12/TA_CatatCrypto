@@ -544,6 +544,7 @@
                                         </div>
                                         <input type="url" name="tv[]" id="img_${data.text.trim()}" class="form-control tv_input"
                                             placeholder="Isi URL Trading View Disini..">
+                                        <input type="hidden" name="order[]" value="${data.id}">
                                     </div>
                                 </div>`;
                 if (container.find(`#${data.text.trim()}_container`).length == 0) {
@@ -1080,6 +1081,7 @@
                                                     class="form-control tv_input"
                                                     placeholder="Isi URL Trading View Disini.."
                                                     @if ($timeframe->pivot->picture_type == 0) value="{{ $timeframe->pivot->url_picture }}" @endif>
+                                                <input type="hidden" name="order[]" value="{{$timeframe->id}}">
                                             </div>
                                         </div>
                                     @endforeach

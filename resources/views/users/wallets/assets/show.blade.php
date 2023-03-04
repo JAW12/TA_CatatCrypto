@@ -120,19 +120,19 @@
                             }
 
                             let amountString = '';
-                            if (transaction.amount > 0 && transaction.amount < 1) {
-                                amountString = `${parseFloat(transaction.amount)}`;
+                            if (Math.abs(transaction.amount) > 0 && Math.abs(transaction.amount) < 1) {
+                                amountString = `${parseFloat(Math.abs(transaction.amount))}`;
                             } else {
                                 amountString =
-                                    `${parseFloat(transaction.amount).toLocaleString('en-US')}`;
+                                    `${parseFloat(Math.abs(transaction.amount)).toLocaleString('en-US')}`;
                             }
 
                             let totalString = '';
-                            if (transaction.total > 0 && transaction.total < 1) {
-                                totalString = `${parseFloat(transaction.total)}`;
+                            if (Math.abs(transaction.total) > 0 && Math.abs(transaction.total) < 1) {
+                                totalString = `${parseFloat(Math.abs(transaction.total))}`;
                             } else {
                                 totalString =
-                                    `${parseFloat(transaction.total).toLocaleString('en-US')}`;
+                                    `${parseFloat(Math.abs(transaction.total)).toLocaleString('en-US')}`;
                             }
 
 
@@ -145,12 +145,12 @@
                             } else if (transaction.type == 1) {
                                 typeTd = "Jual";
                                 priceTd = "$".concat(priceString);
-                                amountTd = amountString.toString().concat(' ').concat(
+                                amountTd = "-".concat(amountString).concat(' ').concat(
                                     symbol);
-                                totalTd = totalString.toString().concat('$');
+                                totalTd = "-".concat(totalString).concat('$');
                             } else if (transaction.type == 2) {
                                 typeTd = "Transfer Keluar";
-                                amountTd = amountString.toString().concat(' ').concat(
+                                amountTd = "-".concat(amountString).concat(' ').concat(
                                     symbol);
                                 totalTd = "-"
                             } else if (transaction.type == 3) {

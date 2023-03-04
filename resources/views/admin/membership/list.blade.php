@@ -72,10 +72,10 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $transaction->id_order }}</td>
                                         <td>{{ $transaction->user->full_name }}</td>
-                                        @if ($transaction->membership_id != null)
-                                            <td>Paket {{ ucwords($transaction->membership->name) }}</td>
+                                        @if ($transaction->membership_id == 0)
+                                        <td>Penambahan 100 Catatan Trading</td>
                                         @else
-                                            <td>Penambahan 100 Catatan Trading</td>
+                                        <td>Paket {{ ucwords($transaction->membership->name) }}</td>
                                         @endif
                                         <td>Rp {{ number_format($transaction->gross_amount, 2) }}</td>
                                         @if ($transaction->payment_type == 'credit_card' || $transaction->payment_type == 'automatic')

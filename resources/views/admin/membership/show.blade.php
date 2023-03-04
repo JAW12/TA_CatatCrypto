@@ -80,7 +80,7 @@
                     <div class="mb-2">
                         <h5>Informasi Pembayaran</h5>
                         <hr>
-                        <p>Paket yang dibeli: @if($transaction->membership_id != null) {{ucwords($transaction->membership->name)}} @else Penambahan 100 Catatan Trading @endif</p>
+                        <p>Paket yang dibeli: @if($transaction->membership_id == 0) Penambahan 100 Catatan Trading @else {{ucwords($transaction->membership->name)}} @endif</p>
                         @if($transaction->payment_type == "automatic" || $transaction->payment_type == "credit_card")
                         <p>Metode Pembayaran: Credit Card (Midtrans)</p>
                         @else

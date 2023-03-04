@@ -216,17 +216,16 @@
                 })
             });
 
-            $("#btnKumpul").click(function(){
+            $("#btnKumpul").click(function(e){
                 let binance_api_key = $("input[name=binance_api_key]");
                 if (binance_api_key.length) {
                     let old_binance_api_key = "<?php echo $wallet->binance_api_key; ?>";
-                    let new_binance_api_key = $("#binance_api_key").val();
-
+                    let new_binance_api_key = $("input[name=binance_api_key]").val();
                     if (old_binance_api_key != '' && new_binance_api_key == '') {
                         e.preventDefault();
                         Swal.fire({
                             title: 'Apakah Anda yakin?',
-                            text: "Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.",
+                            text: 'Apakah anda yakin akan menghapus integrasi Binance untuk dompet ini? Semua transaksi yang belum terpenuhi di Binance akan dibatalkan.',
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
@@ -237,7 +236,7 @@
                             if (result.isConfirmed) {
                                 $("#ubahDompet").submit();
                             }
-                        })
+                        });
                     } else if(old_binance_api_key != new_binance_api_key && new_binance_api_key != '') {
                         e.preventDefault();
                         Swal.fire({

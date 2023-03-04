@@ -195,7 +195,9 @@ class TransactionController extends Controller
                 }
             } else {
                 $user = User::find(Auth::id());
-                $user->remaining_trades = $user->remaining_trades + 100;
+                if($user->remaining_trades >= 0){
+                    $user->remaining_trades = $user->remaining_trades + 100;
+                }
                 $user->spent = $user->spent + $transaction->gross_amount;
                 $user->save();
             }

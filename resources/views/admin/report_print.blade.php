@@ -144,6 +144,7 @@
             chart: {
                 type: 'bar',
                 width: '100%',
+                height: 400,
             },
             series: [{
                 name: 'Jumlah Transaksi',
@@ -153,7 +154,7 @@
                 data: {!! $data['transactions']->pluck('total_sales') !!}
             }],
             xaxis: {
-                categories: {!! $data['transactions']->pluck('name') !!}
+                categories: {!! $data['transactions']->pluck('name') !!},
             },
             yaxis: [{
                 axisTicks: {
@@ -278,7 +279,7 @@
 
         setTimeout(function() {
             window.print();
-        }, 1500);
+        }, 2000);
 
         var beforePrint = function() {
             var firstRawDate = new Date("{!! $data['newUsersPerDay']->pluck('date')->first() !!}");
@@ -306,10 +307,19 @@
                 chart: {
                     toolbar: {
                         show: false,
-                    }
+                    },
+                    width: 500,
+                    height: 400,
                 },
                 dataLabels: {
                     enabled: false,
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '10px',
+                        }
+                    }
                 }
             });
             categoryChart.updateOptions({
@@ -362,10 +372,19 @@
                 chart: {
                     toolbar: {
                         show: true,
-                    }
+                    },
+                    width: "100%",
+                    height: 400,
                 },
                 dataLabels: {
                     enabled: true,
+                },
+                xaxis: {
+                    labels: {
+                        style: {
+                            fontSize: '12px',
+                        }
+                    }
                 }
             });
             categoryChart.updateOptions({

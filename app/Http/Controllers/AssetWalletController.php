@@ -133,10 +133,10 @@ class AssetWalletController extends Controller
                         if ($order['status'] == 'NEW') {
                             if ($asset_wallet != null) {
                                 try {
-                                    $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
+                                    $asset_transaction = AssetTransaction::where('order_id', strval($order['orderId']))->first();
                                     if ($asset_transaction == null) {
                                         $asset_wallet->transactions()->create([
-                                            'order_id' => $order['orderId'],
+                                            'order_id' => strval($order['orderId']),
                                             'type' => $type,
                                             'price' => $order['price'],
                                             'amount' => $negative * $order['origQty'],
@@ -147,7 +147,7 @@ class AssetWalletController extends Controller
                                         ]);
                                     } else {
                                         $asset_transaction->update([
-                                            'order_id' => $order['orderId'],
+                                            'order_id' => strval($order['orderId']),
                                             'type' => $type,
                                             'price' => $order['price'],
                                             'amount' => $negative * $order['origQty'],
@@ -158,7 +158,7 @@ class AssetWalletController extends Controller
                                         ]);
                                     }
                                 } catch (\Throwable $th) {
-                                    //throw $th;
+                                    // throw $th;
                                 }
                                 // $order['time'] = date('d-m-Y H:i:s', $order['time'] / 1000);
                                 // print_r("NEW " . $order['time'] . " : " . $order['side'] . ' ' . $order['origQty'] . ' x ' . $order['price'] . ' = ' . $order['origQty'] * $order['price'] . '<br><br>');
@@ -167,19 +167,22 @@ class AssetWalletController extends Controller
                             $url_trades = "/api/v3/myTrades";
                             $params_trades = [
                                 'symbol' => $asset->binance_symbol,
-                                'orderId' => $order['orderId']
+                                'orderId' => strval($order['orderId'])
                             ];
                             $type_trades = "GET";
-                            $myTrades = Binance::call($wallet->demo, "SPOT", $url_trades, $params_trades, $type_trades)[0];
+                            $myTrades = Binance::call($wallet->demo, "SPOT", $url_trades, $params_trades, $type_trades);
+                            if($myTrades != null){
+                                $myTrades = $myTrades[0];
+                            }
                             // print_r($myTrades);
                             // print_r("<br>");
                             if ($asset_wallet != null) {
                                 try {
-                                    $asset_transaction = AssetTransaction::where('order_id', $order['orderId'])->first();
+                                    $asset_transaction = AssetTransaction::where('order_id', strval($order['orderId']))->first();
                                     if ($asset_transaction == null) {
                                         $asset_wallet->transactions()->create([
                                             'trade_id' => $myTrades['id'],
-                                            'order_id' => $order['orderId'],
+                                            'order_id' => strval($order['orderId']),
                                             'type' => $type,
                                             'price' => $myTrades['price'],
                                             'amount' => $negative * $myTrades['qty'],
@@ -192,7 +195,7 @@ class AssetWalletController extends Controller
                                     } else if ($asset_transaction->status == 0) {
                                         $asset_transaction->update([
                                             'trade_id' => $myTrades['id'],
-                                            'order_id' => $order['orderId'],
+                                            'order_id' => strval($order['orderId']),
                                             'type' => $type,
                                             'price' => $myTrades['price'],
                                             'amount' => $negative * $myTrades['qty'],
@@ -204,7 +207,7 @@ class AssetWalletController extends Controller
                                         ]);
                                     }
                                 } catch (\Throwable $th) {
-                                    throw $th;
+                                    // throw $th;
                                 }
                             }
                             // $myTrades['time'] = date('d-m-Y H:i:s', $myTrades['time'] / 1000);

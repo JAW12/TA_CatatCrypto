@@ -96,7 +96,7 @@ class AssetTransactionController extends Controller
                     $url = "/api/v3/order";
                     $params = [
                         'symbol' => $asset->binance_symbol,
-                        'orderId' => $response['orderId'],
+                        'orderId' => strval($response['orderId']),
                     ];
                     $type = 'GET';
                     $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
@@ -104,7 +104,7 @@ class AssetTransactionController extends Controller
                         $url = "/api/v3/myTrades";
                         $params = [
                             'symbol' => $asset->binance_symbol,
-                            'orderId' => $response['orderId'],
+                            'orderId' => strval($response['orderId']),
                         ];
                         $type = 'GET';
                         $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
@@ -120,7 +120,7 @@ class AssetTransactionController extends Controller
                     }
                     else if($response['status'] == 'NEW'){
                         $asset_transaction->update([
-                            'order_id' => $response['orderId'],
+                            'order_id' => strval($response['orderId']),
                         ]);
                     }
 
@@ -175,12 +175,16 @@ class AssetTransactionController extends Controller
             ];
             $type = "DELETE";
             $response = Binance::call($wallet->demo, "SPOT", $url, $params, $type);
-            if($response['status'] == 'CANCELED'){
-                $delete = $asset_transaction->delete();
-                if ($asset_transaction) {
-                    return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
-                } else {
-                    return redirect()->back()->withError('Transaksi gagal dihapus');
+            if (array_key_exists("msg", $response)) {
+                return redirect()->back()->withError('Transaksi gagal dihapus');
+            } else {
+                if($response['status'] == 'CANCELED'){
+                    $delete = $asset_transaction->delete();
+                    if ($asset_transaction) {
+                        return redirect()->back()->withSuccess('Transaksi berhasil dihapus');
+                    } else {
+                        return redirect()->back()->withError('Transaksi gagal dihapus');
+                    }
                 }
             }
         }
