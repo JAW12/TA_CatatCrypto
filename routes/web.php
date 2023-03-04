@@ -51,7 +51,7 @@ Route::get('', [HomeController::class, 'index'])->name('index');
 //     Route::get('pengaturan_akun', [AuthController::class, 'userprivacysetting'])->name('auth.userprivacysetting');
 // });
 
-Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'user', 'middleware' => 'auth.user'], function () {
     Route::group(['prefix' => 'profil'], function () {
         Route::get('/{id}', [UserController::class, 'show'])->name('user.profile');
         Route::patch('/{id}', [UserController::class, 'update'])->name('user.profile.edit');
@@ -169,7 +169,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth'], function () {
     });
 });
 
-Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'auth.admin'], function () {
     Route::get('/laporan', [AdminController::class, 'full_report'])->name('admin.report');
     Route::get('/laporan/print', [AdminController::class, 'full_report_print'])->name('admin.report.print');
 
@@ -209,6 +209,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
 Route::get('privacy-policy', [HomeController::class, 'privacypolicy'])->name('pages.privacy-policy');
 Route::get('terms-of-use', [HomeController::class, 'termsofuse'])->name('pages.term-of-use');
+
+Route::get('landing-page', [HomeController::class, 'landingpage'])->name('pages.landing-page');
+Route::get('manajemen-porto', [HomeController::class, 'manajemenporto'])->name('pages.manajemen-porto');
+Route::get('jurnal-trading', [HomeController::class, 'jurnaltrading'])->name('pages.jurnal-trading');
 //UI Pages Routs
 // Route::get('/uisheet', [HomeController::class, 'uisheet'])->name('uish0eet');
 

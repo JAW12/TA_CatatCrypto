@@ -245,4 +245,16 @@ class HomeController extends Controller
     {
         return view('terms-of-use');
     }
+    public function landingpage()
+    {
+        return view('landing-page');
+    }
+    public function manajemenporto()
+    {
+        return view('manajemen-porto');
+    }
+    public function jurnaltrading()
+    {
+        return view('jurnal-trading');
+    }
 }
