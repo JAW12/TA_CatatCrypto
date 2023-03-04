@@ -63,6 +63,10 @@
                                     class="active" aria-current="true" aria-label="Slide 1"></button>
                                 <button type="button" data-bs-target="#manajemenPorto" data-bs-slide-to="1"
                                     aria-label="Slide 2"></button>
+                                <button type="button" data-bs-target="#manajemenPorto" data-bs-slide-to="2"
+                                    aria-label="Slide 3"></button>
+                                <button type="button" data-bs-target="#manajemenPorto" data-bs-slide-to="3"
+                                    aria-label="Slide 4"></button>
                             </div>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -71,6 +75,14 @@
                                 </div>
                                 <div class="carousel-item">
                                     <img src="{{ asset('images/landingpage/detail_dompet.png') }}" class="d-block w-100"
+                                        alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_demografi_aset.png') }}" class="d-block w-100"
+                                        alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_aset.png') }}" class="d-block w-100"
                                         alt="...">
                                 </div>
                             </div>
@@ -138,6 +150,14 @@
                                     class="active" aria-current="true" aria-label="Slide 1"></button>
                                 <button type="button" data-bs-target="#jurnalTrading" data-bs-slide-to="1"
                                     aria-label="Slide 2"></button>
+                                <button type="button" data-bs-target="#jurnalTrading" data-bs-slide-to="2"
+                                    aria-label="Slide 3"></button>
+                                <button type="button" data-bs-target="#jurnalTrading" data-bs-slide-to="3"
+                                    aria-label="Slide 4"></button>
+                                <button type="button" data-bs-target="#jurnalTrading" data-bs-slide-to="4"
+                                    aria-label="Slide 5"></button>
+                                <button type="button" data-bs-target="#jurnalTrading" data-bs-slide-to="5"
+                                    aria-label="Slide 6"></button>
                             </div>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -146,6 +166,22 @@
                                 </div>
                                 <div class="carousel-item">
                                     <img src="{{ asset('images/landingpage/catatan_trading.png') }}"
+                                        class="d-block w-100" alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_metrik.png') }}"
+                                        class="d-block w-100" alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_riwayat.png') }}"
+                                        class="d-block w-100" alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_pustaka.png') }}"
+                                        class="d-block w-100" alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{ asset('images/landingpage/laporan_koin.png') }}"
                                         class="d-block w-100" alt="...">
                                 </div>
                             </div>
