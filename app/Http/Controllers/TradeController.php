@@ -113,7 +113,7 @@ class TradeController extends Controller
                 'sl.*' => 'required|numeric|gt:0',
                 'sl_pnl.*' => 'required|numeric',
                 'sl_roe.*' => 'required|numeric',
-                'rr_expected' => 'required|numeric|gt:0',
+                'rr_expected' => 'required|numeric',
                 'timeframe' => 'required|min:1',
                 'timeframe.*' => 'required',
                 'ss.*' => 'required',
@@ -340,7 +340,7 @@ class TradeController extends Controller
                 'sl.*' => 'required|numeric|gt:0',
                 'sl_pnl.*' => 'required|numeric',
                 'sl_roe.*' => 'required|numeric',
-                'rr_expected' => 'required|numeric|gt:0',
+                'rr_expected' => 'required|numeric',
                 'timeframe' => 'required|min:1',
                 'timeframe.*' => 'required',
             ]);
@@ -502,16 +502,16 @@ class TradeController extends Controller
                                     'url_picture' => $fileName
                                 ]);
                             }
-                            else{
-                                $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
-                                if ($relation != null) {
-                                    $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
-                                    if (File::exists($image_path)) {
-                                        File::delete($image_path);
-                                    }
-                                }
-                                $trade->timeframes()->detach($timeframe[$i]);
-                            }
+                            // else{
+                            //     $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
+                            //     if ($relation != null) {
+                            //         $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                            //         if (File::exists($image_path)) {
+                            //             File::delete($image_path);
+                            //         }
+                            //     }
+                            //     $trade->timeframes()->detach($timeframe[$i]);
+                            // }
                         }
                     }
                 }

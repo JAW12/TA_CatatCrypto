@@ -365,13 +365,20 @@
                 if(last_sl_pnl.length > 0){
                     let sl_pnl = $(last_sl_pnl[0]).val();
                     if (tp1_pnl != "" && sl_pnl != "") {
-                        let rr = (parseFloat(tp1_pnl) / parseFloat(sl_pnl));
-                        if (rr >= 2) {
-                            $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
-                        } else {
-                            $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+                        if(parseFloat(sl_pnl) > 0){
+                            let rr = (parseFloat(tp1_pnl) / parseFloat(sl_pnl));
+                            if (rr >= 2) {
+                                $("#rr_expected").html(`<span class="text-success">${rr.toFixed(2)}</span>`);
+                            } else {
+                                $("#rr_expected").html(`<span class="text-danger">${rr.toFixed(2)}</span>`);
+                            }
+                            $("#input_rr_expected").val(rr);
                         }
-                        $("#input_rr_expected").val(rr);
+                        else{
+                            let rr = 0;
+                            $("#rr_expected").html(`<span class="text-secondary">${rr.toFixed(2)}</span>`);
+                            $("#input_rr_expected").val(rr);
+                        }
                     }
                 }
             }
