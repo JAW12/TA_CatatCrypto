@@ -213,7 +213,7 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $value->id_order }}</td>
-                                            @if ($value->membership_id == null)
+                                            @if ($value->membership_id == null or $value->membership_id == 0)
                                                 <td>Penambahan 100 Catatan Trading</td>
                                             @else
                                                 <td>{{ ucwords($value->membership->name) }}</td>

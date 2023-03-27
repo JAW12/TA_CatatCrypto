@@ -346,14 +346,23 @@ class AdminController extends Controller
             $minDate = DateTime::createFromFormat("D M d Y H:i:s e+", $minDateTimeStamp);
             $maxDate = DateTime::createFromFormat("D M d Y H:i:s e+", $maxDateTimeStamp);
             $maxDate->setTime(23, 59, 59);
-            $transactions = Transaction::whereBetween('payment_time', [$minDate, $maxDate])->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::whereBetween('payment_time', [$minDate, $maxDate])->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else if ($minDateTimeStamp) {
             $minDate = DateTime::createFromFormat("D M d Y H:i:s e+", $minDateTimeStamp);
-            $transactions = Transaction::where('payment_time', '>=', $minDate->format('Y-m-d H:i:s'))->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::where('payment_time', '>=', $minDate->format('Y-m-d H:i:s'))->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else if ($maxDateTimeStamp) {
             $maxDate = DateTime::createFromFormat("D M d Y H:i:s e+", $maxDateTimeStamp);
             $maxDate->setTime(23, 59, 59);
-            $transactions = Transaction::where('payment_time', '<=', $maxDate->format('Y-m-d H:i:s'))->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::where('payment_time', '<=', $maxDate->format('Y-m-d H:i:s'))->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else {
             $transactions = Transaction::where('status', 'settlement')->orWhere('status', 'capture')->get();
         }
@@ -425,14 +434,23 @@ class AdminController extends Controller
         if ($request->start and $request->end) {
             $start = Carbon::parse($request->start);
             $end = Carbon::parse($request->end)->endOfDay();
-            $transactions = Transaction::whereBetween('payment_time', [$start, $end])->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::whereBetween('payment_time', [$start, $end])->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else if ($request->start) {
             $start = Carbon::parse($request->start);
             $end = Carbon::parse($request->end)->endOfDay();
-            $transactions = Transaction::where('payment_time', '>=', $start)->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::where('payment_time', '>=', $start)->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else if ($request->end) {
             $end = Carbon::parse($request->end)->endOfDay();
-            $transactions = Transaction::where('payment_time', '<=', $end)->where('status', 'settlement')->orWhere('status', 'capture')->get();
+            $transactions = Transaction::where('payment_time', '<=', $end)->where(function ($query) {
+                $query->where('status', '=', 'capture')
+                ->orWhere('status', '=', 'settlement');
+            })->get();
         } else {
             $transactions = Transaction::where('status', 'settlement')->orWhere('status', 'capture')->get();
         }
@@ -530,24 +548,30 @@ class AdminController extends Controller
             '40-49' => 0,
             '>50' => 0,
         ];
-        $membership_distribution = collect(
-            [
-                'name' => 'Basic',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Home',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Professional',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Business',
-                'total' => 0,
-            ],
-        );
+        // $membership_distribution = collect(
+        //     [
+        //         'name' => 'Basic',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Home',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Professional',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Business',
+        //         'total' => 0,
+        //     ],
+        // );
+        $membership_distribution = [
+            'Basic' => 0,
+            'Home' => 0,
+            'Professional' => 0,
+            'Business' => 0,
+        ];
         $walletDistribution = [
             '0' => 0,
             '1-3' => 0,
@@ -623,7 +647,16 @@ class AdminController extends Controller
 
             $ageRangeCounts = array_merge(array_fill_keys($ageRanges, 0), $ageRangeCounts->toArray());
 
-            $membership_distribution = DB::table('memberships')
+            // $membership_distribution = DB::table('memberships')
+            //     ->leftJoin('membership_user', function ($join) {
+            //         $join->on('memberships.id', '=', 'membership_user.membership_id')
+            //             ->where('membership_user.status', '=', 1);
+            //     })
+            //     ->select('memberships.name', DB::raw('coalesce(count(membership_user.membership_id), 0) as total'))
+            //     ->groupBy('memberships.name')
+            //     ->get();
+
+            $memberships = DB::table('memberships')
                 ->leftJoin('membership_user', function ($join) {
                     $join->on('memberships.id', '=', 'membership_user.membership_id')
                         ->where('membership_user.status', '=', 1);
@@ -631,6 +664,14 @@ class AdminController extends Controller
                 ->select('memberships.name', DB::raw('coalesce(count(membership_user.membership_id), 0) as total'))
                 ->groupBy('memberships.name')
                 ->get();
+
+            foreach($memberships as $membership){
+                foreach($membership_distribution as $key => &$value){
+                    if(strtolower($key) == $membership->name){
+                        $value = intval($membership->total);
+                    }
+                }
+            }
 
             $total_verified_users = $users->whereNotNull('email_verified_at')->count();
 
@@ -668,40 +709,66 @@ class AdminController extends Controller
                 ->whereNull('wallets.id')
                 ->count();
 
-            $usersWithWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3Wallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
+            $usersWith4To6Wallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
+            // $usersWithWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 0 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
 
-            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
+            // $usersWithWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
+
+            // $usersWithWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
 
             $walletDistribution = [
                 '0' => $usersWithoutWallet,
-                '1-3' => $usersWithWallet1To3,
-                '4-6' => $usersWithWallet4To6,
+                '1-3' => $usersWith1To3Wallets,
+                '4-6' => $usersWith4To6Wallets,
                 '>6' => $usersWithWalletMoreThan6
             ];
 
@@ -715,43 +782,73 @@ class AdminController extends Controller
                 })
                 ->count();
 
-            $usersWithBinanceWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3BinanceWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? $usersWithBinanceWallet1To3Result->total_users : 0;
+            $usersWith4To6BinanceWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithBinanceWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithBinanceWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? $usersWithBinanceWallet4To6Result->total_users : 0;
 
-            $usersWithBinanceWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithBinanceWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
+            // $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? $usersWithBinanceWallet1To3Result->total_users : 0;
+
+            // $usersWithBinanceWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? $usersWithBinanceWallet4To6Result->total_users : 0;
+
+            // $usersWithBinanceWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
 
             $binanceWalletDistribution = [
                 '0' => $usersWithoutBinanceWallet,
-                '1-3' => $usersWithBinanceWallet1To3,
-                '4-6' => $usersWithBinanceWallet4To6,
+                '1-3' => $usersWith1To3BinanceWallets,
+                '4-6' => $usersWith4To6BinanceWallets,
                 '>6' => $usersWithBinanceWalletMoreThan6
             ];
 
@@ -764,43 +861,75 @@ class AdminController extends Controller
                         ->whereNull('wallets.binance_api_key');
                 })->count();
 
-            $usersWithManualWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3ManualWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
+            $usersWith4To6ManualWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithManualWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithManualWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? intval($usersWithManualWallet4To6Result->total_users) : 0;
+            // $usersWithManualWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithManualWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
 
-            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
+            // $usersWithManualWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? intval($usersWithManualWallet4To6Result->total_users) : 0;
+
+            // $usersWithManualWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
 
             $manualWalletDistribution = [
                 '0' => $usersWithoutManualWallet,
-                '1-3' => $usersWithManualWallet1To3,
-                '4-6' => $usersWithManualWallet4To6,
+                '1-3' => $usersWith1To3ManualWallets,
+                '4-6' => $usersWith4To6ManualWallets,
                 '>6' => $usersWithManualWalletMoreThan6
             ];
 
@@ -897,24 +1026,30 @@ class AdminController extends Controller
             '40-49' => 0,
             '>50' => 0,
         ];
-        $membership_distribution = collect(
-            [
-                'name' => 'Basic',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Home',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Professional',
-                'total' => 0,
-            ],
-            [
-                'name' => 'Business',
-                'total' => 0,
-            ],
-        );
+        // $membership_distribution = collect(
+        //     [
+        //         'name' => 'Basic',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Home',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Professional',
+        //         'total' => 0,
+        //     ],
+        //     [
+        //         'name' => 'Business',
+        //         'total' => 0,
+        //     ],
+        // );
+        $membership_distribution = [
+            'Basic' => 0,
+            'Home' => 0,
+            'Professional' => 0,
+            'Business' => 0,
+        ];
         $walletDistribution = [
             '0' => 0,
             '1-3' => 0,
@@ -990,7 +1125,16 @@ class AdminController extends Controller
 
             $ageRangeCounts = array_merge(array_fill_keys($ageRanges, 0), $ageRangeCounts->toArray());
 
-            $membership_distribution = DB::table('memberships')
+            // $membership_distribution = DB::table('memberships')
+            //     ->leftJoin('membership_user', function ($join) {
+            //         $join->on('memberships.id', '=', 'membership_user.membership_id')
+            //             ->where('membership_user.status', '=', 1);
+            //     })
+            //     ->select('memberships.name', DB::raw('coalesce(count(membership_user.membership_id), 0) as total'))
+            //     ->groupBy('memberships.name')
+            //     ->get();
+
+            $memberships = DB::table('memberships')
                 ->leftJoin('membership_user', function ($join) {
                     $join->on('memberships.id', '=', 'membership_user.membership_id')
                         ->where('membership_user.status', '=', 1);
@@ -998,6 +1142,14 @@ class AdminController extends Controller
                 ->select('memberships.name', DB::raw('coalesce(count(membership_user.membership_id), 0) as total'))
                 ->groupBy('memberships.name')
                 ->get();
+
+            foreach($memberships as $membership){
+                foreach($membership_distribution as $key => &$value){
+                    if(strtolower($key) == $membership->name){
+                        $value = intval($membership->total);
+                    }
+                }
+            }
 
             $total_verified_users = $users->whereNotNull('email_verified_at')->count();
 
@@ -1035,40 +1187,66 @@ class AdminController extends Controller
                 ->whereNull('wallets.id')
                 ->count();
 
-            $usersWithWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3Wallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
+            $usersWith4To6Wallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
+            // $usersWithWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 0 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithWallet1To3 = $usersWithWallet1To3Result ? intval($usersWithWallet1To3Result->total_users) : 0;
 
-            $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
+            // $usersWithWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithWallet4To6 = $usersWithWallet4To6Result ? intval($usersWithWallet4To6Result->total_users) : 0;
+
+            // $usersWithWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithWalletMoreThan6 = $usersWithWalletMoreThan6Result ? intval($usersWithWalletMoreThan6Result->total_users) : 0;
 
             $walletDistribution = [
                 '0' => $usersWithoutWallet,
-                '1-3' => $usersWithWallet1To3,
-                '4-6' => $usersWithWallet4To6,
+                '1-3' => $usersWith1To3Wallets,
+                '4-6' => $usersWith4To6Wallets,
                 '>6' => $usersWithWalletMoreThan6
             ];
 
@@ -1082,43 +1260,73 @@ class AdminController extends Controller
                 })
                 ->count();
 
-            $usersWithBinanceWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3BinanceWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? intval($usersWithBinanceWallet1To3Result->total_users) : 0;
+            $usersWith4To6BinanceWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithBinanceWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithBinanceWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '<>', '')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? intval($usersWithBinanceWallet4To6Result->total_users) : 0;
 
-            $usersWithBinanceWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '<>', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithBinanceWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
+            // $usersWithBinanceWallet1To3 = $usersWithBinanceWallet1To3Result ? $usersWithBinanceWallet1To3Result->total_users : 0;
+
+            // $usersWithBinanceWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithBinanceWallet4To6 = $usersWithBinanceWallet4To6Result ? $usersWithBinanceWallet4To6Result->total_users : 0;
+
+            // $usersWithBinanceWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '<>', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithBinanceWalletMoreThan6 = $usersWithBinanceWalletMoreThan6Result ? intval($usersWithBinanceWalletMoreThan6Result->total_users) : 0;
 
             $binanceWalletDistribution = [
                 '0' => $usersWithoutBinanceWallet,
-                '1-3' => $usersWithBinanceWallet1To3,
-                '4-6' => $usersWithBinanceWallet4To6,
+                '1-3' => $usersWith1To3BinanceWallets,
+                '4-6' => $usersWith4To6BinanceWallets,
                 '>6' => $usersWithBinanceWalletMoreThan6
             ];
 
@@ -1131,43 +1339,75 @@ class AdminController extends Controller
                         ->whereNull('wallets.binance_api_key');
                 })->count();
 
-            $usersWithManualWallet1To3Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWith1To3ManualWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 1)
+            ->having('wallet_count', '<=', 3)
+            ->count();
 
-            $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
+            $usersWith4To6ManualWallets = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>=', 4)
+            ->having('wallet_count', '<=', 6)
+            ->count();
 
-            $usersWithManualWallet4To6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            $usersWithManualWalletMoreThan6 = DB::table('users')
+            ->leftJoin('wallets', 'users.id', '=', 'wallets.user_id')
+            ->where('users.user_type', '!=', 'admin')
+            ->where('wallets.binance_api_key', '=', '')
+            ->orWhereNull('wallets.binance_api_key')
+            ->select('users.id', DB::raw('count(wallets.id) as wallet_count'))
+            ->groupBy('users.id')
+            ->having('wallet_count', '>', 6)
+            ->count();
 
-            $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? $usersWithManualWallet4To6Result->total_users : 0;
+            // $usersWithManualWallet1To3Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 1 AND 3')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
 
-            $usersWithManualWalletMoreThan6Result = DB::table('users')
-                ->join('wallets', 'users.id', '=', 'wallets.user_id')
-                ->where('users.user_type', '!=', 'admin')
-                ->where('wallets.binance_api_key', '=', '')
-                ->groupBy('users.id')
-                ->havingRaw('COUNT(wallets.id) > 6')
-                ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
-                ->first();
+            // $usersWithManualWallet1To3 = $usersWithManualWallet1To3Result ? intval($usersWithManualWallet1To3Result->total_users) : 0;
 
-            $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
+            // $usersWithManualWallet4To6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) BETWEEN 4 AND 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithManualWallet4To6 = $usersWithManualWallet4To6Result ? intval($usersWithManualWallet4To6Result->total_users) : 0;
+
+            // $usersWithManualWalletMoreThan6Result = DB::table('users')
+            //     ->join('wallets', 'users.id', '=', 'wallets.user_id')
+            //     ->where('users.user_type', '!=', 'admin')
+            //     ->where('wallets.binance_api_key', '=', '')
+            //     ->groupBy('users.id')
+            //     ->havingRaw('COUNT(wallets.id) > 6')
+            //     ->select(DB::raw('COUNT(DISTINCT users.id) as total_users'))
+            //     ->first();
+
+            // $usersWithManualWalletMoreThan6 = $usersWithManualWalletMoreThan6Result ? intval($usersWithManualWalletMoreThan6Result->total_users) : 0;
 
             $manualWalletDistribution = [
                 '0' => $usersWithoutManualWallet,
-                '1-3' => $usersWithManualWallet1To3,
-                '4-6' => $usersWithManualWallet4To6,
+                '1-3' => $usersWith1To3ManualWallets,
+                '4-6' => $usersWith4To6ManualWallets,
                 '>6' => $usersWithManualWalletMoreThan6
             ];
 
@@ -1348,17 +1588,18 @@ class AdminController extends Controller
 
             $blockedUsers = User::where('user_type', '!=', 'admin')->whereNotNull('deleted_at')->withTrashed()->count();
 
-            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
+            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->withTrashed()->count();
+            // dd($binanceWalletCount);
 
-            $manualWalletCount = Wallet::whereNull('binance_api_key')->count();
+            $manualWalletCount = Wallet::whereNull('binance_api_key')->withTrashed()->count();
 
             $walletDistribution = [
                 'Binance' => $binanceWalletCount,
                 'Manual' => $manualWalletCount,
             ];
 
-            $walletCount = Wallet::count();
-            $journalCount = Journal::count();
+            $walletCount = Wallet::withTrashed()->count();
+            $journalCount = Journal::withTrashed()->count();
             $tradeCount = Trade::count();
 
             $transactions = DB::table('memberships')
@@ -1537,17 +1778,18 @@ class AdminController extends Controller
 
             $blockedUsers = User::where('user_type', '!=', 'admin')->whereNotNull('deleted_at')->withTrashed()->count();
 
-            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->count();
+            $binanceWalletCount = Wallet::whereNotNull('binance_api_key')->withTrashed()->count();
+            // dd($binanceWalletCount);
 
-            $manualWalletCount = Wallet::whereNull('binance_api_key')->count();
+            $manualWalletCount = Wallet::whereNull('binance_api_key')->withTrashed()->count();
 
             $walletDistribution = [
                 'Binance' => $binanceWalletCount,
                 'Manual' => $manualWalletCount,
             ];
 
-            $walletCount = Wallet::count();
-            $journalCount = Journal::count();
+            $walletCount = Wallet::withTrashed()->count();
+            $journalCount = Journal::withTrashed()->count();
             $tradeCount = Trade::count();
 
             $transactions = DB::table('memberships')

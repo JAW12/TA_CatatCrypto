@@ -454,7 +454,30 @@ class TradeController extends Controller
                 $tv = $request->get('tv');
                 $ss = $request->file('ss');
                 $order = $request->get('order');
+                $trade->timeframes()->wherePivot('picture_type', 0)->detach();
+                $timeframe = $request->get('timeframe');
+                $tv = $request->get('tv');
+                $ss = $request->file('ss');
+                $order = $request->get('order');
+                // dd($timeframe, $tv, $ss, $order);
                 if (count($timeframe) > 0) {
+                    $timeframe_trade = $trade->timeframes;
+                    foreach($timeframe_trade as $tf){
+                        $idx_found = -1;
+                        for($i = 0; $i < count($timeframe); $i++){
+                            if($timeframe[$i] == $tf->id){
+                                $idx_found = $i;
+                            }
+                        }
+                        if($idx_found == -1){
+                            $image_path = public_path("/storage/uploads/") . $tf->pivot->url_picture;
+                            if (File::exists($image_path)) {
+                                File::delete($image_path);
+                            }
+                            $trade->timeframes()->detach($tf->id);
+                        }
+                    }
+
                     for ($i = 0; $i < count($timeframe); $i++) {
                         $idx_order = -1;
                         for ($j = 0; $j < count($order); $j++){
@@ -465,7 +488,8 @@ class TradeController extends Controller
                         if($idx_order == -1){
                             $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                             if ($relation != null) {
-                                $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                // $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                $image_path = public_path("/storage/uploads/") . $relation->pivot->url_picture;
                                 if (File::exists($image_path)) {
                                     File::delete($image_path);
                                 }
@@ -476,7 +500,8 @@ class TradeController extends Controller
                             if ($tv[$idx_order] != null) {
                                 $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                                 if ($relation != null) {
-                                    $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    // $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    $image_path = public_path("/storage/uploads/") . $relation->pivot->url_picture;
                                     if (File::exists($image_path)) {
                                         File::delete($image_path);
                                     }
@@ -488,7 +513,8 @@ class TradeController extends Controller
                             } else if ($ss != null && $request->hasFile('ss') && array_key_exists($idx_order, $ss)) {
                                 $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                                 if ($relation != null) {
-                                    $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    // $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                                    $image_path = public_path("/storage/uploads/") . $relation->pivot->url_picture;
                                     if (File::exists($image_path)) {
                                         File::delete($image_path);
                                     }
@@ -505,7 +531,8 @@ class TradeController extends Controller
                             // else{
                             //     $relation = $trade->timeframes()->wherePivot('timeframe_id', $timeframe[$i])->first();
                             //     if ($relation != null) {
-                            //         $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                            //         // $image_path = public_path("\storage\uploads\\") . $relation->pivot->url_picture;
+                            //         $image_path = public_path("/storage/uploads/") . $relation->pivot->url_picture;
                             //         if (File::exists($image_path)) {
                             //             File::delete($image_path);
                             //         }

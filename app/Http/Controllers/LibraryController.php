@@ -41,6 +41,8 @@ class LibraryController extends Controller
             $query->where('users.id', $user_id);
         })->with('category');
 
+        // $results = Strategy::select('id', 'user_id', 'category_id', 'name', 'description', 'url_picture');
+
         $favorit = $request->input('favorit');
         if ($favorit == "1") {
             $results->whereHas('users', function ($query) use ($user_id) {
@@ -73,6 +75,9 @@ class LibraryController extends Controller
                 });
             }
         }
+
+        $results = $results->whereNull('user_id')->orWhere('user_id', 0)->orWhere('user_id', $user_id);
+
         $results = $results->orderBy('name', 'ASC')->get();
 
         return response()->json($results);

@@ -230,10 +230,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse ($data['membership_distribution'] as $membership)
+                                                @forelse ($data['membership_distribution'] as $name => $value)
                                                     <tr>
-                                                        <td>{{ ucwords($membership->name) }}</td>
-                                                        <td>{{ number_format($membership->total, 0) }} Pengguna</td>
+                                                        <td>{{ ucwords($name)}}</td>
+                                                        <td>{{ number_format($value, 0)}} Pengguna</td>
                                                     </tr>
                                                 @empty
                                                     <tr>

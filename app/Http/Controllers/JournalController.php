@@ -160,6 +160,23 @@ class JournalController extends Controller
                 }
             }
 
+            $pnlPerDayFinal = array();
+
+            foreach ($pnlPerDay as $date => $values) {
+                if (is_array($values)) {
+                    $sum = array_sum($values);
+                } else {
+                    $sum = $values;
+                }
+                if (array_key_exists($date, $pnlPerDayFinal)) {
+                    $pnlPerDayFinal[$date] += $sum;
+                } else {
+                    $pnlPerDayFinal[$date] = $sum;
+                }
+            }
+
+            $pnlPerDay = $pnlPerDayFinal;
+
             if ($mergeTrades->count() > 0) {
                 $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
@@ -222,23 +239,24 @@ class JournalController extends Controller
 
             $dailyProfitData = [];
             $cumulativeProfitData = [];
-            $profitSum = 0;
 
             foreach ($journals as $journal) {
                 foreach ($journal->close_trades as $trade) {
-                    $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
                     if (!array_key_exists($date, $dailyProfitData)) {
                         $dailyProfitData[$date] = 0;
                     }
                     $dailyProfitData[$date] += $trade->nett_pnl;
-                    if (!array_key_exists($date, $cumulativeProfitData)) {
-                        $cumulativeProfitData[$date] = $profitSum;
-                    } else {
-                        $cumulativeProfitData[$date] += $trade->nett_pnl;
-                    }
                 }
+            }
+
+            ksort($dailyProfitData);
+
+            $profitSum = 0;
+            foreach($dailyProfitData as $date => $profit){
+                $profitSum += $profit;
+                $cumulativeProfitData[$date] = $profitSum;
             }
 
             $dates = array_keys($dailyProfitData);
@@ -254,14 +272,14 @@ class JournalController extends Controller
             // konversi $dailyProfitData ke dalam format array
             $dailyProfitArray = [];
             foreach ($dailyProfitData as $date => $profit) {
-                $dailyProfitArray[] = [$date, round($profit, 2)];
+                $dailyProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($dailyProfitArray, [$date, $profit]);
             }
 
             // konversi $cumulativeProfitData ke dalam format array
             $cumulativeProfitArray = [];
             foreach ($cumulativeProfitData as $date => $profit) {
-                $cumulativeProfitArray[] = [$date, round($profit, 2)];
+                $cumulativeProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($cumulativeProfitArray, [$date, $profit]);
             }
             // sort($dates);
@@ -329,6 +347,23 @@ class JournalController extends Controller
                 }
             }
 
+            $pnlPerDayFinal = array();
+
+            foreach ($pnlPerDay as $date => $values) {
+                if (is_array($values)) {
+                    $sum = array_sum($values);
+                } else {
+                    $sum = $values;
+                }
+                if (array_key_exists($date, $pnlPerDayFinal)) {
+                    $pnlPerDayFinal[$date] += $sum;
+                } else {
+                    $pnlPerDayFinal[$date] = $sum;
+                }
+            }
+
+            $pnlPerDay = $pnlPerDayFinal;
+
             if ($mergeTrades->count() > 0) {
                 $winLossPerDay = $mergeTrades
                     ->groupBy(function ($trade) {
@@ -391,23 +426,24 @@ class JournalController extends Controller
 
             $dailyProfitData = [];
             $cumulativeProfitData = [];
-            $profitSum = 0;
 
             foreach ($journals as $journal) {
                 foreach ($journal->close_trades as $trade) {
-                    $profitSum += $trade->nett_pnl;
                     $closeTime = Carbon::parse($trade->close_time);
                     $date = $closeTime->format('Y-m-d');
                     if (!array_key_exists($date, $dailyProfitData)) {
                         $dailyProfitData[$date] = 0;
                     }
                     $dailyProfitData[$date] += $trade->nett_pnl;
-                    if (!array_key_exists($date, $cumulativeProfitData)) {
-                        $cumulativeProfitData[$date] = $profitSum;
-                    } else {
-                        $cumulativeProfitData[$date] += $trade->nett_pnl;
-                    }
                 }
+            }
+
+            ksort($dailyProfitData);
+
+            $profitSum = 0;
+            foreach($dailyProfitData as $date => $profit){
+                $profitSum += $profit;
+                $cumulativeProfitData[$date] = $profitSum;
             }
 
             $dates = array_keys($dailyProfitData);
@@ -423,14 +459,14 @@ class JournalController extends Controller
             // konversi $dailyProfitData ke dalam format array
             $dailyProfitArray = [];
             foreach ($dailyProfitData as $date => $profit) {
-                $dailyProfitArray[] = [$date, round($profit, 2)];
+                $dailyProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($dailyProfitArray, [$date, $profit]);
             }
 
             // konversi $cumulativeProfitData ke dalam format array
             $cumulativeProfitArray = [];
             foreach ($cumulativeProfitData as $date => $profit) {
-                $cumulativeProfitArray[] = [$date, round($profit, 2)];
+                $cumulativeProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($cumulativeProfitArray, [$date, $profit]);
             }
             // sort($dates);
@@ -548,21 +584,22 @@ class JournalController extends Controller
 
             $dailyProfitData = [];
             $cumulativeProfitData = [];
-            $profitSum = 0;
 
             foreach ($journal->close_trades as $trade) {
-                $profitSum += $trade->nett_pnl;
                 $closeTime = Carbon::parse($trade->close_time);
                 $date = $closeTime->format('Y-m-d');
                 if (!array_key_exists($date, $dailyProfitData)) {
                     $dailyProfitData[$date] = 0;
                 }
                 $dailyProfitData[$date] += $trade->nett_pnl;
-                if (!array_key_exists($date, $cumulativeProfitData)) {
-                    $cumulativeProfitData[$date] = $profitSum;
-                } else {
-                    $cumulativeProfitData[$date] += $trade->nett_pnl;
-                }
+            }
+
+            ksort($dailyProfitData);
+
+            $profitSum = 0;
+            foreach($dailyProfitData as $date => $profit){
+                $profitSum += $profit;
+                $cumulativeProfitData[$date] = $profitSum;
             }
 
             $dates = array_keys($dailyProfitData);
@@ -578,14 +615,14 @@ class JournalController extends Controller
             // konversi $dailyProfitData ke dalam format array
             $dailyProfitArray = [];
             foreach ($dailyProfitData as $date => $profit) {
-                $dailyProfitArray[] = [$date, round($profit, 2)];
+                $dailyProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($dailyProfitArray, [$date, $profit]);
             }
 
             // konversi $cumulativeProfitData ke dalam format array
             $cumulativeProfitArray = [];
             foreach ($cumulativeProfitData as $date => $profit) {
-                $cumulativeProfitArray[] = [$date, round($profit, 2)];
+                $cumulativeProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($cumulativeProfitArray, [$date, $profit]);
             }
             // sort($dates);
@@ -703,21 +740,22 @@ class JournalController extends Controller
 
             $dailyProfitData = [];
             $cumulativeProfitData = [];
-            $profitSum = 0;
 
             foreach ($journal->close_trades as $trade) {
-                $profitSum += $trade->nett_pnl;
                 $closeTime = Carbon::parse($trade->close_time);
                 $date = $closeTime->format('Y-m-d');
                 if (!array_key_exists($date, $dailyProfitData)) {
                     $dailyProfitData[$date] = 0;
                 }
                 $dailyProfitData[$date] += $trade->nett_pnl;
-                if (!array_key_exists($date, $cumulativeProfitData)) {
-                    $cumulativeProfitData[$date] = $profitSum;
-                } else {
-                    $cumulativeProfitData[$date] += $trade->nett_pnl;
-                }
+            }
+
+            ksort($dailyProfitData);
+
+            $profitSum = 0;
+            foreach($dailyProfitData as $date => $profit){
+                $profitSum += $profit;
+                $cumulativeProfitData[$date] = $profitSum;
             }
 
             $dates = array_keys($dailyProfitData);
@@ -733,14 +771,14 @@ class JournalController extends Controller
             // konversi $dailyProfitData ke dalam format array
             $dailyProfitArray = [];
             foreach ($dailyProfitData as $date => $profit) {
-                $dailyProfitArray[] = [$date, round($profit, 2)];
+                $dailyProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($dailyProfitArray, [$date, $profit]);
             }
 
             // konversi $cumulativeProfitData ke dalam format array
             $cumulativeProfitArray = [];
             foreach ($cumulativeProfitData as $date => $profit) {
-                $cumulativeProfitArray[] = [$date, round($profit, 2)];
+                $cumulativeProfitArray[] = [$date, round($profit, 3)];
                 // array_unshift($cumulativeProfitArray, [$date, $profit]);
             }
             // sort($dates);
