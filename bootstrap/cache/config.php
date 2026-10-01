@@ -513,7 +513,7 @@
         'port' => '587',
         'encryption' => 'tls',
         'username' => 'catatcrypto@gmail.com',
-        'password' => 'vkcqcbvuxmuqohbh',
+        'password' => '',
         'timeout' => NULL,
         'local_domain' => NULL,
       ),
@@ -570,8 +570,8 @@
   'midtrans' => 
   array (
     'merchant_id' => 'G611920557',
-    'client_key' => 'SB-Mid-client-BnvlJBp597J1oYnP',
-    'server_key' => 'SB-Mid-server-668PSFel10We8qkkhpf8zOb_',
+    'client_key' => '',
+    'server_key' => '',
   ),
   'permission' => 
   array (
